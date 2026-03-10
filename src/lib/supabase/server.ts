@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
-import { createServerClient, type SupabaseClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { env } from "../env";
 
 // Anon-Client für reguläre Nutzer-Queries (RLS bleibt aktiv).
@@ -9,7 +10,7 @@ export async function createClient(): Promise<SupabaseClient> {
 
   // createServerClient kann Cookies setzen; in Server Components ist das
   // best effort – Fehler beim Setzen dürfen den Request nicht crashen.
-  return createServerClient(env.supabaseUrl(), env.supabaseAnonKey(), {
+  const client = createServerClient(env.supabaseUrl(), env.supabaseAnonKey(), {
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;
@@ -22,5 +23,7 @@ export async function createClient(): Promise<SupabaseClient> {
       },
     },
   });
+
+  return client as SupabaseClient;
 }
 

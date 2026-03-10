@@ -1,4 +1,5 @@
-import { createServerClient, type SupabaseClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { env } from "../env";
 
 // Admin-Client mit Service-Role-Key.
@@ -14,6 +15,6 @@ export function createAdminClient(): SupabaseClient {
       autoRefreshToken: false,
       persistSession: false,
     },
-  });
+  }) as SupabaseClient;
 }
 
