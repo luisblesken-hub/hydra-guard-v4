@@ -69,7 +69,9 @@ export async function createClaimAction(
   if (propertyResult.error) {
     return { success: false, message: propertyResult.error }
   }
-
+  if (!propertyResult.data) {
+    return { success: false, message: 'Fehler beim Anlegen der Liegenschaft.' }
+  }
   const claimResult = await createClaim(supabase, {
     property_id: propertyResult.data.id,
     owner_id: user.id,
