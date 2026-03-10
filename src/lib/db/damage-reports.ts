@@ -66,6 +66,15 @@ export type ClaimDetail = ClaimSummary & {
   submitted_at: string | null
 }
 
+export type ClaimWithProperty = {
+  id: string
+  status: string
+  insurance_split: string | null
+  damage_amount_estimate: number
+  created_at: string
+  property_address: string
+}
+
 // ─── Functions ──────────────────────────────────────────────────────────────
 
 export async function ensureProperty(
@@ -199,5 +208,55 @@ export async function getMyDamageReports(
   owner_id: string
 ): Promise<DbResult<ClaimSummary[]>> {
   return getClaimsByOwner(supabase, owner_id)
+}
+
+export async function getClaimsWithProperty(
+  supabase: Client,
+  owner_id: string
+): Promise<DbResult<ClaimWithProperty[]>> {
+  const { data, error } = await supabase
+    .from('damage_reports')
+    .select(
+      `
+      id,
+      status,
+      insurance_split,
+      damage_amount_estimate,
+      created_at,
+      properties:properties (
+        street,
+        city
+      )
+    `
+    )
+    .eq('owner_id', owner_id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[getClaimsWithProperty] error:', error.code);
+    return {
+      data: null,
+      error: 'Fehler beim Laden der Schadenmeldungen.',
+    };
+  }
+
+  const mapped: ClaimWithProperty[] =
+    (data ?? []).map((row: any) => {
+      const street = row.properties?.street ?? '';
+      const city = row.properties?.city ?? '';
+      const address =
+        street && city ? `${street}, ${city}` : street || city || '—';
+
+      return {
+        id: row.id as string,
+        status: row.status as string,
+        insurance_split: row.insurance_split ?? null,
+        damage_amount_estimate: Number(row.damage_amount_estimate ?? 0),
+        created_at: row.created_at as string,
+        property_address: address,
+      };
+    }) as ClaimWithProperty[];
+
+  return { data: mapped, error: null };
 }
 
