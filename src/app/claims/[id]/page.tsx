@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getClaimById } from "@/lib/db/damage-reports";
 import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
+import { getPhotosByClaimId } from "@/lib/db/photos";
+import { PhotoGallery } from "@/components/claims/photo-gallery";
+import { PhotoUpload } from "@/components/claims/photo-upload";
 
 type Params = {
   params: {
@@ -29,6 +32,8 @@ export default async function ClaimDetailPage({ params }: Params) {
   const amount = (claim as any).estimated_amount ?? (claim as any).damage_amount_estimate ?? 0;
   const split = (claim as any).insurance_split ?? null;
   const status = (claim as any).status ?? "new";
+
+  const photosResult = await getPhotosByClaimId(supabase, params.id, user.id);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-8">
@@ -65,9 +70,14 @@ export default async function ClaimDetailPage({ params }: Params) {
         </p>
       </header>
 
-      <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
+      <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Fotos</h2>
-        <p className="text-xs text-slate-500">Placeholder: Hier werden später Schadenfotos angezeigt.</p>
+        {photosResult.success ? (
+          <PhotoGallery claimId={params.id} photos={photosResult.data} />
+        ) : (
+          <p className="text-xs text-red-500">{photosResult.error}</p>
+        )}
+        <PhotoUpload claimId={params.id} />
       </section>
 
       <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
