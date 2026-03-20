@@ -92,7 +92,7 @@ export function SignupForm() {
             >
               <option value="owner">Hausverwaltung / Vermieter</option>
               <option value="sanierer">Sanierungsbetrieb</option>
-              <option value="insurance_agent">Versicherung</option>
+              <option value="versicherung">Versicherung</option>
             </select>
             {state.fieldErrors?.role_choice && (
               <p className="mt-1 text-xs text-red-400">{state.fieldErrors.role_choice[0]}</p>

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getClaimsWithProperty } from "@/lib/db/damage-reports";
 import { ClaimsList } from "@/components/dashboard/claims-list";
@@ -30,12 +31,12 @@ export default async function OwnerDashboardPage() {
               : `${total} Schadensfälle in deinem Bestand.`}
           </p>
         </div>
-        <a
+        <Link
           href="/claims/new"
           className="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
         >
           Neuen Schaden melden
-        </a>
+        </Link>
       </header>
 
       {error && (

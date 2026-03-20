@@ -58,25 +58,25 @@ export default async function ClaimsPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-mono text-xs text-gray-400">{c.id.slice(0, 8)}…</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_STYLE[(c as any).claim_tier] ?? ''}`}>
-                      {TIER_DE[(c as any).claim_tier] ?? (c as any).claim_tier}
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_STYLE[c.claim_tier] ?? ''}`}>
+                      {TIER_DE[c.claim_tier] ?? c.claim_tier}
                     </span>
-                    {(c as any).displacement_required && (
+                    {c.displacement_required && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">Auszug</span>
                     )}
-                    {(c as any).has_contents_damage && (
+                    {c.has_contents_damage && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">+ Hausrat</span>
                     )}
                   </div>
-                  <p className="text-sm font-medium">{STATUS_DE[(c as any).status] ?? (c as any).status}</p>
+                  <p className="text-sm font-medium">{STATUS_DE[c.status] ?? c.status}</p>
                   <p className="text-xs text-gray-400">
                     {new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' })
-                      .format(new Date((c as any).created_at))}
+                      .format(new Date(c.created_at))}
                   </p>
                 </div>
                 <p className="font-semibold text-sm">
                   {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' })
-                    .format((c as any).estimated_amount)}
+                    .format(c.estimated_amount)}
                 </p>
               </div>
             ))}

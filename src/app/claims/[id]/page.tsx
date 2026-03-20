@@ -29,9 +29,9 @@ export default async function ClaimDetailPage({ params }: Params) {
     notFound();
   }
 
-  const amount = (claim as any).estimated_amount ?? (claim as any).damage_amount_estimate ?? 0;
-  const split = (claim as any).insurance_split ?? null;
-  const status = (claim as any).status ?? "new";
+  const amount = claim.estimated_amount ?? 0;
+  const split = claim.insurance_split ?? null;
+  const status = claim.status;
 
   const photosResult = await getPhotosByClaimId(supabase, params.id, user.id);
 
@@ -60,7 +60,7 @@ export default async function ClaimDetailPage({ params }: Params) {
           {new Intl.DateTimeFormat("de-DE", {
             dateStyle: "medium",
             timeStyle: "short",
-          }).format(new Date((claim as any).created_at))}
+          }).format(new Date(claim.created_at))}
         </p>
         <p className="text-lg font-semibold text-slate-900">
           {new Intl.NumberFormat("de-DE", {

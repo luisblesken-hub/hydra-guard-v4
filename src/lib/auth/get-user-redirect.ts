@@ -1,15 +1,15 @@
-const ROLE_PATHS: Record<string, string> = {
-  owner: "/dashboard/owner",
-  sanierer: "/dashboard/sanierer",
-  insurance_agent: "/dashboard/insurance",
-  insurer_admin: "/dashboard/insurer",
-  super_admin: "/dashboard/admin",
-  versicherung: "/dashboard/insurance",
-  mieter: "/dashboard/owner",
-};
+// Must match DB enum values in `profiles.role`: owner | sanierer | versicherung | mieter
+const ROLE_PATHS: Record<"owner" | "sanierer" | "versicherung" | "mieter", string> =
+  {
+    owner: "/dashboard/owner",
+    sanierer: "/dashboard/sanierer",
+    versicherung: "/dashboard/insurance",
+    mieter: "/dashboard/owner",
+  };
 
 export function getUserRedirect(role: string | null | undefined): string {
-  if (!role) return "/dashboard";
-  return ROLE_PATHS[role] ?? "/dashboard";
+  // Avoid redirect loops back to `/dashboard` (this page redirects itself).
+  if (!role) return "/dashboard/owner";
+  return (ROLE_PATHS as Record<string, string>)[role] ?? "/dashboard/owner";
 }
 

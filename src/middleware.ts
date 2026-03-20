@@ -32,10 +32,13 @@ export async function middleware(req: NextRequest) {
         get(name: string) {
           return req.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
-          res.cookies.set(name, value, options);
+        set(name: string, value: string, options: unknown) {
+          // Supabase SSR may pass cookie options; Next will apply safe defaults.
+          void options;
+          res.cookies.set(name, value);
         },
-        remove(name: string, _options: any) {
+        remove(name: string, options: unknown) {
+          void options;
           res.cookies.delete(name);
         },
       },

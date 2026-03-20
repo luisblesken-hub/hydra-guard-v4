@@ -1,6 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 
@@ -11,7 +10,7 @@ const SignupSchema = z.object({
     .string()
     .min(8, 'Das Passwort muss mindestens 8 Zeichen lang sein.')
     .max(100),
-  role_choice: z.enum(['owner', 'sanierer', 'insurance_agent']),
+  role_choice: z.enum(['owner', 'sanierer', 'versicherung']),
 });
 
 export type SignupFormState = {
@@ -40,13 +39,8 @@ export async function signupAction(
   }
 
   const { full_name, email, password, role_choice } = parsed.data;
-
-  const ROLE_TO_DB: Record<string, string> = {
-    owner: 'versicherung',
-    sanierer: 'sanierer',
-    insurance_agent: 'versicherung',
-  };
-  const dbRole = ROLE_TO_DB[role_choice] ?? role_choice;
+  // Align with DB enum values in `profiles.role`.
+  const dbRole = role_choice;
 
   const supabase = await createClient();
 

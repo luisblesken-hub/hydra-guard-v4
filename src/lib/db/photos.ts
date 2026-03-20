@@ -68,7 +68,7 @@ export async function uploadDamagePhoto(
     }
 
     return { success: true };
-  } catch (e) {
+  } catch {
     console.error("[uploadDamagePhoto] unexpected error");
     return { success: false, error: "Unbekannter Fehler beim Foto-Upload." };
   }
@@ -79,6 +79,14 @@ export async function getPhotosByClaimId(
   claimId: string,
   ownerId: string
 ): Promise<{ success: true; data: DamagePhoto[] } | { success: false; error: string }> {
+  type DamagePhotoRow = {
+    id: string;
+    original_name: string | null;
+    file_size_bytes: number | null;
+    storage_path: string;
+    uploaded_at: string;
+  };
+
   const { data, error } = await supabase
     .from("damage_photos")
     .select("id, original_name, file_size_bytes, storage_path, uploaded_at")
@@ -91,11 +99,11 @@ export async function getPhotosByClaimId(
     return { success: false, error: "Fehler beim Laden der Fotos." };
   }
 
-  const rows = data ?? [];
+  const rows = (data ?? []) as DamagePhotoRow[];
   const enriched: DamagePhoto[] = [];
 
-  for (const row of rows as any[]) {
-    const storagePath = row.storage_path as string;
+  for (const row of rows) {
+    const storagePath = row.storage_path;
     const { data: signed, error: signedError } = await supabase.storage
       .from("damage-photos")
       .createSignedUrl(storagePath, 3600);
@@ -106,11 +114,11 @@ export async function getPhotosByClaimId(
     }
 
     enriched.push({
-      id: row.id as string,
+      id: row.id,
       original_name: row.original_name ?? null,
       file_size_bytes: row.file_size_bytes ?? null,
       signed_url: signed.signedUrl,
-      uploaded_at: row.uploaded_at as string,
+      uploaded_at: row.uploaded_at,
       storage_path: storagePath,
     });
   }

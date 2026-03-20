@@ -64,6 +64,9 @@ export type ClaimDetail = ClaimSummary & {
   displacement_end_date: string | null
   property_id: string
   submitted_at: string | null
+  // Compatibility for UI components that currently read `insurance_split`.
+  insurance_scope?: string | null
+  insurance_split?: string | null
 }
 
 export type ClaimWithProperty = {
@@ -178,28 +181,94 @@ export async function getClaimById(
   id: string,
   owner_id: string
 ): Promise<DbResult<ClaimDetail>> {
-  const { data, error } = await supabase
-    .from('damage_reports')
-    .select(`
-      id, status, claim_tier, estimated_amount, category,
-      habitability_status, has_contents_damage, liability_involved,
-      displacement_required, complexity_flags, created_at,
-      description, escalation_reason,
-      contents_insurer_name, contents_policy_number,
-      liability_insurer_name, building_insurer_name,
-      displacement_start_date, displacement_end_date,
-      property_id, submitted_at
-    `)
-    .eq('id', id)
-    .eq('owner_id', owner_id)
-    .single()
+  function deriveInsuranceSplit(
+    hasContentsDamage: boolean,
+    liabilityInvolved: boolean
+  ): string {
+    // Map to UI-friendly tokens accepted by `splitLabel()`:
+    // building | contents | liability | disputed
+    if (hasContentsDamage && liabilityInvolved) return "disputed"
+    if (hasContentsDamage) return "contents"
+    if (liabilityInvolved) return "liability"
+    return "building"
+  }
 
-  if (error) {
-    console.error('[getClaimById] error:', error.code)
+  type ClaimDetailRowCurrent = ClaimDetail
+  type ClaimDetailRowLegacy = ClaimDetail & { damage_amount_estimate?: number | null; estimated_amount?: number | null }
+
+  // Enterprise compatibility: schema field names evolved over time.
+  // Prefer the current migration (`insurance_scope` / `estimated_amount`) but fallback to legacy fields.
+  const tryCurrent = async () => {
+    return supabase
+      .from('damage_reports')
+      .select(`
+        id, status, claim_tier, estimated_amount, category,
+        habitability_status, has_contents_damage, liability_involved,
+        displacement_required, complexity_flags, created_at,
+        description, escalation_reason,
+        contents_insurer_name, contents_policy_number,
+        liability_insurer_name, building_insurer_name,
+        displacement_start_date, displacement_end_date,
+        property_id, submitted_at
+      `)
+      .eq('id', id)
+      .eq('owner_id', owner_id)
+      .single()
+  }
+
+  const tryLegacy = async () => {
+    return supabase
+      .from('damage_reports')
+      .select(`
+        id, status, claim_tier, damage_amount_estimate, category,
+        habitability_status, has_contents_damage, liability_involved,
+        displacement_required, complexity_flags, created_at,
+        description, escalation_reason,
+        contents_insurer_name, contents_policy_number,
+        liability_insurer_name, building_insurer_name,
+        displacement_start_date, displacement_end_date,
+        property_id, submitted_at
+      `)
+      .eq('id', id)
+      .eq('owner_id', owner_id)
+      .single()
+  }
+
+  const currentRes = await tryCurrent()
+  if (!currentRes.error && currentRes.data) {
+    const row = currentRes.data as ClaimDetailRowCurrent
+    return {
+      data: {
+        ...row,
+        insurance_split: deriveInsuranceSplit(
+          row.has_contents_damage,
+          row.liability_involved
+        ),
+      },
+      error: null,
+    }
+  }
+
+  const legacyRes = await tryLegacy()
+  if (legacyRes.error || !legacyRes.data) {
+    const errMsg = legacyRes.error?.message ?? currentRes.error?.message ?? 'unknown'
+    console.error('[getClaimById] error:', legacyRes.error?.code ?? currentRes.error?.code, errMsg)
     return { data: null, error: 'Schadenmeldung nicht gefunden.' }
   }
 
-  return { data: data as ClaimDetail, error: null }
+  const row = legacyRes.data as ClaimDetailRowLegacy
+  return {
+    data: {
+      ...row,
+      // Keep `estimated_amount` optional; UI already falls back to `damage_amount_estimate`.
+      estimated_amount: row.estimated_amount ?? row.damage_amount_estimate ?? 0,
+      insurance_split: deriveInsuranceSplit(
+        row.has_contents_damage,
+        row.liability_involved
+      ),
+    },
+    error: null,
+  }
 }
 
 // Backwards-compatible alias for existing code paths.
@@ -214,49 +283,121 @@ export async function getClaimsWithProperty(
   supabase: Client,
   owner_id: string
 ): Promise<DbResult<ClaimWithProperty[]>> {
-  const { data, error } = await supabase
-    .from('damage_reports')
-    .select(
-      `
-      id,
-      status,
-      insurance_split,
-      damage_amount_estimate,
-      created_at,
-      properties:properties (
-        street,
-        city
-      )
-    `
-    )
-    .eq('owner_id', owner_id)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('[getClaimsWithProperty] error:', error.code);
-    return {
-      data: null,
-      error: 'Fehler beim Laden der Schadenmeldungen.',
-    };
+  type PropertiesMini = { street?: string | null; city?: string | null } | null
+  function deriveInsuranceSplit(
+    hasContentsDamage: boolean,
+    liabilityInvolved: boolean
+  ): string {
+    if (hasContentsDamage && liabilityInvolved) return "disputed"
+    if (hasContentsDamage) return "contents"
+    if (liabilityInvolved) return "liability"
+    return "building"
   }
 
-  const mapped: ClaimWithProperty[] =
-    (data ?? []).map((row: any) => {
-      const street = row.properties?.street ?? '';
-      const city = row.properties?.city ?? '';
-      const address =
-        street && city ? `${street}, ${city}` : street || city || '—';
+  type ClaimWithPropertyRowCurrent = {
+    id: string
+    status: string
+    estimated_amount?: number | null
+    has_contents_damage?: boolean
+    liability_involved?: boolean
+    created_at: string
+    properties?: PropertiesMini
+  }
+  type ClaimWithPropertyRowLegacy = {
+    id: string
+    status: string
+    damage_amount_estimate?: number | null
+    has_contents_damage?: boolean
+    liability_involved?: boolean
+    created_at: string
+    properties?: PropertiesMini
+  }
+
+  const tryCurrent = async () => {
+    return supabase
+      .from('damage_reports')
+      .select(
+        `
+        id,
+        status,
+        estimated_amount,
+        has_contents_damage,
+        liability_involved,
+        created_at,
+        properties:properties (
+          street,
+          city
+        )
+      `
+      )
+      .eq('owner_id', owner_id)
+      .order('created_at', { ascending: false })
+  }
+
+  const tryLegacy = async () => {
+    return supabase
+      .from('damage_reports')
+      .select(
+        `
+        id,
+        status,
+        damage_amount_estimate,
+        has_contents_damage,
+        liability_involved,
+        created_at,
+        properties:properties (
+          street,
+          city
+        )
+      `
+      )
+      .eq('owner_id', owner_id)
+      .order('created_at', { ascending: false })
+  }
+
+  const currentRes = await tryCurrent()
+  if (!currentRes.error && currentRes.data) {
+    const rows = (currentRes.data ?? []) as ClaimWithPropertyRowCurrent[]
+    const mapped: ClaimWithProperty[] = rows.map((row) => {
+      const street = row.properties?.street ?? ''
+      const city = row.properties?.city ?? ''
+      const address = street && city ? `${street}, ${city}` : street || city || '—'
 
       return {
-        id: row.id as string,
-        status: row.status as string,
-        insurance_split: row.insurance_split ?? null,
-        damage_amount_estimate: Number(row.damage_amount_estimate ?? 0),
-        created_at: row.created_at as string,
+        id: row.id,
+        status: row.status,
+        insurance_split: deriveInsuranceSplit(!!row.has_contents_damage, !!row.liability_involved),
+        damage_amount_estimate: Number(row.estimated_amount ?? 0),
+        created_at: row.created_at,
         property_address: address,
-      };
-    }) as ClaimWithProperty[];
+      }
+    })
 
-  return { data: mapped, error: null };
+    return { data: mapped, error: null }
+  }
+
+  const legacyRes = await tryLegacy()
+  if (legacyRes.error || !legacyRes.data) {
+    console.error('[getClaimsWithProperty] error:', legacyRes.error?.code ?? currentRes.error?.code)
+    return { data: null, error: 'Fehler beim Laden der Schadenmeldungen.' }
+  }
+
+  const rows = (legacyRes.data ?? []) as ClaimWithPropertyRowLegacy[]
+  const mapped: ClaimWithProperty[] = rows.map((row) => {
+    const street = row.properties?.street ?? ''
+    const city = row.properties?.city ?? ''
+    const address = street && city ? `${street}, ${city}` : street || city || '—'
+
+    return {
+      id: row.id,
+      status: row.status,
+      insurance_split: deriveInsuranceSplit(!!row.has_contents_damage, !!row.liability_involved),
+      damage_amount_estimate: Number(row.damage_amount_estimate ?? 0),
+      created_at: row.created_at,
+      property_address: address,
+    }
+  })
+
+  return { data: mapped, error: null }
 }
 
