@@ -40,6 +40,14 @@ export async function signupAction(
   }
 
   const { full_name, email, password, role_choice } = parsed.data;
+
+  const ROLE_TO_DB: Record<string, string> = {
+    owner: 'versicherung',
+    sanierer: 'sanierer',
+    insurance_agent: 'versicherung',
+  };
+  const dbRole = ROLE_TO_DB[role_choice] ?? role_choice;
+
   const supabase = await createClient();
 
   const {
@@ -57,11 +65,10 @@ export async function signupAction(
     };
   }
 
-  // Profil anlegen (RLS: Nutzer darf sein eigenes Profil schreiben).
   await supabase.from('profiles').insert({
     id: data.user.id,
     full_name,
-    role: role_choice,
+    role: dbRole,
   });
 
   // Erfolg: Hinweis auf E-Mail-Bestätigung.
