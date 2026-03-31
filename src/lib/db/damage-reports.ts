@@ -194,7 +194,7 @@ export async function getClaimById(
   }
 
   type ClaimDetailRowCurrent = ClaimDetail
-  type ClaimDetailRowLegacy = ClaimDetail & { damage_amount_estimate?: number | null; estimated_amount?: number | null }
+  type ClaimDetailRowLegacy = ClaimDetail & { estimated_amount?: number | null }
 
   // Enterprise compatibility: schema field names evolved over time.
   // Prefer the current migration (`insurance_scope` / `estimated_amount`) but fallback to legacy fields.
@@ -220,7 +220,7 @@ export async function getClaimById(
     return supabase
       .from('damage_reports')
       .select(`
-        id, status, claim_tier, damage_amount_estimate, category,
+        id, status, claim_tier, category,
         habitability_status, has_contents_damage, liability_involved,
         displacement_required, complexity_flags, created_at,
         description, escalation_reason,
@@ -260,8 +260,7 @@ export async function getClaimById(
   return {
     data: {
       ...row,
-      // Keep `estimated_amount` optional; UI already falls back to `damage_amount_estimate`.
-      estimated_amount: row.estimated_amount ?? row.damage_amount_estimate ?? 0,
+      estimated_amount: row.estimated_amount ?? 0,
       insurance_split: deriveInsuranceSplit(
         row.has_contents_damage,
         row.liability_involved
@@ -306,7 +305,7 @@ export async function getClaimsWithProperty(
   type ClaimWithPropertyRowLegacy = {
     id: string
     status: string
-    damage_amount_estimate?: number | null
+    estimated_amount?: number | null
     has_contents_damage?: boolean
     liability_involved?: boolean
     created_at: string
@@ -341,7 +340,7 @@ export async function getClaimsWithProperty(
         `
         id,
         status,
-        damage_amount_estimate,
+        estimated_amount,
         has_contents_damage,
         liability_involved,
         created_at,
@@ -392,7 +391,7 @@ export async function getClaimsWithProperty(
       id: row.id,
       status: row.status,
       insurance_split: deriveInsuranceSplit(!!row.has_contents_damage, !!row.liability_involved),
-      damage_amount_estimate: Number(row.damage_amount_estimate ?? 0),
+      damage_amount_estimate: Number(row.estimated_amount ?? 0),
       created_at: row.created_at,
       property_address: address,
     }

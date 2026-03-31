@@ -11,7 +11,7 @@ function isPublicPath(pathname: string) {
   return false;
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
 
   if (isPublicPath(url.pathname)) {
