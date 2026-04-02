@@ -8,18 +8,25 @@ import { env } from "../env";
 export async function createClient(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
 
-  // createServerClient kann Cookies setzen; in Server Components ist das
-  // best effort – Fehler beim Setzen dürfen den Request nicht crashen.
+  // createServerClient can set cookies; in Server Components this is best-effort.
+  // Cookie writes may throw in some rendering contexts, so we catch and
+  // silently continue.
   const client = createServerClient(env.supabaseUrl(), env.supabaseAnonKey(), {
     cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value;
+      getAll() {
+        return cookieStore.getAll().map(({ name, value }) => ({ name, value }));
       },
-      set() {
-        // Ignorieren im reinen Server-Render-Kontext.
-      },
-      remove() {
-        // Ignorieren im reinen Server-Render-Kontext.
+      async setAll(
+        cookiesToSet: { name: string; value: string; options: any }[]
+      ) {
+        try {
+          for (const { name, value, options } of cookiesToSet) {
+            // Next's cookieStore.set can throw depending on render mode.
+            cookieStore.set(name, value, options);
+          }
+        } catch {
+          // Intentionally ignore to avoid breaking server rendering.
+        }
       },
     },
   });

@@ -29,17 +29,18 @@ export async function proxy(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value;
+        // Use modern getAll/setAll API so cookie options (httpOnly/secure/sameSite/maxAge) are preserved.
+        getAll() {
+          return req.cookies.getAll();
         },
-        set(name: string, value: string, options: unknown) {
-          // Supabase SSR may pass cookie options; Next will apply safe defaults.
-          void options;
-          res.cookies.set(name, value);
-        },
-        remove(name: string, options: unknown) {
-          void options;
-          res.cookies.delete(name);
+        setAll(cookies: { name: string; value: string; options: any }[]) {
+          cookies.forEach(({ name, value, options }) => {
+            // Best-effort: also update request cookies so subsequent reads in the same execution see changes.
+            (req.cookies as any)?.set?.(name, value, options);
+
+            // Always set on the response (this is what persists to the browser).
+            res.cookies.set(name, value, options);
+          });
         },
       },
     }
