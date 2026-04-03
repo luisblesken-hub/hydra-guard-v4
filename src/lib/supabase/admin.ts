@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { env } from "../env";
 
@@ -10,11 +10,11 @@ export function createAdminClient(): SupabaseClient {
     throw new Error("createAdminClient darf nur serverseitig verwendet werden.");
   }
 
-  return createServerClient(env.supabaseUrl(), env.supabaseServiceRoleKey(), {
+  return createClient(env.supabaseUrl(), env.supabaseServiceRoleKey(), {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
-  }) as SupabaseClient;
+  });
 }
 

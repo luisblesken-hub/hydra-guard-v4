@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getClaimsWithProperty } from "@/lib/db/damage-reports";
 import { ClaimsList } from "@/components/dashboard/claims-list";
+import { MeldenPropertyLink } from "@/components/dashboard/melden-property-link";
 
 export default async function OwnerDashboardPage() {
   const supabase = await createClient();
@@ -17,6 +18,16 @@ export default async function OwnerDashboardPage() {
   const { data: claims, error } = await getClaimsWithProperty(supabase, user.id);
 
   const total = claims?.length ?? 0;
+
+  const {
+    data: properties,
+    error: propertiesError,
+  } = await supabase
+    .from("properties")
+    .select("id, label, street, city, postal_code, public_token")
+    .eq("owner_id", user.id);
+
+  void propertiesError;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
@@ -46,6 +57,24 @@ export default async function OwnerDashboardPage() {
       )}
 
       {claims && <ClaimsList claims={claims} />}
+
+      {properties?.length ? (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-slate-900">Meine Objekte</h2>
+          <div className="grid grid-cols-1 gap-4">
+            {properties.map((p) => (
+              <MeldenPropertyLink
+                key={p.id}
+                publicToken={p.public_token as string}
+                label={p.label}
+                street={p.street}
+                city={p.city}
+                postalCode={p.postal_code}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
