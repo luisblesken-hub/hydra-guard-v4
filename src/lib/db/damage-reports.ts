@@ -27,6 +27,7 @@ export type CreateClaimInput = {
   contents_insurer_name?: string
   contents_policy_number?: string
   liability_involved?: boolean
+  reported_cause?: string
 }
 
 export type EnsurePropertyInput = {
@@ -133,6 +134,7 @@ export async function createClaim(
       contents_insurer_name: input.contents_insurer_name ?? null,
       contents_policy_number: input.contents_policy_number ?? null,
       liability_involved: input.liability_involved ?? false,
+      reported_cause: input.reported_cause ?? null,
       status: 'submitted',
     })
     .select('id')

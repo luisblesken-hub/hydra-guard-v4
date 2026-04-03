@@ -141,6 +141,16 @@ export function CreateClaimForm() {
       </div>
 
       <div>
+        <label htmlFor="reported_cause" className="block text-sm font-medium mb-1">
+          Vermutete Ursache (optional)
+        </label>
+        <textarea id="reported_cause" name="reported_cause"
+          rows={2} maxLength={2000}
+          placeholder="z.B. Rohrbruch unter der Badewanne, Wasserfleck an der Decke aufgefallen..."
+          className="w-full border rounded px-3 py-2 text-sm" />
+      </div>
+
+      <div>
         <label htmlFor="description" className="block text-sm font-medium mb-1">
           Beschreibung (optional)
         </label>

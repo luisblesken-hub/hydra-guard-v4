@@ -21,6 +21,7 @@ const Schema = z.object({
   postal_code: z.string().regex(/^\d{5}$/, 'Ungültige Postleitzahl.'),
   city: z.string().min(2, 'Bitte Ort eingeben.').max(100),
   description: z.string().max(5000).optional(),
+  reported_cause: z.string().max(2000).optional(),
   has_contents_damage: z.enum(['yes', 'no', 'unknown']),
   contents_insurer_name: z.string().max(200).optional(),
   contents_policy_number: z.string().max(100).optional(),
@@ -52,7 +53,7 @@ export async function createClaimAction(
 
   const {
     estimated_amount, category, habitability_status,
-    postal_code, city, description,
+    postal_code, city, description, reported_cause,
     has_contents_damage, contents_insurer_name, contents_policy_number,
   } = parsed.data
 
@@ -78,6 +79,7 @@ export async function createClaimAction(
     estimated_amount,
     category,
     description,
+    reported_cause,
     habitability_status,
     has_contents_damage: has_contents_damage === 'yes',
     contents_insurer_name: has_contents_damage === 'yes' ? contents_insurer_name : undefined,
