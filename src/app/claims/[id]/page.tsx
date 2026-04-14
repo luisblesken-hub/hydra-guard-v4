@@ -5,6 +5,9 @@ import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { getPhotosByClaimId } from "@/lib/db/photos";
 import { PhotoGallery } from "@/components/claims/photo-gallery";
 import { PhotoUpload } from "@/components/claims/photo-upload";
+import { DryingLogSection, type DryingLogEntry } from "@/components/drying-log-section";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { InvoiceSection } from "@/components/invoices/invoice-section";
 
 type Params = {
   params: {
@@ -34,6 +37,32 @@ export default async function ClaimDetailPage({ params }: Params) {
   const status = claim.status;
 
   const photosResult = await getPhotosByClaimId(supabase, params.id, user.id);
+
+  // Fetch drying log entries via admin (RLS has no policies for this table)
+  const admin = createAdminClient();
+
+  // Fetch role for role-aware sections (Invoice Flow)
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const role = (profile?.role as string | null) ?? null;
+  const { data: assignments } = await admin
+    .from("assignments")
+    .select("id")
+    .eq("report_id", params.id);
+
+  const assignmentIds = (assignments ?? []).map((a: { id: string }) => a.id);
+  let dryingEntries: DryingLogEntry[] = [];
+  if (assignmentIds.length > 0) {
+    const { data } = await admin
+      .from("drying_log_entries")
+      .select("id, recorded_at, moisture_percent, room_label, equipment_notes")
+      .in("assignment_id", assignmentIds)
+      .order("recorded_at", { ascending: true });
+    dryingEntries = (data ?? []) as DryingLogEntry[];
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-8">
@@ -99,15 +128,9 @@ export default async function ClaimDetailPage({ params }: Params) {
         <PhotoUpload claimId={params.id} />
       </section>
 
-      <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Trocknungsprotokoll</h2>
-        <p className="text-xs text-slate-500">Placeholder: Hier erscheint das Trocknungsprotokoll.</p>
-      </section>
+      <DryingLogSection reportId={params.id} initialEntries={dryingEntries} />
 
-      <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Rechnungen</h2>
-        <p className="text-xs text-slate-500">Placeholder: Hier werden Sanierer-Rechnungen gelistet.</p>
-      </section>
+      <InvoiceSection reportId={params.id} userId={user.id} role={role} />
 
       <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Aktivitätsverlauf</h2>
