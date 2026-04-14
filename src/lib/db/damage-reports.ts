@@ -65,6 +65,8 @@ export type ClaimDetail = ClaimSummary & {
   displacement_end_date: string | null
   property_id: string
   submitted_at: string | null
+  confirmed_cause: string | null
+  reported_cause: string | null
   // Compatibility for UI components that currently read `insurance_split`.
   insurance_scope?: string | null
   insurance_split?: string | null
@@ -211,7 +213,8 @@ export async function getClaimById(
         contents_insurer_name, contents_policy_number,
         liability_insurer_name, building_insurer_name,
         displacement_start_date, displacement_end_date,
-        property_id, submitted_at
+        property_id, submitted_at,
+        confirmed_cause, reported_cause
       `)
       .eq('id', id)
       .eq('owner_id', owner_id)

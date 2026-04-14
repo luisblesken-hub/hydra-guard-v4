@@ -98,6 +98,23 @@ export default async function ClaimDetailPage({ params }: Params) {
           }).format(amount)}
         </p>
 
+        {/* Schadensursache */}
+        {(claim.confirmed_cause || claim.reported_cause) && (
+          <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
+            {claim.confirmed_cause ? (
+              <p>
+                <span className="font-semibold text-slate-700">Bestätigte Ursache: </span>
+                <span className="text-slate-600">{claim.confirmed_cause}</span>
+              </p>
+            ) : (
+              <p>
+                <span className="font-medium text-slate-500">Gemeldete Ursache: </span>
+                <span className="italic text-slate-500">{claim.reported_cause}</span>
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
           <a
             href={`/api/claims/${id}/export/insurer`}
