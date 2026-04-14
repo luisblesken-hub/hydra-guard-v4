@@ -8,14 +8,14 @@ import { PhotoUpload } from "@/components/claims/photo-upload";
 import { DryingLogSection, type DryingLogEntry } from "@/components/drying-log-section";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { InvoiceSection } from "@/components/invoices/invoice-section";
+import { ActivityFeed } from "@/components/activity-feed";
 
 type Params = {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 };
 
 export default async function ClaimDetailPage({ params }: Params) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const {
@@ -26,7 +26,7 @@ export default async function ClaimDetailPage({ params }: Params) {
     notFound();
   }
 
-  const { data: claim, error } = await getClaimById(supabase, params.id, user.id);
+  const { data: claim, error } = await getClaimById(supabase, id, user.id);
 
   if (error || !claim) {
     notFound();
@@ -36,7 +36,7 @@ export default async function ClaimDetailPage({ params }: Params) {
   const split = claim.insurance_split ?? null;
   const status = claim.status;
 
-  const photosResult = await getPhotosByClaimId(supabase, params.id, user.id);
+  const photosResult = await getPhotosByClaimId(supabase, id, user.id);
 
   // Fetch drying log entries via admin (RLS has no policies for this table)
   const admin = createAdminClient();
@@ -51,7 +51,7 @@ export default async function ClaimDetailPage({ params }: Params) {
   const { data: assignments } = await admin
     .from("assignments")
     .select("id")
-    .eq("report_id", params.id);
+    .eq("report_id", id);
 
   const assignmentIds = (assignments ?? []).map((a: { id: string }) => a.id);
   let dryingEntries: DryingLogEntry[] = [];
@@ -100,7 +100,7 @@ export default async function ClaimDetailPage({ params }: Params) {
 
         <div className="flex flex-wrap gap-2">
           <a
-            href={`/api/claims/${params.id}/export/insurer`}
+            href={`/api/claims/${id}/export/insurer`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex w-max items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
@@ -108,7 +108,7 @@ export default async function ClaimDetailPage({ params }: Params) {
             Versicherer-Export
           </a>
           <a
-            href={`/api/claims/${params.id}/export/sanierer`}
+            href={`/api/claims/${id}/export/sanierer`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex w-max items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
@@ -121,21 +121,18 @@ export default async function ClaimDetailPage({ params }: Params) {
       <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Fotos</h2>
         {photosResult.success ? (
-          <PhotoGallery claimId={params.id} photos={photosResult.data} />
+          <PhotoGallery claimId={id} photos={photosResult.data} />
         ) : (
           <p className="text-xs text-red-500">{photosResult.error}</p>
         )}
-        <PhotoUpload claimId={params.id} />
+        <PhotoUpload claimId={id} />
       </section>
 
-      <DryingLogSection reportId={params.id} initialEntries={dryingEntries} />
+      <DryingLogSection reportId={id} initialEntries={dryingEntries} />
 
-      <InvoiceSection reportId={params.id} userId={user.id} role={role} />
+      <InvoiceSection reportId={id} userId={user.id} role={role} />
 
-      <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Aktivitätsverlauf</h2>
-        <p className="text-xs text-slate-500">Placeholder: Hier erscheint der Activity Feed.</p>
-      </section>
+      <ActivityFeed reportId={id} />
     </main>
   );
 }
