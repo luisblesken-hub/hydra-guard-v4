@@ -26,9 +26,43 @@ export default async function ClaimDetailPage({ params }: Params) {
     notFound();
   }
 
-  const { data: claim, error } = await getClaimById(supabase, id, user.id);
+  // Owner: RLS-geschützte Abfrage. Sanierer/Insurer: Admin-Bypass.
+  const adminClient = createAdminClient();
+  const { data: profileEarly } = await adminClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const userRole = (profileEarly?.role as string | null) ?? null;
 
-  if (error || !claim) {
+  let claim = null;
+  let claimError = null;
+
+  if (userRole === "sanierer" || userRole === "versicherung" || userRole === "admin") {
+    // Sanierer & Versicherung dürfen alle Schadensakten lesen
+    const { data, error } = await adminClient
+      .from("damage_reports")
+      .select(`
+        id, status, claim_tier, estimated_amount, category,
+        habitability_status, has_contents_damage, liability_involved,
+        displacement_required, complexity_flags, created_at,
+        description, escalation_reason,
+        contents_insurer_name, contents_policy_number,
+        liability_insurer_name, building_insurer_name,
+        displacement_start_date, displacement_end_date,
+        property_id, submitted_at, confirmed_cause, reported_cause
+      `)
+      .eq("id", id)
+      .maybeSingle();
+    if (!data) claimError = "Schadenfall nicht gefunden.";
+    else claim = { ...data, insurance_split: data.has_contents_damage ? "contents" : data.liability_involved ? "liability" : "building" };
+  } else {
+    const result = await getClaimById(supabase, id, user.id);
+    claim = result.data;
+    claimError = result.error;
+  }
+
+  if (claimError || !claim) {
     notFound();
   }
 
@@ -38,16 +72,9 @@ export default async function ClaimDetailPage({ params }: Params) {
 
   const photosResult = await getPhotosByClaimId(supabase, id, user.id);
 
-  // Fetch drying log entries via admin (RLS has no policies for this table)
-  const admin = createAdminClient();
+  const role = userRole;
+  const admin = adminClient;
 
-  // Fetch role for role-aware sections (Invoice Flow)
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  const role = (profile?.role as string | null) ?? null;
   const { data: assignments } = await admin
     .from("assignments")
     .select("id")
@@ -134,6 +161,75 @@ export default async function ClaimDetailPage({ params }: Params) {
           </a>
         </div>
       </header>
+
+      {/* Schadensdetails */}
+      <section className="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-slate-900">Schadensdetails</h2>
+          <dl className="space-y-2 text-sm">
+            <div>
+              <dt className="text-xs text-slate-500">Kategorie</dt>
+              <dd className="font-medium text-slate-800">
+                {{ pipe_burst: "Rohrbruch", appliance_leak: "Geräteschaden", human_error: "Menschliches Versagen", roof_leak: "Dachleck", unknown: "Unbekannt" }[claim.category] ?? claim.category}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-slate-500">Bewohnbarkeit</dt>
+              <dd className="font-medium text-slate-800">
+                {{ fully_habitable: "Vollständig bewohnbar", limited: "Eingeschränkt", uninhabitable: "Nicht bewohnbar" }[claim.habitability_status] ?? claim.habitability_status}
+              </dd>
+            </div>
+            {claim.description && (
+              <div>
+                <dt className="text-xs text-slate-500">Beschreibung</dt>
+                <dd className="text-slate-600">{claim.description}</dd>
+              </div>
+            )}
+            {claim.displacement_required && (
+              <div className="rounded-md bg-amber-50 px-2 py-1.5">
+                <dt className="text-xs font-semibold text-amber-700">Notunterkunft</dt>
+                <dd className="text-xs text-amber-600">
+                  {claim.displacement_start_date
+                    ? new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(claim.displacement_start_date))
+                    : "—"}
+                  {claim.displacement_end_date
+                    ? ` – ${new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(claim.displacement_end_date))}`
+                    : " (offen)"}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-slate-900">Versicherungsinfos</h2>
+          <dl className="space-y-2 text-sm">
+            {claim.building_insurer_name && (
+              <div>
+                <dt className="text-xs text-slate-500">Gebäudeversicherung</dt>
+                <dd className="font-medium text-slate-800">{claim.building_insurer_name}</dd>
+              </div>
+            )}
+            {claim.has_contents_damage && (
+              <div>
+                <dt className="text-xs text-slate-500">Hausratversicherung</dt>
+                <dd className="font-medium text-slate-800">{claim.contents_insurer_name ?? "—"}</dd>
+                {claim.contents_policy_number && (
+                  <dd className="text-xs text-slate-500">Pol.-Nr.: {claim.contents_policy_number}</dd>
+                )}
+              </div>
+            )}
+            {claim.liability_involved && (
+              <div>
+                <dt className="text-xs text-slate-500">Haftpflichtversicherung</dt>
+                <dd className="font-medium text-slate-800">{claim.liability_insurer_name ?? "—"}</dd>
+              </div>
+            )}
+            {!claim.building_insurer_name && !claim.has_contents_damage && !claim.liability_involved && (
+              <p className="text-xs text-slate-400">Keine Versicherungsinfos erfasst.</p>
+            )}
+          </dl>
+        </div>
+      </section>
 
       <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Fotos</h2>

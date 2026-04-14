@@ -18,12 +18,63 @@ export type DamagePhoto = {
   storage_path: string;
 };
 
+/**
+ * Entfernt EXIF/GPS-Metadaten aus JPEG-Dateien (Datenschutz / DSGVO).
+ * Findet APP0 (0xFFE0) und APP1 (0xFFE1) Marker und entfernt sie.
+ * Für Nicht-JPEG-Dateien wird die Originaldatei zurückgegeben.
+ */
 async function stripGpsFromFile(file: File): Promise<File | Blob> {
-  // Placeholder: Real EXIF/GPS stripping would parse JPEG metadata.
-  // For now we upload the original file; EXIF hardening should be added later
-  // via dedicated processing (e.g. in a separate media pipeline).
-  await file.arrayBuffer(); // touch data to emphasize server-side processing
-  return file;
+  // Nur JPEG verarbeiten
+  if (!file.type.includes("jpeg") && !file.type.includes("jpg")) return file;
+
+  try {
+    const buffer = await file.arrayBuffer();
+    const data = new Uint8Array(buffer);
+
+    // JPEG-Header prüfen: 0xFF 0xD8
+    if (data[0] !== 0xff || data[1] !== 0xd8) return file;
+
+    const result: number[] = [0xff, 0xd8]; // SOI Marker behalten
+    let i = 2;
+
+    while (i < data.length - 1) {
+      // Marker suchen
+      if (data[i] !== 0xff) {
+        result.push(data[i]);
+        i++;
+        continue;
+      }
+
+      const marker = data[i + 1];
+
+      // APP0 (0xE0) und APP1 (0xE1) überspringen — enthalten EXIF/GPS/JFIF
+      if (marker === 0xe0 || marker === 0xe1) {
+        if (i + 3 < data.length) {
+          // Länge des Segments (inkl. Längen-Bytes, exkl. Marker)
+          const segLen = (data[i + 2] << 8) | data[i + 3];
+          i += 2 + segLen; // Marker (2 Bytes) + Segment überspringen
+        } else {
+          i++;
+        }
+        continue;
+      }
+
+      // EOI (0xD9) — Ende
+      if (marker === 0xd9) {
+        result.push(0xff, 0xd9);
+        break;
+      }
+
+      // Alle anderen Marker behalten
+      result.push(data[i]);
+      i++;
+    }
+
+    return new Blob([new Uint8Array(result)], { type: file.type });
+  } catch {
+    // Bei Fehler Original zurückgeben — nie den Upload blockieren
+    return file;
+  }
 }
 
 export async function uploadDamagePhoto(

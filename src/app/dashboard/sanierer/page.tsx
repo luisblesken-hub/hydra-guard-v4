@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
+import { AssignmentCardActions } from "@/components/assignments/assignment-card-actions";
 
 const CATEGORY_DE: Record<string, string> = {
   pipe_burst: "Rohrbruch",
@@ -292,14 +293,22 @@ export default async function SaniererDashboardPage() {
 
                 {/* Actions */}
                 {report && (
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Link
                       href={`/claims/${report.id}`}
                       className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                     >
-                      Schadenakte öffnen →
+                      Schadenakte →
                     </Link>
                   </div>
+                )}
+                {report && (
+                  <AssignmentCardActions
+                    assignmentId={row.id}
+                    reportId={report.id}
+                    currentStatus={row.status}
+                    hasConfirmedCause={Boolean(report.confirmed_cause)}
+                  />
                 )}
               </li>
             );
