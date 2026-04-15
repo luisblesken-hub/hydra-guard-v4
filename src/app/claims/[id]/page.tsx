@@ -9,6 +9,8 @@ import { DryingLogSection, type DryingLogEntry } from "@/components/drying-log-s
 import { createAdminClient } from "@/lib/supabase/admin";
 import { InvoiceSection } from "@/components/invoices/invoice-section";
 import { ActivityFeed } from "@/components/activity-feed";
+import { DispatcherSection } from "@/components/assignments/dispatcher-section";
+import { InviteTenantSection } from "@/components/tenant/invite-section";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -65,6 +67,14 @@ export default async function ClaimDetailPage({ params }: Params) {
   if (claimError || !claim) {
     notFound();
   }
+
+  // owner_id für Dispatcher-Section
+  const { data: ownerRow } = await adminClient
+    .from("damage_reports")
+    .select("owner_id")
+    .eq("id", id)
+    .maybeSingle();
+  const ownerId = ownerRow?.owner_id ?? null;
 
   const amount = claim.estimated_amount ?? 0;
   const split = claim.insurance_split ?? null;
@@ -240,6 +250,10 @@ export default async function ClaimDetailPage({ params }: Params) {
         )}
         <PhotoUpload claimId={id} />
       </section>
+
+      <DispatcherSection reportId={id} role={role} ownerId={ownerId} userId={user.id} />
+
+      <InviteTenantSection reportId={id} role={role} ownerId={ownerId} userId={user.id} />
 
       <DryingLogSection reportId={id} initialEntries={dryingEntries} />
 
