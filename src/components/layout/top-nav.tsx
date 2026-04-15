@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { NotificationBell } from "./notification-bell";
+import { MobileMenu } from "./mobile-menu";
 
 const ROLE_LABEL: Record<string, string> = {
   owner: "Eigentümer",
@@ -101,7 +102,14 @@ export function TopNav({
               {role ? ROLE_LABEL[role] ?? role : ""}
             </span>
           </Link>
-          <LogoutButton />
+          <div className="hidden sm:block">
+            <LogoutButton />
+          </div>
+          <MobileMenu
+            navItems={navItems}
+            email={email}
+            roleLabel={role ? ROLE_LABEL[role] ?? role : ""}
+          />
         </div>
       </div>
     </nav>
