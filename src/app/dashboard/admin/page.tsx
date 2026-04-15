@@ -87,6 +87,10 @@ export default async function AdminDashboardPage() {
           className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
           📋 Schäden-CSV
         </a>
+        <Link href="/dashboard/admin/claims"
+          className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+          📂 Alle Schäden
+        </Link>
       </div>
 
       {/* Migration-Status */}
