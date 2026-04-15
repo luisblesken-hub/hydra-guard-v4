@@ -16,9 +16,28 @@ function deriveOriginalName(storagePath: string) {
   return parts[parts.length - 1] ?? storagePath;
 }
 
+// Einfaches In-Memory Rate-Limit (pro IP max 5 Submissions pro Stunde)
+// Für Produktion: Redis / Upstash empfohlen
+const submissions = new Map<string, number[]>();
+const RATE_LIMIT = 5;
+const WINDOW_MS = 60 * 60 * 1000; // 1 Stunde
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const times = (submissions.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
+  if (times.length >= RATE_LIMIT) return true;
+  submissions.set(ip, [...times, now]);
+  return false;
+}
+
 export async function POST(
   req: Request
 ): Promise<Response> {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return Response.json({ error: "Zu viele Anfragen. Bitte warte eine Stunde." }, { status: 429 });
+  }
+
   const body = await req.json();
   const parsed = SubmitSchema.safeParse(body);
 
