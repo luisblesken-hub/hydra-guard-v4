@@ -170,9 +170,17 @@ export default function MeldeWizardPage({
     );
   }
 
+  const currentStep = step === 4 ? 3 : step;
+
   return (
     <main className="mx-auto w-full max-w-xl px-4 py-6">
       <header className="space-y-2">
+        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-emerald-600">
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3C8 8 4 10.5 4 14a8 8 0 0016 0c0-3.5-4-6-8-11z" />
+          </svg>
+          HydraGuard
+        </div>
         <h1 className="text-xl font-semibold text-slate-900">
           Schaden melden
         </h1>
@@ -180,6 +188,30 @@ export default function MeldeWizardPage({
           {property.label}
           {addressLine ? ` · ${addressLine}` : ""}
         </p>
+
+        {/* Progress bar */}
+        <div className="mt-4 flex items-center gap-2">
+          {[1, 2, 3].map((s) => (
+            <div key={s} className="flex flex-1 items-center gap-2">
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                  currentStep >= s
+                    ? "bg-emerald-500 text-white"
+                    : "bg-slate-200 text-slate-500"
+                }`}
+              >
+                {currentStep > s ? "✓" : s}
+              </div>
+              {s < 3 && (
+                <div
+                  className={`h-1 flex-1 rounded-full ${
+                    currentStep > s ? "bg-emerald-500" : "bg-slate-200"
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </header>
 
       {error && (
