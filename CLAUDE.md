@@ -54,6 +54,19 @@ User: Luis Blesken (luis.blesken@gmail.com), Aachen.
 - **Next.js Route Handler Types**: `{ params }` muss `Promise<{...}>` sein in Next 15+
 - **RLS-Debugging**: unter verschiedenen Rollen testen, Admin-Client für Bypasses
 
+## Sprint 5+ — Status: ✅ Laufend (15.04.2026)
+
+Über Sprint 4 hinaus implementiert (in dieser Session):
+
+- **Owner**: Claims-Filter/-Sort, CSV-Export, Timeline-Chart, Property-Detail, Property anlegen, Status-Aktionen, Claim-Edit
+- **Sanierer**: Quick-Invoice, Terminbuchung, Pool-Profil (Spezialisierungen+Radius), Umsatz-Stats, Prioritätssortierung
+- **Insurer**: Status-Filter+Suche, Batch-Zahlung, Invoice-Detail mit System-Schätzungs-Vergleich
+- **Admin**: User-Role-Management, Testnutzer-Button, Beispiel-Schaden, Health-API, Migrations-Status, CSV-Exports
+- **Claim-Detail**: Status-Stepper (ARIA), Notizen, Owner-Status-Aktionen, Share/Print/Edit-Buttons, Rechnung-vs-Schätzung-Vergleich
+- **UX**: Landing Page, Mobile-Menu, Profil-Seite, Hilfe/FAQ, Benachrichtigungs-Settings, Notification-Bell
+- **API**: `/api/admin/health`, `/api/admin/users/export`, `/api/admin/claims/export`, `/api/insurer/invoices/export`, `/api/insurer/claims/stats`, `/api/sanierer/my-stats`, `/api/owner/claims/summary`
+- **Migrations**: 0004 (profiles.full_name), 0005 (Owner-Invitation-Policy, activity_feed-Insert-Policy)
+
 ## Sprint 4 — Status: ✅ Abgeschlossen (15.04.2026)
 
 1. ✅ **Invoice Flow** — submit/approve/reject/paid via Server Actions + UI-Komponenten
