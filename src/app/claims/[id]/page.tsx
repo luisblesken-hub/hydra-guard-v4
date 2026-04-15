@@ -17,6 +17,34 @@ type Params = {
   params: Promise<{ id: string }>;
 };
 
+// Gemeinsamer Typ für claim-Objekt — deckt beide Quellpfade ab (Owner RLS + Admin-Bypass)
+type ClaimView = {
+  id: string;
+  status: string;
+  claim_tier: string;
+  estimated_amount: number;
+  category: string;
+  habitability_status: string;
+  has_contents_damage: boolean;
+  liability_involved: boolean;
+  displacement_required: boolean;
+  complexity_flags: string[];
+  created_at: string;
+  description: string | null;
+  escalation_reason: string | null;
+  contents_insurer_name: string | null;
+  contents_policy_number: string | null;
+  liability_insurer_name: string | null;
+  building_insurer_name: string | null;
+  displacement_start_date: string | null;
+  displacement_end_date: string | null;
+  property_id: string;
+  submitted_at: string | null;
+  confirmed_cause: string | null;
+  reported_cause: string | null;
+  insurance_split: string | null;
+};
+
 export default async function ClaimDetailPage({ params }: Params) {
   const { id } = await params;
   const supabase = await createClient();
@@ -69,6 +97,9 @@ export default async function ClaimDetailPage({ params }: Params) {
     notFound();
   }
 
+  // Einheitliche Typisierung — beide Code-Pfade auf ClaimView casten
+  const typedClaim = claim as unknown as ClaimView;
+
   // owner_id für Dispatcher-Section
   const { data: ownerRow } = await adminClient
     .from("damage_reports")
@@ -77,9 +108,9 @@ export default async function ClaimDetailPage({ params }: Params) {
     .maybeSingle();
   const ownerId = ownerRow?.owner_id ?? null;
 
-  const amount = claim.estimated_amount ?? 0;
-  const split = claim.insurance_split ?? null;
-  const status = claim.status;
+  const amount = typedClaim.estimated_amount ?? 0;
+  const split = typedClaim.insurance_split ?? null;
+  const status = typedClaim.status;
 
   const photosResult = await getPhotosByClaimId(supabase, id, user.id);
 
@@ -142,7 +173,7 @@ export default async function ClaimDetailPage({ params }: Params) {
               {address || "Schadensakte"}
             </h1>
             <p className="font-mono text-[10px] text-slate-400">
-              ID: {claim.id}
+              ID: {typedClaim.id}
             </p>
           </div>
         </div>
@@ -165,7 +196,7 @@ export default async function ClaimDetailPage({ params }: Params) {
           {new Intl.DateTimeFormat("de-DE", {
             dateStyle: "medium",
             timeStyle: "short",
-          }).format(new Date(claim.created_at))}
+          }).format(new Date(typedClaim.created_at))}
         </p>
         <p className="text-lg font-semibold text-slate-900">
           {new Intl.NumberFormat("de-DE", {
@@ -175,17 +206,17 @@ export default async function ClaimDetailPage({ params }: Params) {
         </p>
 
         {/* Schadensursache */}
-        {(claim.confirmed_cause || claim.reported_cause) && (
+        {(typedClaim.confirmed_cause || typedClaim.reported_cause) && (
           <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
-            {claim.confirmed_cause ? (
+            {typedClaim.confirmed_cause ? (
               <p>
                 <span className="font-semibold text-slate-700">Bestätigte Ursache: </span>
-                <span className="text-slate-600">{claim.confirmed_cause}</span>
+                <span className="text-slate-600">{typedClaim.confirmed_cause}</span>
               </p>
             ) : (
               <p>
                 <span className="font-medium text-slate-500">Gemeldete Ursache: </span>
-                <span className="italic text-slate-500">{claim.reported_cause}</span>
+                <span className="italic text-slate-500">{typedClaim.reported_cause}</span>
               </p>
             )}
           </div>
@@ -219,30 +250,30 @@ export default async function ClaimDetailPage({ params }: Params) {
             <div>
               <dt className="text-xs text-slate-500">Kategorie</dt>
               <dd className="font-medium text-slate-800">
-                {{ pipe_burst: "Rohrbruch", appliance_leak: "Geräteschaden", human_error: "Menschliches Versagen", roof_leak: "Dachleck", unknown: "Unbekannt" }[claim.category] ?? claim.category}
+                {(({ pipe_burst: "Rohrbruch", appliance_leak: "Geräteschaden", human_error: "Menschliches Versagen", roof_leak: "Dachleck", unknown: "Unbekannt" } as Record<string, string>)[typedClaim.category as string]) ?? (typedClaim.category as string)}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-slate-500">Bewohnbarkeit</dt>
               <dd className="font-medium text-slate-800">
-                {{ fully_habitable: "Vollständig bewohnbar", limited: "Eingeschränkt", uninhabitable: "Nicht bewohnbar" }[claim.habitability_status] ?? claim.habitability_status}
+                {(({ fully_habitable: "Vollständig bewohnbar", limited: "Eingeschränkt", uninhabitable: "Nicht bewohnbar" } as Record<string, string>)[typedClaim.habitability_status as string]) ?? (typedClaim.habitability_status as string)}
               </dd>
             </div>
-            {claim.description && (
+            {typedClaim.description && (
               <div>
                 <dt className="text-xs text-slate-500">Beschreibung</dt>
-                <dd className="text-slate-600">{claim.description}</dd>
+                <dd className="text-slate-600">{typedClaim.description}</dd>
               </div>
             )}
-            {claim.displacement_required && (
+            {typedClaim.displacement_required && (
               <div className="rounded-md bg-amber-50 px-2 py-1.5">
                 <dt className="text-xs font-semibold text-amber-700">Notunterkunft</dt>
                 <dd className="text-xs text-amber-600">
-                  {claim.displacement_start_date
-                    ? new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(claim.displacement_start_date))
+                  {typedClaim.displacement_start_date
+                    ? new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(typedClaim.displacement_start_date))
                     : "—"}
-                  {claim.displacement_end_date
-                    ? ` – ${new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(claim.displacement_end_date))}`
+                  {typedClaim.displacement_end_date
+                    ? ` – ${new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(typedClaim.displacement_end_date))}`
                     : " (offen)"}
                 </dd>
               </div>
@@ -252,28 +283,28 @@ export default async function ClaimDetailPage({ params }: Params) {
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-slate-900">Versicherungsinfos</h2>
           <dl className="space-y-2 text-sm">
-            {claim.building_insurer_name && (
+            {typedClaim.building_insurer_name && (
               <div>
                 <dt className="text-xs text-slate-500">Gebäudeversicherung</dt>
-                <dd className="font-medium text-slate-800">{claim.building_insurer_name}</dd>
+                <dd className="font-medium text-slate-800">{typedClaim.building_insurer_name}</dd>
               </div>
             )}
-            {claim.has_contents_damage && (
+            {typedClaim.has_contents_damage && (
               <div>
                 <dt className="text-xs text-slate-500">Hausratversicherung</dt>
-                <dd className="font-medium text-slate-800">{claim.contents_insurer_name ?? "—"}</dd>
-                {claim.contents_policy_number && (
-                  <dd className="text-xs text-slate-500">Pol.-Nr.: {claim.contents_policy_number}</dd>
+                <dd className="font-medium text-slate-800">{typedClaim.contents_insurer_name ?? "—"}</dd>
+                {typedClaim.contents_policy_number && (
+                  <dd className="text-xs text-slate-500">Pol.-Nr.: {typedClaim.contents_policy_number}</dd>
                 )}
               </div>
             )}
-            {claim.liability_involved && (
+            {typedClaim.liability_involved && (
               <div>
                 <dt className="text-xs text-slate-500">Haftpflichtversicherung</dt>
-                <dd className="font-medium text-slate-800">{claim.liability_insurer_name ?? "—"}</dd>
+                <dd className="font-medium text-slate-800">{typedClaim.liability_insurer_name ?? "—"}</dd>
               </div>
             )}
-            {!claim.building_insurer_name && !claim.has_contents_damage && !claim.liability_involved && (
+            {!typedClaim.building_insurer_name && !typedClaim.has_contents_damage && !typedClaim.liability_involved && (
               <p className="text-xs text-slate-400">Keine Versicherungsinfos erfasst.</p>
             )}
           </dl>
