@@ -100,12 +100,35 @@ export default async function MieterDashboardPage() {
     moisture_percent: number;
     room_label: string | null;
   };
+  // Sanierer-Info + Termin pro Report
+  type AssignmentInfo = {
+    sanierer_email: string | null;
+    scheduled_start: string | null;
+    status: string;
+  };
+  const assignmentInfoMap: Record<string, AssignmentInfo> = {};
+
   const dryingMap: Record<string, DryingEntry[]> = {};
   if (reportIds.length > 0) {
     const { data: assignmentsData } = await admin
       .from("assignments")
-      .select("id, report_id")
+      .select("id, report_id, sanierer_id, scheduled_start, status")
       .in("report_id", reportIds);
+
+    // Sanierer-Emails
+    const saniererIds = [...new Set((assignmentsData ?? []).map((a) => a.sanierer_id))];
+    const saniererEmailMap: Record<string, string | null> = {};
+    if (saniererIds.length > 0) {
+      const { data: profs } = await admin.from("profiles").select("id, email").in("id", saniererIds);
+      for (const p of profs ?? []) saniererEmailMap[p.id] = p.email;
+    }
+    for (const a of assignmentsData ?? []) {
+      assignmentInfoMap[a.report_id] = {
+        sanierer_email: saniererEmailMap[a.sanierer_id] ?? null,
+        scheduled_start: a.scheduled_start,
+        status: a.status,
+      };
+    }
 
     const assignmentIds = (assignmentsData ?? []).map((a) => a.id);
     const assignmentToReport = Object.fromEntries(
@@ -239,6 +262,26 @@ export default async function MieterDashboardPage() {
                       )}
                     </dl>
                   </div>
+
+                  {/* Sanierer-Info */}
+                  {assignmentInfoMap[report.id] && (
+                    <div className="border-t border-slate-100 p-4">
+                      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+                        Sanierungsbetrieb
+                      </h2>
+                      <p className="text-sm text-slate-700">
+                        {assignmentInfoMap[report.id].sanierer_email ?? "Zugewiesen"}
+                      </p>
+                      {assignmentInfoMap[report.id].scheduled_start && (
+                        <p className="text-xs text-slate-500">
+                          Termin:{" "}
+                          {new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(
+                            new Date(assignmentInfoMap[report.id].scheduled_start!)
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {/* Trocknungs-Fortschritt */}
                   <div className="space-y-3 p-4">
