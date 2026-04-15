@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getClaimById } from "@/lib/db/damage-reports";
 import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
@@ -111,8 +112,23 @@ export default async function ClaimDetailPage({ params }: Params) {
     ? [propertyRow.street, propertyRow.postal_code, propertyRow.city].filter(Boolean).join(", ")
     : propertyRow?.label ?? "";
 
+  const backHref =
+    role === "sanierer"
+      ? "/dashboard/sanierer"
+      : role === "versicherung"
+        ? "/dashboard/insurance"
+        : role === "admin"
+          ? "/dashboard/admin"
+          : "/dashboard/owner";
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-8">
+      <Link
+        href={backHref}
+        className="-mb-2 inline-flex w-max items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+      >
+        ← Zurück zur Übersicht
+      </Link>
       <header className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div>
