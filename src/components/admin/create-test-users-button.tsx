@@ -1,10 +1,56 @@
 "use client";
 
 import { useTransition, useState } from "react";
+import Link from "next/link";
 import {
   createTestUsersAction,
   type CreateTestUsersState,
 } from "./create-test-users-action";
+import {
+  createSampleClaimAction,
+  type SampleClaimState,
+} from "./create-sample-claim-action";
+
+export function CreateSampleClaimButton() {
+  const [isPending, startTransition] = useTransition();
+  const [result, setResult] = useState<SampleClaimState | null>(null);
+
+  function run() {
+    startTransition(async () => {
+      const r = await createSampleClaimAction();
+      setResult(r);
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={run}
+        disabled={isPending}
+        className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+      >
+        {isPending ? "Legt an…" : "📋 Beispiel-Schaden erstellen"}
+      </button>
+      {result && (
+        <p className={`text-xs ${result.success ? "text-emerald-700" : "text-red-600"}`}>
+          {result.message}
+          {result.claimId && (
+            <>
+              {" — "}
+              <Link
+                href={`/claims/${result.claimId}`}
+                className="font-medium underline"
+              >
+                Öffnen
+              </Link>
+            </>
+          )}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export function CreateTestUsersButton() {
   const [isPending, startTransition] = useTransition();
