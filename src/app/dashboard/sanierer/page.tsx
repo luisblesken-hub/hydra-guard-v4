@@ -6,6 +6,7 @@ import { statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { AssignmentCardActions } from "@/components/assignments/assignment-card-actions";
 import { QuickInvoiceForm } from "@/components/assignments/quick-invoice-form";
 import { ScheduleAppointmentForm } from "@/components/assignments/schedule-appointment-form";
+import { RecentActivityWidget } from "@/components/dashboard/recent-activity-widget";
 import Link from "next/link";
 
 const CATEGORY_DE: Record<string, string> = {
@@ -202,6 +203,8 @@ export default async function SaniererDashboardPage() {
           </div>
         </div>
       )}
+
+      <RecentActivityWidget userId={user.id} role="sanierer" />
 
       {rows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">

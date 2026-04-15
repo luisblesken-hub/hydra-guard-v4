@@ -6,6 +6,7 @@ import { getClaimsWithProperty } from "@/lib/db/damage-reports";
 import { ClaimsList } from "@/components/dashboard/claims-list";
 import { MeldenPropertyLink } from "@/components/dashboard/melden-property-link";
 import { ClaimsTimelineChart } from "@/components/dashboard/claims-timeline-chart";
+import { RecentActivityWidget } from "@/components/dashboard/recent-activity-widget";
 import { statusLabel, statusColor } from "@/lib/utils/claim-status";
 
 const FILTER_LABELS: Record<string, string> = {
@@ -209,6 +210,8 @@ export default async function OwnerDashboardPage({
           )}
         </div>
       )}
+
+      <RecentActivityWidget userId={user.id} role="owner" />
 
       {properties?.length ? (
         <section className="space-y-3">
