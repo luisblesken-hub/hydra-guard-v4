@@ -60,6 +60,20 @@ export async function updateAssignmentStatusAction(
       .in("status", ["dispatched", "approved"]);
   }
 
+  const STATUS_LABEL: Record<string, string> = {
+    accepted: "angenommen",
+    in_progress: "in Arbeit",
+    completed: "abgeschlossen",
+  };
+
+  await admin.from("activity_feed").insert({
+    report_id: assignment.report_id,
+    actor_id: user.id,
+    actor_role: "sanierer",
+    event_type: "status_changed",
+    note: `Auftrag ${STATUS_LABEL[newStatus] ?? newStatus}`,
+  });
+
   revalidatePath("/dashboard/sanierer");
   revalidatePath(`/claims/${assignment.report_id}`);
   return { success: true, message: `Status auf "${newStatus}" gesetzt.` };
@@ -107,6 +121,14 @@ export async function setConfirmedCauseAction(
     .eq("id", reportId);
 
   if (error) return { success: false, message: error.message };
+
+  await admin.from("activity_feed").insert({
+    report_id: reportId,
+    actor_id: user.id,
+    actor_role: "sanierer",
+    event_type: "note_added",
+    note: `Schadensursache bestätigt: ${confirmed_cause.slice(0, 200)}`,
+  });
 
   revalidatePath("/dashboard/sanierer");
   revalidatePath(`/claims/${reportId}`);

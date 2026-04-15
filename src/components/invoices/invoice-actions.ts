@@ -99,6 +99,15 @@ export async function submitInvoiceAction(
     .update({ status: "invoice_submitted" })
     .eq("id", reportId);
 
+  // Activity Feed
+  await admin.from("activity_feed").insert({
+    report_id: reportId,
+    actor_id: user.id,
+    actor_role: "sanierer",
+    event_type: "invoice_submitted",
+    note: `Rechnung über ${amount_net.toFixed(2)} € netto eingereicht`,
+  });
+
   revalidatePath(`/claims/${reportId}`);
   return { success: true, message: "Rechnung eingereicht." };
 }
@@ -150,6 +159,14 @@ export async function approveInvoiceAction(
     .update({ status: "invoice_approved" })
     .eq("id", invoice.report_id);
 
+  await admin.from("activity_feed").insert({
+    report_id: invoice.report_id,
+    actor_id: user.id,
+    actor_role: "owner",
+    event_type: "invoice_approved",
+    note: "Rechnung freigegeben",
+  });
+
   revalidatePath(`/claims/${invoice.report_id}`);
   return { success: true, message: "Rechnung freigegeben." };
 }
@@ -193,6 +210,14 @@ export async function rejectInvoiceAction(
   if (updateError) {
     return { success: false, message: updateError.message };
   }
+
+  await admin.from("activity_feed").insert({
+    report_id: invoice.report_id,
+    actor_id: user.id,
+    actor_role: "owner",
+    event_type: "invoice_rejected",
+    note: "Rechnung abgelehnt",
+  });
 
   revalidatePath(`/claims/${invoice.report_id}`);
   return { success: true, message: "Rechnung abgelehnt." };
@@ -246,6 +271,14 @@ export async function markInvoicePaidAction(
     .from("damage_reports")
     .update({ status: "closed" })
     .eq("id", invoice.report_id);
+
+  await admin.from("activity_feed").insert({
+    report_id: invoice.report_id,
+    actor_id: user.id,
+    actor_role: "versicherung",
+    event_type: "invoice_paid",
+    note: "Rechnung bezahlt · Fall geschlossen",
+  });
 
   revalidatePath(`/claims/${invoice.report_id}`);
   return { success: true, message: "Als bezahlt markiert." };

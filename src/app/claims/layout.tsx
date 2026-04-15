@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/layout/top-nav";
 
-export default async function DashboardLayout({
+export default async function ClaimsLayout({
   children,
 }: {
   children: React.ReactNode;
