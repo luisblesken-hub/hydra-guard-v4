@@ -7,6 +7,7 @@ import { AssignmentCardActions } from "@/components/assignments/assignment-card-
 import { QuickInvoiceForm } from "@/components/assignments/quick-invoice-form";
 import { ScheduleAppointmentForm } from "@/components/assignments/schedule-appointment-form";
 import { RecentActivityWidget } from "@/components/dashboard/recent-activity-widget";
+import { QuickDryingLog } from "@/components/assignments/quick-drying-log";
 import Link from "next/link";
 
 const CATEGORY_DE: Record<string, string> = {
@@ -378,11 +379,14 @@ export default async function SaniererDashboardPage() {
                   </div>
                 )}
                 {report && (row.status === "in_progress" || row.status === "completed") && (
-                  <div className="mt-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <QuickInvoiceForm
                       reportId={report.id}
                       hasInvoice={row.invoice !== null}
                     />
+                    {row.status === "in_progress" && (
+                      <QuickDryingLog reportId={report.id} />
+                    )}
                   </div>
                 )}
               </li>
