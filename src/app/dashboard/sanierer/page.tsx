@@ -209,7 +209,14 @@ export default async function SaniererDashboardPage() {
         </div>
       ) : (
         <ul className="flex flex-col gap-4">
-          {rows.map((row) => {
+          {[...rows]
+            // Pending + accepted oben, dann rest
+            .sort((a, b) => {
+              const priority = (s: string) =>
+                s === "pending" ? 0 : s === "accepted" ? 1 : s === "in_progress" ? 2 : 3;
+              return priority(a.status) - priority(b.status);
+            })
+            .map((row) => {
             const report = row.report;
             const address = report?.property
               ? [
