@@ -62,12 +62,20 @@ export default async function PropertyDetailPage({
               <p className="text-xs text-slate-400">{property.building_type}</p>
             )}
           </div>
-          <Link
-            href="/claims/new"
-            className="inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400"
-          >
-            Schaden melden
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href={`/properties/${property.id}/edit`}
+              className="inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Bearbeiten
+            </Link>
+            <Link
+              href="/claims/new"
+              className="inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400"
+            >
+              Schaden melden
+            </Link>
+          </div>
         </div>
 
         <div className="mt-4 grid grid-cols-3 gap-4">
