@@ -16,6 +16,7 @@ import { StatusStepper } from "@/components/claims/status-stepper";
 import { ClaimNotes } from "@/components/claims/claim-notes";
 import { OwnerClaimActions } from "@/components/claims/owner-claim-actions";
 import { ShareClaimButton } from "@/components/claims/share-claim-button";
+import { PrintButton } from "@/components/claims/print-button";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -113,6 +114,16 @@ export default async function ClaimDetailPage({ params }: Params) {
   const ownerId = ownerRow?.owner_id ?? null;
 
   const amount = typedClaim.estimated_amount ?? 0;
+
+  // Neueste Rechnung für Vergleich (estimated vs actual)
+  const { data: latestInvoice } = await adminClient
+    .from("sanierer_invoices")
+    .select("amount_gross, amount_net, status")
+    .eq("report_id", id)
+    .order("submitted_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const invoiceAmount = latestInvoice?.amount_gross ?? latestInvoice?.amount_net ?? null;
   const split = typedClaim.insurance_split ?? null;
   const status = typedClaim.status;
 
@@ -214,13 +225,36 @@ export default async function ClaimDetailPage({ params }: Params) {
             timeStyle: "short",
           }).format(new Date(typedClaim.created_at))}
         </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-6">
           <div>
             <p className="text-xs text-slate-500">Geschätzter Schaden</p>
             <p className="text-lg font-semibold text-slate-900">
               {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount)}
             </p>
           </div>
+          {invoiceAmount !== null && (
+            <div>
+              <p className="text-xs text-slate-500">
+                Abgerechneter Betrag
+                {latestInvoice?.status === "paid" && (
+                  <span className="ml-1 text-green-600">· Bezahlt</span>
+                )}
+              </p>
+              <p className={`text-lg font-semibold ${
+                invoiceAmount > amount ? "text-red-600" : "text-emerald-700"
+              }`}>
+                {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(invoiceAmount)}
+              </p>
+              {amount > 0 && (
+                <p className="text-xs text-slate-400">
+                  {invoiceAmount > amount
+                    ? `+${((invoiceAmount - amount) / amount * 100).toFixed(1)}%`
+                    : `${((invoiceAmount - amount) / amount * 100).toFixed(1)}%`}
+                  {" "}vs. Schätzung
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Schadensursache */}
@@ -246,6 +280,7 @@ export default async function ClaimDetailPage({ params }: Params) {
 
         <div className="flex flex-wrap gap-2">
           <ShareClaimButton claimId={id} />
+          <PrintButton />
           {role === "owner" && ownerId === user.id && (
             <Link
               href={`/claims/${id}/edit`}
