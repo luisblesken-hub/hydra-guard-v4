@@ -230,7 +230,12 @@ export default async function InsurerDashboardPage({
                     </Link>
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-slate-600">
-                    {row.invoice_number ?? `#${row.id.slice(0, 8)}`}
+                    <Link
+                      href={`/dashboard/insurer/invoices/${row.id}`}
+                      className="hover:text-indigo-600 hover:underline"
+                    >
+                      {row.invoice_number ?? `#${row.id.slice(0, 8)}`}
+                    </Link>
                   </td>
                   <td className="px-4 py-3 font-semibold text-slate-900">
                     {formatEUR(row.amount_gross ?? row.amount_net)}
