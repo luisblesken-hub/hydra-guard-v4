@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { AssignmentCardActions } from "@/components/assignments/assignment-card-actions";
 import { QuickInvoiceForm } from "@/components/assignments/quick-invoice-form";
+import { ScheduleAppointmentForm } from "@/components/assignments/schedule-appointment-form";
 import Link from "next/link";
 
 const CATEGORY_DE: Record<string, string> = {
@@ -346,15 +347,25 @@ export default async function SaniererDashboardPage() {
                     >
                       Schadenakte →
                     </Link>
+                    <ScheduleAppointmentForm
+                      assignmentId={row.id}
+                      scheduledStart={row.scheduled_start}
+                    />
                   </div>
                 )}
                 {report && (
-                  <AssignmentCardActions
-                    assignmentId={row.id}
-                    reportId={report.id}
-                    currentStatus={row.status}
-                    hasConfirmedCause={Boolean(report.confirmed_cause)}
-                  />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <AssignmentCardActions
+                      assignmentId={row.id}
+                      reportId={report.id}
+                      currentStatus={row.status}
+                      hasConfirmedCause={Boolean(report.confirmed_cause)}
+                    />
+                    <ScheduleAppointmentForm
+                      assignmentId={row.id}
+                      scheduledStart={row.scheduled_start}
+                    />
+                  </div>
                 )}
                 {report && (row.status === "in_progress" || row.status === "completed") && (
                   <div className="mt-2">

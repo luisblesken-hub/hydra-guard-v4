@@ -78,6 +78,21 @@ User: Luis Blesken (luis.blesken@gmail.com), Aachen.
 - **Admin User-Management** + **Testnutzer-Button** + **Beispiel-Schaden-Button**
 - **404/Error/Loading** Pages
 
+## User-Arbeitsstil & Erwartungen
+
+- **Build-getrieben**: Fix → `tsc --noEmit` → `npm run build` → erst dann "done"
+- **Autonom**: Keine Rückfragen, klare Success Criteria, Verifikation am Ende
+- **Minimal**: Keine neuen npm-Packages ohne explizite Freigabe; minimale File-Edits
+- **Sprache**: Deutsche UX-Texte, Code + Variablen Englisch
+- **Non-negotiables**: Keine Breaking Changes, RLS immer beachten, idempotente Migrations
+
+## Bekannte Pain Points (priorisiert beachten)
+
+- **Auth-Redirect-Loops**: SSR Cookies + Rollenmapping fragil → immer `get-user-redirect.ts` + Admin-Client nutzen
+- **DB/Type-Drift**: Spalten können anders heißen als erwartet → immer `database.types.ts` prüfen vor Queries
+- **Next.js Konventionen**: `{ params }` muss `Promise<{...}>` sein (Next 15+); `proxy.ts` statt `middleware.ts`
+- **Schema-Begriffe**: `estimated_amount` = Schadenschätzung, `insurance_split` = abgeleitet (kein DB-Feld)
+
 ## Offene Risiken
 
 - Supabase Access Token im Chat exponiert → **rotieren**

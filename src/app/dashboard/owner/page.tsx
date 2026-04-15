@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getClaimsWithProperty } from "@/lib/db/damage-reports";
 import { ClaimsList } from "@/components/dashboard/claims-list";
 import { MeldenPropertyLink } from "@/components/dashboard/melden-property-link";
+import { ClaimsTimelineChart } from "@/components/dashboard/claims-timeline-chart";
 import { statusLabel, statusColor } from "@/lib/utils/claim-status";
 
 const FILTER_LABELS: Record<string, string> = {
@@ -159,6 +160,15 @@ export default async function OwnerDashboardPage({
             ))}
           </div>
         </div>
+      )}
+
+      {(allClaims ?? []).length >= 3 && (
+        <ClaimsTimelineChart
+          claims={(allClaims ?? []).map((c) => ({
+            created_at: c.created_at,
+            damage_amount_estimate: c.damage_amount_estimate,
+          }))}
+        />
       )}
 
       {claims.length > 0 ? (
