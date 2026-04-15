@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
+import { UserRoleSelect } from "@/components/admin/user-row";
 
 const CATEGORY_DE: Record<string, string> = {
   pipe_burst: "Rohrbruch",
@@ -34,6 +35,7 @@ export default async function AdminDashboardPage() {
     { count: totalUsers },
     { count: totalInvoices },
     { data: recentReports },
+    { data: allUsers },
   ] = await Promise.all([
     admin.from("damage_reports").select("*", { count: "exact", head: true }),
     admin.from("profiles").select("*", { count: "exact", head: true }),
@@ -43,6 +45,11 @@ export default async function AdminDashboardPage() {
       .select("id, status, category, estimated_amount, created_at")
       .order("created_at", { ascending: false })
       .limit(10),
+    admin
+      .from("profiles")
+      .select("id, email, role, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(50),
   ]);
 
   return (
@@ -64,6 +71,48 @@ export default async function AdminDashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* User-Management */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-4 py-3">
+          <h2 className="text-sm font-semibold text-slate-900">Nutzer & Rollen</h2>
+          <p className="text-xs text-slate-500">
+            Rollen anpassen per Dropdown – Änderungen werden sofort gespeichert.
+          </p>
+        </div>
+        <div className="max-h-96 overflow-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="sticky top-0 border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-4 py-2">E-Mail</th>
+                <th className="px-4 py-2">Rolle</th>
+                <th className="px-4 py-2">Zuletzt aktualisiert</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(allUsers ?? []).map((u) => (
+                <tr key={u.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-2 text-slate-700">
+                    {u.email ?? <span className="text-slate-400">—</span>}
+                    <p className="font-mono text-[10px] text-slate-400">{u.id.slice(0, 8)}</p>
+                  </td>
+                  <td className="px-4 py-2">
+                    <UserRoleSelect userId={u.id} currentRole={u.role ?? null} />
+                  </td>
+                  <td className="px-4 py-2 text-xs text-slate-500">
+                    {u.updated_at
+                      ? new Intl.DateTimeFormat("de-DE", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        }).format(new Date(u.updated_at))
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-4 py-3">
