@@ -103,12 +103,23 @@ export function ClaimsList({ claims }: Props) {
                 maximumFractionDigits: 0,
               }).format(claim.damage_amount_estimate)}
             </p>
-            <Link
-              href={`/claims/${claim.id}`}
-              className="inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Details
-            </Link>
+            <div className="flex gap-1">
+              <Link
+                href={`/claims/${claim.id}`}
+                className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+              >
+                Details →
+              </Link>
+              <a
+                href={`/api/claims/${claim.id}/export/insurer`}
+                target="_blank"
+                rel="noreferrer"
+                title="PDF für Versicherer herunterladen"
+                className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              >
+                PDF
+              </a>
+            </div>
           </div>
         </article>
       ))}
