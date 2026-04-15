@@ -68,14 +68,14 @@ export async function DispatcherSection({
     .eq("report_id", reportId);
 
   const assignments = assignmentsData ?? [];
-  const saniererIds = assignments.map((a) => a.sanierer_id);
+  const assignedSaniererIds = assignments.map((a) => a.sanierer_id);
 
   const saniererEmailMap: Record<string, string | null> = {};
-  if (saniererIds.length > 0) {
+  if (assignedSaniererIds.length > 0) {
     const { data: profs } = await admin
       .from("profiles")
       .select("id, email")
-      .in("id", saniererIds);
+      .in("id", assignedSaniererIds);
     for (const p of profs ?? []) {
       saniererEmailMap[p.id] = p.email;
     }
