@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { DispatcherClient } from "./dispatcher-client";
+import { DispatcherSearch } from "./dispatcher-search";
 
 type SaniererOption = {
   id: string;
@@ -90,7 +90,7 @@ export async function DispatcherSection({
   }));
 
   return (
-    <DispatcherClient
+    <DispatcherSearch
       reportId={reportId}
       sanierer={sanierer}
       existingAssignments={existingAssignments}
