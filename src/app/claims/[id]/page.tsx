@@ -103,14 +103,20 @@ export default async function ClaimDetailPage({ params }: Params) {
   }
 
   // Adresse aus property laden für bessere Header-Darstellung
-  const { data: propertyRow } = await admin
-    .from("properties")
-    .select("street, city, postal_code, label")
-    .eq("id", claim.property_id)
-    .maybeSingle();
-  const address = propertyRow
-    ? [propertyRow.street, propertyRow.postal_code, propertyRow.city].filter(Boolean).join(", ")
-    : propertyRow?.label ?? "";
+  const propertyId = (claim as { property_id?: string }).property_id ?? null;
+  let address = "";
+  if (propertyId) {
+    const { data: propertyRow } = await admin
+      .from("properties")
+      .select("street, city, postal_code")
+      .eq("id", propertyId)
+      .maybeSingle();
+    if (propertyRow) {
+      address = [propertyRow.street, propertyRow.postal_code, propertyRow.city]
+        .filter(Boolean)
+        .join(", ");
+    }
+  }
 
   const backHref =
     role === "sanierer"
