@@ -19,7 +19,7 @@ export function DispatcherClient({
   existingAssignments,
 }: {
   reportId: string;
-  sanierer: { id: string; email: string | null }[];
+  sanierer: { id: string; email: string | null; specializations?: string[]; radius_km?: number; availability_status?: string }[];
   existingAssignments: {
     id: string;
     status: string;
@@ -91,6 +91,10 @@ export function DispatcherClient({
               {available.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.email ?? s.id.slice(0, 8)}
+                  {s.availability_status === "busy" ? " (ausgelastet)" : ""}
+                  {s.availability_status === "unavailable" ? " (nicht verfügbar)" : ""}
+                  {s.radius_km ? ` · ${s.radius_km}km` : ""}
+                  {s.specializations?.length ? ` · ${s.specializations.slice(0, 2).join(", ")}` : ""}
                 </option>
               ))}
             </select>

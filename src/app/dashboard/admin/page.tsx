@@ -73,6 +73,18 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
+      {/* System-Links */}
+      <div className="flex flex-wrap gap-3">
+        <a href="/api/admin/health" target="_blank" rel="noreferrer"
+          className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+          🔍 System-Health
+        </a>
+        <a href="/api/admin/users/export"
+          className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+          📊 Nutzer-CSV
+        </a>
+      </div>
+
       {/* Testdaten */}
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Dev-Tools</h2>
