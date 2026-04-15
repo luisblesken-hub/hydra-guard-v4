@@ -143,6 +143,25 @@ export default async function SaniererDashboardPage() {
     (r) => r.status === "pending" || r.status === "accepted" || r.status === "in_progress"
   ).length;
 
+  // Umsatz aus bezahlten Rechnungen
+  const { data: paidInvoices } = await admin
+    .from("sanierer_invoices")
+    .select("amount_gross, amount_net")
+    .eq("sanierer_id", user.id)
+    .eq("status", "paid");
+  const totalRevenue = (paidInvoices ?? []).reduce(
+    (s, i) => s + (i.amount_gross ?? i.amount_net ?? 0), 0
+  );
+
+  const { data: pendingInvoices } = await admin
+    .from("sanierer_invoices")
+    .select("amount_gross, amount_net")
+    .eq("sanierer_id", user.id)
+    .in("status", ["submitted", "approved"]);
+  const pendingRevenue = (pendingInvoices ?? []).reduce(
+    (s, i) => s + (i.amount_gross ?? i.amount_net ?? 0), 0
+  );
+
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       <header className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
@@ -159,20 +178,26 @@ export default async function SaniererDashboardPage() {
       </header>
 
       {total > 0 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-slate-900">{total}</p>
+            <p className="text-2xl font-bold text-slate-900">{total}</p>
             <p className="text-xs text-slate-500">Aufträge gesamt</p>
           </div>
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-amber-600">{open}</p>
+            <p className="text-2xl font-bold text-amber-600">{open}</p>
             <p className="text-xs text-slate-500">Aktiv</p>
           </div>
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-emerald-600">
-              {rows.filter((r) => r.status === "completed").length}
+            <p className="text-2xl font-bold text-emerald-600">
+              {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(totalRevenue)}
             </p>
-            <p className="text-xs text-slate-500">Abgeschlossen</p>
+            <p className="text-xs text-slate-500">Umsatz (bezahlt)</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-2xl font-bold text-indigo-600">
+              {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(pendingRevenue)}
+            </p>
+            <p className="text-xs text-slate-500">Ausstehend</p>
           </div>
         </div>
       )}
