@@ -60,18 +60,19 @@ export async function signupAction(
     };
   }
 
-  // Profile via Admin-Client (bypasst RLS). Nur Felder die in der Tabelle existieren.
+  // Profile via Admin-Client (bypasst RLS).
   const admin = createAdminClient();
-  await admin.from('profiles').upsert(
-    {
-      id: data.user.id,
-      email: data.user.email ?? email,
-      role: dbRole,
-    },
-    { onConflict: 'id' }
-  );
-  // full_name wird aktuell nicht persistiert (Spalte fehlt im Schema), wir behalten es für zukünftige Erweiterung.
-  void full_name;
+  const profilePayload: Record<string, string | null> = {
+    id: data.user.id,
+    email: data.user.email ?? email,
+    role: dbRole,
+  };
+  // full_name nur setzen wenn die Spalte existiert (Migration 0004).
+  // Via Type-Workaround, da database.types.ts evtl. noch nicht regeneriert.
+  (profilePayload as Record<string, string | null>).full_name = full_name;
+  await admin
+    .from('profiles')
+    .upsert(profilePayload as never, { onConflict: 'id' });
 
   // Erfolg: Hinweis auf E-Mail-Bestätigung.
   return {
