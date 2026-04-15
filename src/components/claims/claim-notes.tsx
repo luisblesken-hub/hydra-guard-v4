@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
+import { addClaimNoteAction } from "./claim-note-actions";
 
 type Note = {
   id: string;
@@ -8,10 +9,6 @@ type Note = {
   actor_role: string | null;
   created_at: string;
 };
-
-type NoteState = { success?: boolean; message?: string };
-
-import { addClaimNoteAction } from "./claim-note-actions";
 
 const ROLE_LABEL: Record<string, string> = {
   owner: "Eigentümer",
@@ -31,16 +28,22 @@ export function ClaimNotes({
   canAdd: boolean;
 }) {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
-  const [state, formAction, pending] = useActionState(
-    async (_prev: NoteState, formData: FormData) => {
-      const result = await addClaimNoteAction(_prev, formData);
+  const [isPending, startTransition] = useTransition();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [inputKey, setInputKey] = useState(0); // reset form
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      const result = await addClaimNoteAction({}, formData);
       if (result.success && result.newNote) {
-        setNotes((prev) => [...prev, result.newNote!]);
+        setNotes((prev) => [...prev, result.newNote as Note]);
+        setInputKey((k) => k + 1);
+        setErrorMsg(null);
+      } else {
+        setErrorMsg(result.message ?? "Fehler");
       }
-      return result;
-    },
-    {} as NoteState & { newNote?: Note },
-  );
+    });
+  }
 
   return (
     <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
@@ -77,7 +80,7 @@ export function ClaimNotes({
       )}
 
       {canAdd && (
-        <form action={formAction} className="flex gap-2">
+        <form key={inputKey} action={handleSubmit} className="flex gap-2">
           <input type="hidden" name="reportId" value={reportId} />
           <input
             type="text"
@@ -89,18 +92,14 @@ export function ClaimNotes({
           />
           <button
             type="submit"
-            disabled={pending}
+            disabled={isPending}
             className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
           >
-            {pending ? "…" : "Speichern"}
+            {isPending ? "…" : "Speichern"}
           </button>
         </form>
       )}
-      {state.message && (
-        <p className={`text-xs ${state.success ? "text-emerald-600" : "text-red-600"}`}>
-          {state.message}
-        </p>
-      )}
+      {errorMsg && <p className="text-xs text-red-600">{errorMsg}</p>}
     </section>
   );
 }

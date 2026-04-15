@@ -13,9 +13,9 @@ const Schema = z.object({
 });
 
 export async function addClaimNoteAction(
-  _prev: NoteState,
+  _prev: Record<string, unknown>,
   formData: FormData,
-): Promise<NoteState> {
+): Promise<NoteState & { newNote?: Note }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -56,6 +56,6 @@ export async function addClaimNoteAction(
   return {
     success: true,
     message: "",
-    newNote: data as Note,
+    newNote: { id: data.id, note: data.note, actor_role: data.actor_role, created_at: data.created_at } as Note,
   };
 }

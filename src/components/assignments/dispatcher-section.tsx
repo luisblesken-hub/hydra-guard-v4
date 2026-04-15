@@ -58,7 +58,7 @@ export async function DispatcherSection({
   const sanierer: SaniererOption[] = (saniererProfiles ?? []).map((p) => ({
     id: p.id,
     email: p.email,
-    ...poolProfilesMap[p.id],
+    ...(poolProfilesMap[p.id] ?? {}),
   }));
 
   // Bestehende Assignments für diesen Report

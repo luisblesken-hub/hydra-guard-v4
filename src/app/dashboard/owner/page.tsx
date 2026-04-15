@@ -106,9 +106,8 @@ export default async function OwnerDashboardPage({
               label: "Schadenssumme",
               value: new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(totalAmount),
               color: "text-emerald-600",
-              isString: true,
             },
-          ].map(({ label, value, color, isString }) => (
+          ].map(({ label, value, color }) => (
             <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className={`text-2xl font-bold ${color}`}>{value}</p>
               <p className="text-xs text-slate-500">{label}</p>
