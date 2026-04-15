@@ -246,6 +246,14 @@ export default async function ClaimDetailPage({ params }: Params) {
 
         <div className="flex flex-wrap gap-2">
           <ShareClaimButton claimId={id} />
+          {role === "owner" && ownerId === user.id && (
+            <Link
+              href={`/claims/${id}/edit`}
+              className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              ✏️ Bearbeiten
+            </Link>
+          )}
           <a
             href={`/api/claims/${id}/export/insurer`}
             target="_blank"
