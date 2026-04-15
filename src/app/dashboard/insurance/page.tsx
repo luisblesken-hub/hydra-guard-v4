@@ -25,7 +25,11 @@ type ClaimRow = {
   latest_invoice_amount: number | null;
 };
 
-export default async function InsuranceDashboardPage() {
+export default async function InsuranceDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; q?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,6 +45,10 @@ export default async function InsuranceDashboardPage() {
     .maybeSingle();
 
   if (profile?.role !== "versicherung") redirect("/dashboard/owner");
+
+  const sp = await searchParams;
+  const statusFilter = sp.status ?? "all";
+  const searchQuery = (sp.q ?? "").trim().toLowerCase();
 
   // Alle Schadensfälle ab Status "in_remediation" aufwärts — relevant für Versicherung
   const RELEVANT_STATUSES = [
@@ -90,7 +98,7 @@ export default async function InsuranceDashboardPage() {
     }
   }
 
-  const rows: ClaimRow[] = (reports ?? []).map((r) => {
+  let rows: ClaimRow[] = (reports ?? []).map((r) => {
     const invs = invoiceMap[r.id] ?? [];
     return {
       id: r.id,
@@ -105,6 +113,17 @@ export default async function InsuranceDashboardPage() {
       latest_invoice_amount: invs[0]?.amount_gross ?? invs[0]?.amount_net ?? null,
     };
   });
+
+  // Filter anwenden
+  if (statusFilter !== "all") {
+    rows = rows.filter((r) => r.status === statusFilter);
+  }
+  if (searchQuery) {
+    rows = rows.filter((r) =>
+      r.address.toLowerCase().includes(searchQuery) ||
+      (CATEGORY_DE[r.category] ?? r.category).toLowerCase().includes(searchQuery)
+    );
+  }
 
   const awaitingPayment = rows.filter((r) => r.latest_invoice_status === "approved").length;
   const total = rows.length;
@@ -152,9 +171,45 @@ export default async function InsuranceDashboardPage() {
         </div>
       )}
 
+      {/* Suche + Filter */}
+      <div className="flex flex-wrap items-center gap-3">
+        <form method="GET" action="/dashboard/insurance" className="flex-1">
+          <input
+            type="search"
+            name="q"
+            defaultValue={searchQuery}
+            placeholder="Adresse oder Kategorie suchen…"
+            className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+          />
+        </form>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "all", label: "Alle" },
+            { key: "in_remediation", label: "In Sanierung" },
+            { key: "invoice_submitted", label: "Rechnung offen" },
+            { key: "invoice_approved", label: "Freigegeben" },
+            { key: "closed", label: "Abgeschlossen" },
+          ].map((f) => (
+            <Link
+              key={f.key}
+              href={f.key === "all" ? "/dashboard/insurance" : `/dashboard/insurance?status=${f.key}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                statusFilter === f.key
+                  ? "bg-slate-900 text-white"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {f.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {rows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
-          Noch keine relevanten Schadensfälle vorhanden.
+          {searchQuery || statusFilter !== "all"
+            ? "Keine Schadensfälle mit diesen Filtern."
+            : "Noch keine relevanten Schadensfälle vorhanden."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">

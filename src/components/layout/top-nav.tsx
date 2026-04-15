@@ -16,7 +16,10 @@ const ROLE_NAV: Record<string, { href: string; label: string }[]> = {
     { href: "/dashboard/owner", label: "Schadensfälle" },
     { href: "/claims/new", label: "Neuen Schaden melden" },
   ],
-  sanierer: [{ href: "/dashboard/sanierer", label: "Meine Aufträge" }],
+  sanierer: [
+    { href: "/dashboard/sanierer", label: "Meine Aufträge" },
+    { href: "/dashboard/sanierer/einstellungen", label: "Profil" },
+  ],
   versicherung: [
     { href: "/dashboard/insurance", label: "Schadensfälle" },
     { href: "/dashboard/insurer", label: "Rechnungen" },
