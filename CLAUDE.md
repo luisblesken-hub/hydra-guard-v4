@@ -66,6 +66,12 @@ User: Luis Blesken (luis.blesken@gmail.com), Aachen.
 - **UX**: Landing Page, Mobile-Menu, Profil-Seite, Hilfe/FAQ, Benachrichtigungs-Settings, Notification-Bell
 - **API**: `/api/admin/health`, `/api/admin/users/export`, `/api/admin/claims/export`, `/api/insurer/invoices/export`, `/api/insurer/claims/stats`, `/api/sanierer/my-stats`, `/api/owner/claims/summary`
 - **Migrations**: 0004 (profiles.full_name), 0005 (Owner-Invitation-Policy, activity_feed-Insert-Policy)
+- **Security**: Rate Limiting im Melden-Wizard (5/h per IP, In-Memory)
+- **Sanierer**: Pool-Profil, Quick-Drying-Log, Quick-Invoice, Termin, Aktivitäts-Widget
+- **Admin**: Nutzer-Detail-Seite, vollständige Claims-Liste mit Pagination
+- **Mieter**: Sanierer-Kontakt + Termin sichtbar
+- **Fotos**: Sanierer/Insurer sehen alle Fotos via Admin-Client
+- **Property**: Edit-Seite + Edit-Button in Detail
 
 ## Sprint 4 — Status: ✅ Abgeschlossen (15.04.2026)
 
