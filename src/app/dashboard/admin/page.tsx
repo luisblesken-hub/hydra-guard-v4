@@ -144,8 +144,10 @@ export default async function AdminDashboardPage() {
             <tbody className="divide-y divide-slate-100">
               {(allUsers ?? []).map((u) => (
                 <tr key={u.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-2 text-slate-700">
-                    {u.email ?? <span className="text-slate-400">—</span>}
+                  <td className="px-4 py-2">
+                    <Link href={`/dashboard/admin/users/${u.id}`} className="font-medium text-slate-700 hover:text-indigo-600 hover:underline">
+                      {u.email ?? <span className="text-slate-400">—</span>}
+                    </Link>
                     <p className="font-mono text-[10px] text-slate-400">{u.id.slice(0, 8)}</p>
                   </td>
                   <td className="px-4 py-2">
