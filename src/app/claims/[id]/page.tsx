@@ -15,6 +15,7 @@ import { InviteTenantSection } from "@/components/tenant/invite-section";
 import { StatusStepper } from "@/components/claims/status-stepper";
 import { ClaimNotes } from "@/components/claims/claim-notes";
 import { OwnerClaimActions } from "@/components/claims/owner-claim-actions";
+import { ShareClaimButton } from "@/components/claims/share-claim-button";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -242,6 +243,7 @@ export default async function ClaimDetailPage({ params }: Params) {
         )}
 
         <div className="flex flex-wrap gap-2">
+          <ShareClaimButton claimId={id} />
           <a
             href={`/api/claims/${id}/export/insurer`}
             target="_blank"

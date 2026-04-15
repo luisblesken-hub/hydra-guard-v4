@@ -140,6 +140,9 @@ export default async function OwnerDashboardPage({
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900">Meine Objekte</h2>
+            <Link href="/properties/new" className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+              + Objekt anlegen
+            </Link>
           </div>
           <div className="grid grid-cols-1 gap-4">
             {properties.map((p) => (
