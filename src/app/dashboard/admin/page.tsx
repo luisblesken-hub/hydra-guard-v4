@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { UserRoleSelect } from "@/components/admin/user-row";
+import { CreateTestUsersButton } from "@/components/admin/create-test-users-button";
 
 const CATEGORY_DE: Record<string, string> = {
   pipe_burst: "Rohrbruch",
@@ -71,6 +72,15 @@ export default async function AdminDashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Testdaten */}
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-slate-900">Dev-Tools</h2>
+        <p className="mb-3 text-xs text-slate-500">
+          Schnell Testnutzer für Smoke-Tests anlegen.
+        </p>
+        <CreateTestUsersButton />
+      </section>
 
       {/* User-Management */}
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
