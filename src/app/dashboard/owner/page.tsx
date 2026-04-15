@@ -1,62 +1,67 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getClaimsWithProperty } from "@/lib/db/damage-reports";
 import { ClaimsList } from "@/components/dashboard/claims-list";
 import { MeldenPropertyLink } from "@/components/dashboard/melden-property-link";
+import { statusLabel, statusColor } from "@/lib/utils/claim-status";
 
-export default async function OwnerDashboardPage() {
+const FILTER_LABELS: Record<string, string> = {
+  all: "Alle",
+  open: "Offen",
+  invoice_submitted: "Rechnung offen",
+  closed: "Abgeschlossen",
+  rejected: "Abgelehnt",
+};
+
+const OPEN_STATUSES = new Set([
+  "submitted", "validating", "calculating", "reviewing",
+  "approved", "dispatched", "in_remediation",
+]);
+
+export default async function OwnerDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
-  const { data: claims, error } = await getClaimsWithProperty(supabase, user.id);
+  const params = await searchParams;
+  const filter = params.filter ?? "all";
 
-  const total = claims?.length ?? 0;
+  const { data: allClaims, error } = await getClaimsWithProperty(supabase, user.id);
 
-  // Stats
-  const openStatuses = new Set([
-    "submitted",
-    "validating",
-    "calculating",
-    "reviewing",
-    "approved",
-    "dispatched",
-    "in_remediation",
-    "invoice_submitted",
-  ]);
-  const openCount = (claims ?? []).filter((c) => openStatuses.has(c.status)).length;
-  const awaitingApproval = (claims ?? []).filter((c) => c.status === "invoice_submitted").length;
-  const totalAmount = (claims ?? []).reduce(
-    (sum, c) => sum + (c.damage_amount_estimate ?? 0),
-    0,
-  );
+  const claims = (allClaims ?? []).filter((c) => {
+    if (filter === "all") return true;
+    if (filter === "open") return OPEN_STATUSES.has(c.status);
+    return c.status === filter;
+  });
 
-  const {
-    data: properties,
-    error: propertiesError,
-  } = await supabase
+  const total = allClaims?.length ?? 0;
+  const openCount = (allClaims ?? []).filter((c) => OPEN_STATUSES.has(c.status)).length;
+  const awaitingApproval = (allClaims ?? []).filter((c) => c.status === "invoice_submitted").length;
+  const totalAmount = (allClaims ?? []).reduce((s, c) => s + (c.damage_amount_estimate ?? 0), 0);
+
+  const admin = createAdminClient();
+  const { data: properties } = await admin
     .from("properties")
     .select("id, label, street, city, postal_code, public_token")
     .eq("owner_id", user.id);
-
-  void propertiesError;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       <header className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Meine Schadensfälle
-          </h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Meine Schadensfälle</h1>
           <p className="text-sm text-slate-500">
             {total === 0
-              ? "Noch keine Schadenfälle in Hydra Guard erfasst."
+              ? "Noch keine Schadenfälle erfasst."
               : `${total} Schadensfälle in deinem Bestand.`}
           </p>
         </div>
@@ -68,48 +73,79 @@ export default async function OwnerDashboardPage() {
         </Link>
       </header>
 
-      {error && (
-        <p className="text-sm text-red-600">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       {total > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-slate-900">{total}</p>
-            <p className="text-xs text-slate-500">Gesamtfälle</p>
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-amber-600">{openCount}</p>
-            <p className="text-xs text-slate-500">In Bearbeitung</p>
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-red-600">{awaitingApproval}</p>
-            <p className="text-xs text-slate-500">Rechnung offen</p>
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-emerald-600">
-              {new Intl.NumberFormat("de-DE", {
-                style: "currency",
-                currency: "EUR",
-                maximumFractionDigits: 0,
-              }).format(totalAmount)}
-            </p>
-            <p className="text-xs text-slate-500">Schadenssumme gesamt</p>
-          </div>
+          {[
+            { label: "Gesamtfälle", value: total, color: "text-slate-900" },
+            { label: "In Bearbeitung", value: openCount, color: "text-amber-600" },
+            { label: "Rechnung offen", value: awaitingApproval, color: "text-red-600" },
+            {
+              label: "Schadenssumme",
+              value: new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(totalAmount),
+              color: "text-emerald-600",
+              isString: true,
+            },
+          ].map(({ label, value, color, isString }) => (
+            <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className={`text-2xl font-bold ${color}`}>{value}</p>
+              <p className="text-xs text-slate-500">{label}</p>
+            </div>
+          ))}
         </div>
       )}
 
-      {claims && <ClaimsList claims={claims} />}
+      {/* Filter-Leiste */}
+      {total > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(FILTER_LABELS).map(([key, label]) => (
+            <Link
+              key={key}
+              href={key === "all" ? "/dashboard/owner" : `/dashboard/owner?filter=${key}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                filter === key
+                  ? "bg-slate-900 text-white"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {label}
+              {key === "open" && openCount > 0 && (
+                <span className="ml-1 rounded-full bg-amber-500 px-1 text-white">{openCount}</span>
+              )}
+              {key === "invoice_submitted" && awaitingApproval > 0 && (
+                <span className="ml-1 rounded-full bg-red-500 px-1 text-white">{awaitingApproval}</span>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {claims.length > 0 ? (
+        <ClaimsList claims={claims} />
+      ) : (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+          <p className="text-sm text-slate-600">
+            {filter === "all" ? "Noch keine Schadensfälle vorhanden." : "Keine Fälle mit diesem Filter."}
+          </p>
+          {filter === "all" && (
+            <Link href="/claims/new" className="mt-3 inline-flex rounded-md bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400">
+              Ersten Schaden melden
+            </Link>
+          )}
+        </div>
+      )}
 
       {properties?.length ? (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">Meine Objekte</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Meine Objekte</h2>
+          </div>
           <div className="grid grid-cols-1 gap-4">
             {properties.map((p) => (
               <MeldenPropertyLink
                 key={p.id}
+                id={p.id}
                 publicToken={p.public_token as string}
                 label={p.label}
                 street={p.street}
@@ -123,4 +159,3 @@ export default async function OwnerDashboardPage() {
     </main>
   );
 }
-

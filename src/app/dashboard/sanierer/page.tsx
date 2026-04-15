@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { AssignmentCardActions } from "@/components/assignments/assignment-card-actions";
+import Link from "next/link";
 
 const CATEGORY_DE: Record<string, string> = {
   pipe_burst: "Rohrbruch",

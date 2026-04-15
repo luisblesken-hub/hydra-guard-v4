@@ -12,6 +12,8 @@ import { InvoiceSection } from "@/components/invoices/invoice-section";
 import { ActivityFeed } from "@/components/activity-feed";
 import { DispatcherSection } from "@/components/assignments/dispatcher-section";
 import { InviteTenantSection } from "@/components/tenant/invite-section";
+import { StatusStepper } from "@/components/claims/status-stepper";
+import { ClaimNotes } from "@/components/claims/claim-notes";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -133,6 +135,15 @@ export default async function ClaimDetailPage({ params }: Params) {
     dryingEntries = (data ?? []) as DryingLogEntry[];
   }
 
+  // Notizen aus Activity Feed
+  const { data: notesData } = await admin
+    .from("activity_feed")
+    .select("id, note, actor_role, created_at")
+    .eq("report_id", id)
+    .eq("event_type", "note_added")
+    .order("created_at", { ascending: true });
+  const notes = (notesData ?? []) as { id: string; note: string | null; actor_role: string | null; created_at: string }[];
+
   // Adresse aus property laden für bessere Header-Darstellung
   const propertyId = (claim as { property_id?: string }).property_id ?? null;
   let address = "";
@@ -185,6 +196,9 @@ export default async function ClaimDetailPage({ params }: Params) {
           >
             {statusLabel(status)}
           </span>
+        </div>
+        <StatusStepper status={status} />
+        <div className="flex flex-wrap items-center gap-2">
           {split && (
             <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
               {splitLabel(split)}
@@ -328,6 +342,12 @@ export default async function ClaimDetailPage({ params }: Params) {
       <DryingLogSection reportId={id} initialEntries={dryingEntries} />
 
       <InvoiceSection reportId={id} userId={user.id} role={role} />
+
+      <ClaimNotes
+        reportId={id}
+        initialNotes={notes}
+        canAdd={role === "owner" || role === "sanierer" || role === "versicherung" || role === "admin"}
+      />
 
       <ActivityFeed reportId={id} />
     </main>
