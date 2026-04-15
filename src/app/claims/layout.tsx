@@ -27,7 +27,7 @@ export default async function ClaimsLayout({
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <TopNav role={role} email={email} />
+      <TopNav role={role} email={email} userId={user.id} />
       {children}
     </div>
   );

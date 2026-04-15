@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { NotificationBell } from "./notification-bell";
 
 const ROLE_LABEL: Record<string, string> = {
   owner: "Eigentümer",
@@ -29,9 +30,11 @@ const ROLE_NAV: Record<string, { href: string; label: string }[]> = {
 export function TopNav({
   role,
   email,
+  userId,
 }: {
   role: string | null;
   email: string;
+  userId?: string;
 }) {
   const navItems = ROLE_NAV[role ?? "owner"] ?? ROLE_NAV["owner"];
 
@@ -72,6 +75,7 @@ export function TopNav({
         </div>
 
         <div className="flex items-center gap-3">
+          {userId && <NotificationBell role={role} userId={userId} />}
           <Link
             href="/profile"
             className="hidden flex-col items-end sm:flex"

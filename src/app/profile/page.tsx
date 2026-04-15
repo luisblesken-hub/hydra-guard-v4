@@ -71,7 +71,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <TopNav role={role} email={email} />
+      <TopNav role={role} email={email} userId={user.id} />
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <header>
           <h1 className="text-2xl font-semibold text-slate-900">Mein Profil</h1>
