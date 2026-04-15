@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { renderToBuffer } from "@react-pdf/renderer";
 import {
   SaniererReportDocument,
@@ -22,7 +23,19 @@ export async function GET(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const reportResult = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const role = (profile?.role as string | null) ?? null;
+
+  const client = role === "sanierer" || role === "versicherung" || role === "admin"
+    ? admin
+    : supabase;
+
+  let reportQuery = client
     .from("damage_reports")
     .select(`
       id,
@@ -35,9 +48,13 @@ export async function GET(
         postal_code
       )
     `)
-    .eq("id", id)
-    .eq("owner_id", user.id)
-    .maybeSingle();
+    .eq("id", id);
+
+  if (client === supabase) {
+    reportQuery = reportQuery.eq("owner_id", user.id);
+  }
+
+  const reportResult = await reportQuery.maybeSingle();
 
   if (reportResult.error || !reportResult.data) {
     return new Response("Not found", { status: 404 });
@@ -48,7 +65,7 @@ export async function GET(
     ? (row as any).properties[0]
     : (row as any).properties;
 
-  const photosResult = await supabase
+  const photosResult = await client
     .from("damage_photos")
     .select("original_name, uploaded_at")
     .eq("report_id", id)

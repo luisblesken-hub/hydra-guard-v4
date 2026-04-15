@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { VersichererReportDocument } from "@/components/pdf/versicherer-report";
 
@@ -31,7 +32,20 @@ export async function GET(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const reportResult = await supabase
+  // Rollenbasiert: Owner RLS, Sanierer/Versicherung/Admin über Admin-Client
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const role = (profile?.role as string | null) ?? null;
+
+  const client = role === "sanierer" || role === "versicherung" || role === "admin"
+    ? admin
+    : supabase;
+
+  let reportQuery = client
     .from("damage_reports")
     .select(`
       id,
@@ -50,9 +64,13 @@ export async function GET(
         building_type
       )
     `)
-    .eq("id", id)
-    .eq("owner_id", user.id)
-    .maybeSingle();
+    .eq("id", id);
+
+  if (client === supabase) {
+    reportQuery = reportQuery.eq("owner_id", user.id);
+  }
+
+  const reportResult = await reportQuery.maybeSingle();
 
   if (reportResult.error || !reportResult.data) {
     return new Response("Not found", { status: 404 });
@@ -68,12 +86,14 @@ export async function GET(
     reportRow.liability_involved
   );
 
-  const photosResult = await supabase
+  let photosQuery = client
     .from("damage_photos")
     .select("original_name, room_label, insurance_scope, uploaded_at")
-    .eq("report_id", id)
-    .eq("uploaded_by", user.id)
-    .order("uploaded_at", { ascending: true });
+    .eq("report_id", id);
+  if (client === supabase) {
+    photosQuery = photosQuery.eq("uploaded_by", user.id);
+  }
+  const photosResult = await photosQuery.order("uploaded_at", { ascending: true });
 
   const photos = (photosResult.data ?? []) as Array<{
     original_name: string | null;
@@ -82,7 +102,7 @@ export async function GET(
     uploaded_at: string;
   }>;
 
-  const activityResult = await supabase
+  const activityResult = await client
     .from("activity_feed")
     .select("event_type, created_at")
     .eq("report_id", id)
@@ -93,7 +113,7 @@ export async function GET(
     created_at: string;
   }>;
 
-  const invoicesResult = await supabase
+  const invoicesResult = await client
     .from("sanierer_invoices")
     .select("amount_gross, amount_net, status, submitted_at")
     .eq("report_id", id)
