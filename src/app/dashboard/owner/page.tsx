@@ -76,12 +76,22 @@ export default async function OwnerDashboardPage({
               : `${total} Schadensfälle in deinem Bestand.`}
           </p>
         </div>
-        <Link
-          href="/claims/new"
-          className="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
-        >
-          Neuen Schaden melden
-        </Link>
+        <div className="flex gap-2">
+          {total > 0 && (
+            <a
+              href="/api/owner/claims/summary"
+              className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              CSV Export
+            </a>
+          )}
+          <Link
+            href="/claims/new"
+            className="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
+          >
+            Neuen Schaden melden
+          </Link>
+        </div>
       </header>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

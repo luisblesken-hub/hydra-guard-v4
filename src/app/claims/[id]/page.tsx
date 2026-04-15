@@ -214,12 +214,14 @@ export default async function ClaimDetailPage({ params }: Params) {
             timeStyle: "short",
           }).format(new Date(typedClaim.created_at))}
         </p>
-        <p className="text-lg font-semibold text-slate-900">
-          {new Intl.NumberFormat("de-DE", {
-            style: "currency",
-            currency: "EUR",
-          }).format(amount)}
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <div>
+            <p className="text-xs text-slate-500">Geschätzter Schaden</p>
+            <p className="text-lg font-semibold text-slate-900">
+              {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount)}
+            </p>
+          </div>
+        </div>
 
         {/* Schadensursache */}
         {(typedClaim.confirmed_cause || typedClaim.reported_cause) && (
