@@ -24,7 +24,7 @@ const OPEN_STATUSES = new Set([
 export default async function OwnerDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; sort?: string }>;
+  searchParams: Promise<{ filter?: string; sort?: string; q?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -36,6 +36,7 @@ export default async function OwnerDashboardPage({
   const params = await searchParams;
   const filter = params.filter ?? "all";
   const sort = params.sort ?? "newest";
+  const searchQuery = (params.q ?? "").trim().toLowerCase();
 
   const { data: allClaims, error } = await getClaimsWithProperty(supabase, user.id);
 
@@ -44,6 +45,14 @@ export default async function OwnerDashboardPage({
     if (filter === "open") return OPEN_STATUSES.has(c.status);
     return c.status === filter;
   });
+
+  // Suche
+  if (searchQuery) {
+    claims = claims.filter((c) =>
+      c.property_address.toLowerCase().includes(searchQuery) ||
+      c.status.toLowerCase().includes(searchQuery)
+    );
+  }
 
   // Sortierung
   if (sort === "amount_desc") {
@@ -115,6 +124,21 @@ export default async function OwnerDashboardPage({
             </div>
           ))}
         </div>
+      )}
+
+      {/* Suche */}
+      {total > 0 && (
+        <form method="GET" action="/dashboard/owner">
+          <input type="hidden" name="filter" value={filter} />
+          <input type="hidden" name="sort" value={sort} />
+          <input
+            type="search"
+            name="q"
+            defaultValue={searchQuery}
+            placeholder="Adresse oder Status suchen…"
+            className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+          />
+        </form>
       )}
 
       {/* Filter-Leiste */}

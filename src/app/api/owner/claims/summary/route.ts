@@ -2,55 +2,32 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-/**
- * JSON-Zusammenfassung aller Schäden für einen Owner — für spätere Report-Nutzung.
- */
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const admin = createAdminClient();
+  const { data: me } = await admin.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (me?.role !== "owner") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { data: claims } = await admin
+  const { count: total } = await admin
     .from("damage_reports")
-    .select(`
-      id, status, category, estimated_amount, created_at,
-      confirmed_cause, reported_cause, habitability_status,
-      properties:properties(label, street, city, postal_code)
-    `)
+    .select("*", { count: "exact", head: true })
+    .eq("owner_id", user.id);
+
+  const { count: open } = await admin
+    .from("damage_reports")
+    .select("*", { count: "exact", head: true })
     .eq("owner_id", user.id)
-    .order("created_at", { ascending: false });
+    .in("status", ["submitted", "dispatched", "in_remediation", "invoice_submitted"]);
 
-  const CATEGORY_DE: Record<string, string> = {
-    pipe_burst: "Rohrbruch",
-    appliance_leak: "Geräteschaden",
-    human_error: "Menschliches Versagen",
-    roof_leak: "Dachleck",
-    unknown: "Unbekannt",
-  };
+  const { data: amounts } = await admin
+    .from("damage_reports")
+    .select("estimated_amount")
+    .eq("owner_id", user.id);
 
-  const rows = [
-    ["Schaden-ID", "Adresse", "Kategorie", "Status", "Betrag (EUR)", "Ursache", "Datum"].join(";"),
-    ...(claims ?? []).map((c) => {
-      const prop = Array.isArray((c as any).properties) ? (c as any).properties[0] : (c as any).properties;
-      const address = prop ? [prop.street, prop.postal_code, prop.city].filter(Boolean).join(", ") : "—";
-      return [
-        c.id,
-        address,
-        CATEGORY_DE[c.category] ?? c.category,
-        c.status,
-        c.estimated_amount.toFixed(2).replace(".", ","),
-        (c.confirmed_cause ?? c.reported_cause ?? "").replace(/;/g, ","),
-        new Date(c.created_at).toISOString().slice(0, 10),
-      ].join(";");
-    }),
-  ];
+  const totalAmount = (amounts ?? []).reduce((s, r) => s + (r.estimated_amount ?? 0), 0);
 
-  return new NextResponse("\uFEFF" + rows.join("\r\n"), {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="schaeden-${new Date().toISOString().slice(0, 10)}.csv"`,
-    },
-  });
+  return NextResponse.json({ total: total ?? 0, open: open ?? 0, total_amount_eur: totalAmount });
 }
