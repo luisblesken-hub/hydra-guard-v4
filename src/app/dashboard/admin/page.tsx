@@ -118,15 +118,16 @@ export default async function AdminDashboardPage() {
 
       {/* User-Management */}
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-          <h2 className="text-sm font-semibold text-slate-900">Nutzer & Rollen</h2>
-          <a
-            href="/api/admin/users/export"
-            className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
-          >
-            CSV Export
-          </a>
-        </div>
+        <div className="border-b border-slate-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">Nutzer & Rollen</h2>
+            <a
+              href="/api/admin/users/export"
+              className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+            >
+              CSV Export
+            </a>
+          </div>
           <p className="text-xs text-slate-500">
             Rollen anpassen per Dropdown – Änderungen werden sofort gespeichert.
           </p>
