@@ -79,6 +79,8 @@ export type ClaimWithProperty = {
   damage_amount_estimate: number
   created_at: string
   property_address: string
+  latest_invoice_status?: string | null
+  latest_invoice_amount?: number | null
 }
 
 // ─── Functions ──────────────────────────────────────────────────────────────
@@ -362,10 +364,27 @@ export async function getClaimsWithProperty(
   const currentRes = await tryCurrent()
   if (!currentRes.error && currentRes.data) {
     const rows = (currentRes.data ?? []) as ClaimWithPropertyRowCurrent[]
+
+    // Neueste Rechnung pro Report
+    const reportIds = rows.map((r) => r.id)
+    type InvRow = { report_id: string; status: string; amount_gross: number | null; amount_net: number }
+    const invoiceMap: Record<string, InvRow> = {}
+    if (reportIds.length > 0) {
+      const { data: invoices } = await supabase
+        .from('sanierer_invoices')
+        .select('report_id, status, amount_gross, amount_net, submitted_at')
+        .in('report_id', reportIds)
+        .order('submitted_at', { ascending: false })
+      for (const inv of (invoices ?? []) as (InvRow & { submitted_at: string })[]) {
+        if (!invoiceMap[inv.report_id]) invoiceMap[inv.report_id] = inv
+      }
+    }
+
     const mapped: ClaimWithProperty[] = rows.map((row) => {
       const street = row.properties?.street ?? ''
       const city = row.properties?.city ?? ''
       const address = street && city ? `${street}, ${city}` : street || city || '—'
+      const inv = invoiceMap[row.id]
 
       return {
         id: row.id,
@@ -374,6 +393,8 @@ export async function getClaimsWithProperty(
         damage_amount_estimate: Number(row.estimated_amount ?? 0),
         created_at: row.created_at,
         property_address: address,
+        latest_invoice_status: inv?.status ?? null,
+        latest_invoice_amount: inv ? inv.amount_gross ?? inv.amount_net : null,
       }
     })
 

@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 const SignupSchema = z.object({
   full_name: z.string().min(2, 'Bitte vollständigen Namen eingeben.').max(200),
@@ -59,11 +60,18 @@ export async function signupAction(
     };
   }
 
-  await supabase.from('profiles').insert({
-    id: data.user.id,
-    full_name,
-    role: dbRole,
-  });
+  // Profile via Admin-Client (bypasst RLS). Nur Felder die in der Tabelle existieren.
+  const admin = createAdminClient();
+  await admin.from('profiles').upsert(
+    {
+      id: data.user.id,
+      email: data.user.email ?? email,
+      role: dbRole,
+    },
+    { onConflict: 'id' }
+  );
+  // full_name wird aktuell nicht persistiert (Spalte fehlt im Schema), wir behalten es für zukünftige Erweiterung.
+  void full_name;
 
   // Erfolg: Hinweis auf E-Mail-Bestätigung.
   return {

@@ -4,6 +4,19 @@ import Link from "next/link";
 import type { ClaimWithProperty } from "@/lib/db/damage-reports";
 import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
 
+const INV_STATUS_STYLE: Record<string, string> = {
+  submitted: "bg-blue-100 text-blue-800",
+  approved: "bg-emerald-100 text-emerald-800",
+  paid: "bg-green-100 text-green-800",
+  rejected: "bg-red-100 text-red-800",
+};
+const INV_STATUS_DE: Record<string, string> = {
+  submitted: "Rechnung eingereicht",
+  approved: "Rechnung freigegeben",
+  paid: "Bezahlt",
+  rejected: "Rechnung abgelehnt",
+};
+
 type Props = {
   claims: ClaimWithProperty[];
 };
@@ -50,6 +63,22 @@ export function ClaimsList({ claims }: Props) {
               {claim.insurance_split && (
                 <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
                   {splitLabel(claim.insurance_split)}
+                </span>
+              )}
+              {claim.latest_invoice_status && (
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium ${
+                    INV_STATUS_STYLE[claim.latest_invoice_status] ?? "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {INV_STATUS_DE[claim.latest_invoice_status] ?? claim.latest_invoice_status}
+                  {claim.latest_invoice_amount
+                    ? ` · ${new Intl.NumberFormat("de-DE", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0,
+                      }).format(claim.latest_invoice_amount)}`
+                    : ""}
                 </span>
               )}
               <span className="text-slate-400 text-[11px]">

@@ -19,6 +19,24 @@ export default async function OwnerDashboardPage() {
 
   const total = claims?.length ?? 0;
 
+  // Stats
+  const openStatuses = new Set([
+    "submitted",
+    "validating",
+    "calculating",
+    "reviewing",
+    "approved",
+    "dispatched",
+    "in_remediation",
+    "invoice_submitted",
+  ]);
+  const openCount = (claims ?? []).filter((c) => openStatuses.has(c.status)).length;
+  const awaitingApproval = (claims ?? []).filter((c) => c.status === "invoice_submitted").length;
+  const totalAmount = (claims ?? []).reduce(
+    (sum, c) => sum + (c.damage_amount_estimate ?? 0),
+    0,
+  );
+
   const {
     data: properties,
     error: propertiesError,
@@ -54,6 +72,33 @@ export default async function OwnerDashboardPage() {
         <p className="text-sm text-red-600">
           {error}
         </p>
+      )}
+
+      {total > 0 && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-slate-900">{total}</p>
+            <p className="text-xs text-slate-500">Gesamtfälle</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-amber-600">{openCount}</p>
+            <p className="text-xs text-slate-500">In Bearbeitung</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-red-600">{awaitingApproval}</p>
+            <p className="text-xs text-slate-500">Rechnung offen</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-emerald-600">
+              {new Intl.NumberFormat("de-DE", {
+                style: "currency",
+                currency: "EUR",
+                maximumFractionDigits: 0,
+              }).format(totalAmount)}
+            </p>
+            <p className="text-xs text-slate-500">Schadenssumme gesamt</p>
+          </div>
+        </div>
       )}
 
       {claims && <ClaimsList claims={claims} />}

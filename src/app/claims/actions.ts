@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClaim, ensureProperty } from '@/lib/db/damage-reports'
 
 const EXPERT_TRACK_THRESHOLD = 5_000
@@ -89,6 +90,18 @@ export async function createClaimAction(
 
   if (claimResult.error) {
     return { success: false, message: claimResult.error }
+  }
+
+  // Activity Feed Log
+  if (claimResult.data) {
+    const admin = createAdminClient()
+    await admin.from('activity_feed').insert({
+      report_id: claimResult.data.id,
+      actor_id: user.id,
+      actor_role: 'owner',
+      event_type: 'claim_created',
+      note: `Schaden gemeldet (${estimated_amount.toFixed(2)} €, Kategorie: ${category})`,
+    })
   }
 
   revalidatePath('/claims')
