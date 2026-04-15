@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { AssignmentCardActions } from "@/components/assignments/assignment-card-actions";
+import { QuickInvoiceForm } from "@/components/assignments/quick-invoice-form";
 import Link from "next/link";
 
 const CATEGORY_DE: Record<string, string> = {
@@ -329,6 +330,14 @@ export default async function SaniererDashboardPage() {
                     currentStatus={row.status}
                     hasConfirmedCause={Boolean(report.confirmed_cause)}
                   />
+                )}
+                {report && (row.status === "in_progress" || row.status === "completed") && (
+                  <div className="mt-2">
+                    <QuickInvoiceForm
+                      reportId={report.id}
+                      hasInvoice={row.invoice !== null}
+                    />
+                  </div>
                 )}
               </li>
             );

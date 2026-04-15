@@ -14,6 +14,7 @@ import { DispatcherSection } from "@/components/assignments/dispatcher-section";
 import { InviteTenantSection } from "@/components/tenant/invite-section";
 import { StatusStepper } from "@/components/claims/status-stepper";
 import { ClaimNotes } from "@/components/claims/claim-notes";
+import { OwnerClaimActions } from "@/components/claims/owner-claim-actions";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -234,6 +235,10 @@ export default async function ClaimDetailPage({ params }: Params) {
               </p>
             )}
           </div>
+        )}
+
+        {role === "owner" && ownerId === user.id && (
+          <OwnerClaimActions reportId={id} status={status} />
         )}
 
         <div className="flex flex-wrap gap-2">
