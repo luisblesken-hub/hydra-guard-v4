@@ -145,11 +145,11 @@ export default async function ProfilePage() {
         </section>
 
         <div className="flex justify-between">
-          <Link
-            href="/dashboard"
-            className="text-sm text-slate-500 hover:text-slate-700"
-          >
+          <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700">
             ← Zurück zum Dashboard
+          </Link>
+          <Link href="/settings/notifications" className="text-sm text-slate-500 hover:text-slate-700">
+            🔔 Benachrichtigungen
           </Link>
         </div>
       </main>

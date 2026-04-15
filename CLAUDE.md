@@ -96,8 +96,10 @@ User: Luis Blesken (luis.blesken@gmail.com), Aachen.
 ## Offene Risiken
 
 - Supabase Access Token im Chat exponiert → **rotieren**
-- EXIF/GPS-Strip ist Platzhalter → vor Go-Live implementieren
-- RLS nicht vollständig unter allen Rollen getestet
+- EXIF/GPS-Strip: implementiert (JPEG APP0/APP1 entfernen), echter Test nötig
+- RLS: `damage_reports`, `profiles`, `assignments`, `sanierer_invoices`, `activity_feed`, `damage_invitations`, `sanierer_pool_profiles` — alle mit Policies. Noch testen unter allen Rollen.
+- **Storage Bucket `damage-photos`**: Policies müssen manuell im Supabase-Dashboard gesetzt werden (SQL-Migrations können Storage nicht konfigurieren). Empfehlung: nur authenticated uploads, kein public read.
+- Public Wizard (`/melden/[token]`): Rate Limiting fehlt → vor Go-Live absichern.
 
 ## Autonomes Deployment
 
