@@ -85,6 +85,21 @@ export default async function AdminDashboardPage() {
         </a>
       </div>
 
+      {/* Migration-Status */}
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-slate-900">Migrations-Status</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {["0001_hydra_guard_init", "0002_hydra_guard_full", "0003_cause_and_pool", "0004_profile_full_name", "0005_owner_invitation_policy"].map((m) => (
+            <span key={m} className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+              ✓ {m}
+            </span>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-slate-400">
+          Migrations müssen manuell im Supabase-Dashboard ausgeführt werden.
+        </p>
+      </section>
+
       {/* Testdaten */}
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Dev-Tools</h2>

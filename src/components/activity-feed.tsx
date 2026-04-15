@@ -22,6 +22,19 @@ const ROLE_LABEL: Record<string, string> = {
   admin: "Admin",
 };
 
+const EVENT_COLOR: Record<string, string> = {
+  claim_created: "bg-blue-400",
+  invoice_submitted: "bg-amber-400",
+  invoice_approved: "bg-emerald-400",
+  invoice_rejected: "bg-red-400",
+  invoice_paid: "bg-green-500",
+  assignment_created: "bg-indigo-400",
+  status_changed: "bg-slate-400",
+  drying_log_added: "bg-cyan-400",
+  photo_uploaded: "bg-violet-400",
+  note_added: "bg-slate-300",
+};
+
 const EVENT_ICON: Record<string, string> = {
   claim_created: "📋",
   claim_submitted: "📤",
@@ -82,7 +95,7 @@ export async function ActivityFeed({ reportId }: { reportId: string }) {
 
           return (
             <li key={entry.id} className="mb-4 last:mb-0">
-              <div className="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-white bg-slate-300" />
+              <div className={`absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-white ${EVENT_COLOR[entry.event_type] ?? "bg-slate-300"}`} />
               <div className="flex flex-wrap items-start justify-between gap-1">
                 <div>
                   <p className="text-sm font-medium text-slate-800">
