@@ -23,7 +23,7 @@ const OPEN_STATUSES = new Set([
 export default async function OwnerDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; sort?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -34,14 +34,25 @@ export default async function OwnerDashboardPage({
 
   const params = await searchParams;
   const filter = params.filter ?? "all";
+  const sort = params.sort ?? "newest";
 
   const { data: allClaims, error } = await getClaimsWithProperty(supabase, user.id);
 
-  const claims = (allClaims ?? []).filter((c) => {
+  let claims = (allClaims ?? []).filter((c) => {
     if (filter === "all") return true;
     if (filter === "open") return OPEN_STATUSES.has(c.status);
     return c.status === filter;
   });
+
+  // Sortierung
+  if (sort === "amount_desc") {
+    claims = [...claims].sort((a, b) => (b.damage_amount_estimate ?? 0) - (a.damage_amount_estimate ?? 0));
+  } else if (sort === "amount_asc") {
+    claims = [...claims].sort((a, b) => (a.damage_amount_estimate ?? 0) - (b.damage_amount_estimate ?? 0));
+  } else {
+    // newest (default)
+    claims = [...claims].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
 
   const total = allClaims?.length ?? 0;
   const openCount = (allClaims ?? []).filter((c) => OPEN_STATUSES.has(c.status)).length;
@@ -118,6 +129,26 @@ export default async function OwnerDashboardPage({
               )}
             </Link>
           ))}
+          {/* Sort-Buttons */}
+          <div className="ml-auto flex gap-1">
+            {[
+              { key: "newest", label: "Neueste" },
+              { key: "amount_desc", label: "Betrag ↓" },
+              { key: "amount_asc", label: "Betrag ↑" },
+            ].map((s) => (
+              <Link
+                key={s.key}
+                href={`/dashboard/owner?filter=${filter}&sort=${s.key}`}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                  sort === s.key
+                    ? "bg-indigo-600 text-white"
+                    : "border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                {s.label}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

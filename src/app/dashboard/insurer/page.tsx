@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { InsurerInvoiceActions } from "@/components/invoices/insurer-invoice-actions";
+import { BatchPayButton } from "@/components/invoices/batch-pay-button";
 
 type InvoiceRow = {
   id: string;
@@ -174,6 +175,11 @@ export default async function InsurerDashboardPage({
           );
         })}
       </div>
+
+      {/* Batch-Zahlung wenn mehrere freigegeben */}
+      {statusFilter === "all" && rows.filter((r) => r.status === "approved").length > 1 && (
+        <BatchPayButton approvedInvoiceIds={rows.filter((r) => r.status === "approved").map((r) => r.id)} />
+      )}
 
       {/* Filter */}
       <div className="flex flex-wrap gap-2">
