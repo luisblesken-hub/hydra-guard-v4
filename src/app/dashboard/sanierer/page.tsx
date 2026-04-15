@@ -156,6 +156,25 @@ export default async function SaniererDashboardPage() {
         </div>
       </header>
 
+      {total > 0 && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-slate-900">{total}</p>
+            <p className="text-xs text-slate-500">Aufträge gesamt</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-amber-600">{open}</p>
+            <p className="text-xs text-slate-500">Aktiv</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-emerald-600">
+              {rows.filter((r) => r.status === "completed").length}
+            </p>
+            <p className="text-xs text-slate-500">Abgeschlossen</p>
+          </div>
+        </div>
+      )}
+
       {rows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
           Du hast noch keine Aufträge erhalten.

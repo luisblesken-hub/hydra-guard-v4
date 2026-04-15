@@ -108,6 +108,8 @@ export default async function InsuranceDashboardPage() {
 
   const awaitingPayment = rows.filter((r) => r.latest_invoice_status === "approved").length;
   const total = rows.length;
+  const inRemediation = rows.filter((r) => r.status === "in_remediation").length;
+  const totalDamage = rows.reduce((s, r) => s + (r.estimated_amount ?? 0), 0);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
@@ -122,6 +124,33 @@ export default async function InsuranceDashboardPage() {
           {total} relevante Fälle insgesamt
         </p>
       </header>
+
+      {total > 0 && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-slate-900">{total}</p>
+            <p className="text-xs text-slate-500">Fälle gesamt</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-amber-600">{awaitingPayment}</p>
+            <p className="text-xs text-slate-500">Zahlung ausstehend</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-emerald-600">{inRemediation}</p>
+            <p className="text-xs text-slate-500">In Sanierung</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-3xl font-bold text-slate-600">
+              {new Intl.NumberFormat("de-DE", {
+                style: "currency",
+                currency: "EUR",
+                maximumFractionDigits: 0,
+              }).format(totalDamage)}
+            </p>
+            <p className="text-xs text-slate-500">Schadensvolumen gesamt</p>
+          </div>
+        </div>
+      )}
 
       {rows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
