@@ -72,12 +72,18 @@ export function TopNav({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden flex-col items-end sm:flex">
-            <span className="text-xs font-medium text-slate-700">{email}</span>
+          <Link
+            href="/profile"
+            className="hidden flex-col items-end sm:flex"
+            title="Profil anzeigen"
+          >
+            <span className="text-xs font-medium text-slate-700 hover:text-slate-900">
+              {email}
+            </span>
             <span className="text-xs text-slate-400">
               {role ? ROLE_LABEL[role] ?? role : ""}
             </span>
-          </div>
+          </Link>
           <LogoutButton />
         </div>
       </div>
