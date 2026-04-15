@@ -75,6 +75,19 @@ export function TopNav({
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/hilfe"
+            className="hidden rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 sm:inline-flex"
+            title="Hilfe"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </Link>
           {userId && <NotificationBell role={role} userId={userId} />}
           <Link
             href="/profile"
