@@ -127,7 +127,38 @@ export default async function ClaimDetailPage({ params }: Params) {
   const split = typedClaim.insurance_split ?? null;
   const status = typedClaim.status;
 
-  const photosResult = await getPhotosByClaimId(supabase, id, user.id);
+  // Owner: RLS-geschützt via supabase+ownerId. Sanierer/Insurer: direkte Admin-Query ohne Owner-Filter.
+  let photosResult: Awaited<ReturnType<typeof getPhotosByClaimId>>;
+  if (role === "sanierer" || role === "versicherung" || role === "admin") {
+    const { data: rawPhotos, error: photosError } = await adminClient
+      .from("damage_photos")
+      .select("id, original_name, file_size_bytes, storage_path, uploaded_at")
+      .eq("report_id", id)
+      .order("uploaded_at", { ascending: true });
+    if (photosError) {
+      photosResult = { success: false, error: "Fehler beim Laden der Fotos." };
+    } else {
+      const enriched = [];
+      for (const row of rawPhotos ?? []) {
+        const { data: signed } = await adminClient.storage
+          .from("damage-photos")
+          .createSignedUrl(row.storage_path, 3600);
+        if (signed?.signedUrl) {
+          enriched.push({
+            id: row.id,
+            original_name: row.original_name,
+            file_size_bytes: row.file_size_bytes,
+            signed_url: signed.signedUrl,
+            uploaded_at: row.uploaded_at,
+            storage_path: row.storage_path,
+          });
+        }
+      }
+      photosResult = { success: true, data: enriched };
+    }
+  } else {
+    photosResult = await getPhotosByClaimId(supabase, id, user.id);
+  }
 
   const role = userRole;
   const admin = adminClient;
