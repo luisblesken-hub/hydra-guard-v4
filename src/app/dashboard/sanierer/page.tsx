@@ -8,7 +8,6 @@ import { QuickInvoiceForm } from "@/components/assignments/quick-invoice-form";
 import { ScheduleAppointmentForm } from "@/components/assignments/schedule-appointment-form";
 import { RecentActivityWidget } from "@/components/dashboard/recent-activity-widget";
 import { QuickDryingLog } from "@/components/assignments/quick-drying-log";
-import Link from "next/link";
 
 const CATEGORY_DE: Record<string, string> = {
   pipe_burst: "Rohrbruch",
