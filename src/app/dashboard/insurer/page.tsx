@@ -28,7 +28,11 @@ function formatDate(v: string | null) {
   return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(v));
 }
 
-export default async function InsurerDashboardPage() {
+export default async function InsurerDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -45,15 +49,22 @@ export default async function InsurerDashboardPage() {
 
   if (profile?.role !== "versicherung") redirect("/dashboard/owner");
 
-  // Alle Rechnungen mit Status submitted, approved, rejected, paid
-  const { data: invoices } = await admin
+  const params = await searchParams;
+  const statusFilter = params.status ?? "all";
+
+  let query = admin
     .from("sanierer_invoices")
     .select(
-      "id, report_id, invoice_number, amount_net, amount_gross, vat_rate, status, submitted_at, approved_at, paid_at"
+      "id, report_id, invoice_number, amount_net, amount_gross, vat_rate, status, submitted_at, approved_at, paid_at",
     )
     .order("submitted_at", { ascending: false });
 
-  // Reports für Adressen
+  if (statusFilter !== "all") {
+    query = query.eq("status", statusFilter);
+  }
+
+  const { data: invoices } = await query;
+
   const reportIds = [...new Set((invoices ?? []).map((i) => i.report_id))];
   type ReportMini = { id: string; status: string; property_id: string };
   let reportMap: Record<string, ReportMini> = {};
@@ -65,8 +76,9 @@ export default async function InsurerDashboardPage() {
     reportMap = Object.fromEntries((reports ?? []).map((r) => [r.id, r as ReportMini]));
   }
 
-  // Properties
-  const propertyIds = [...new Set(Object.values(reportMap).map((r) => r.property_id).filter(Boolean))];
+  const propertyIds = [
+    ...new Set(Object.values(reportMap).map((r) => r.property_id).filter(Boolean)),
+  ];
   type PropRow = { id: string; street: string | null; city: string | null };
   let propMap: Record<string, PropRow> = {};
   if (propertyIds.length > 0) {
@@ -80,9 +92,7 @@ export default async function InsurerDashboardPage() {
   const rows: InvoiceRow[] = (invoices ?? []).map((inv) => {
     const report = reportMap[inv.report_id];
     const prop = report ? propMap[report.property_id] : null;
-    const address = prop
-      ? [prop.street, prop.city].filter(Boolean).join(", ")
-      : "—";
+    const address = prop ? [prop.street, prop.city].filter(Boolean).join(", ") : "—";
     return {
       ...inv,
       address,
@@ -90,10 +100,36 @@ export default async function InsurerDashboardPage() {
     } as InvoiceRow;
   });
 
-  const pending = rows.filter((r) => r.status === "approved").length;
-  const totalApproved = rows
-    .filter((r) => r.status === "approved")
-    .reduce((sum, r) => sum + (r.amount_gross ?? r.amount_net), 0);
+  // Stats brauchen ALLE Rechnungen — separat querien wenn gefiltert
+  const { data: allInvoices } =
+    statusFilter === "all"
+      ? { data: invoices }
+      : await admin.from("sanierer_invoices").select("status, amount_gross, amount_net");
+
+  type StatusStat = { submitted: number; approved: number; paid: number; rejected: number };
+  const stats: StatusStat = {
+    submitted: 0,
+    approved: 0,
+    paid: 0,
+    rejected: 0,
+  };
+  let totalApproved = 0;
+  for (const inv of allInvoices ?? []) {
+    if (inv.status in stats) {
+      stats[inv.status as keyof StatusStat]++;
+      if (inv.status === "approved") {
+        totalApproved += inv.amount_gross ?? inv.amount_net;
+      }
+    }
+  }
+
+  const filterOptions = [
+    { key: "all", label: "Alle" },
+    { key: "submitted", label: "Eingereicht" },
+    { key: "approved", label: "Freigegeben" },
+    { key: "paid", label: "Bezahlt" },
+    { key: "rejected", label: "Abgelehnt" },
+  ];
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
@@ -101,13 +137,13 @@ export default async function InsurerDashboardPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold text-slate-900">Rechnungen</h1>
           <p className="text-sm text-slate-500">
-            {pending > 0 ? (
+            {stats.approved > 0 ? (
               <span className="font-medium text-amber-600">
-                {pending} Rechnung{pending === 1 ? "" : "en"} freigegeben, ausstehende Zahlung
+                {stats.approved} Rechnung{stats.approved === 1 ? "" : "en"} freigegeben, ausstehende Zahlung
                 {" "}({formatEUR(totalApproved)}) · {" "}
               </span>
             ) : null}
-            {rows.length} Rechnungen insgesamt
+            {rows.length} Rechnungen {statusFilter !== "all" ? "gefiltert" : "insgesamt"}
           </p>
         </div>
         {rows.length > 0 && (
@@ -120,7 +156,6 @@ export default async function InsurerDashboardPage() {
         )}
       </header>
 
-      {/* Zusammenfassung */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {(
           [
@@ -130,7 +165,7 @@ export default async function InsurerDashboardPage() {
             { label: "Abgelehnt", key: "rejected", color: "bg-red-50 text-red-700" },
           ] as const
         ).map(({ label, key, color }) => {
-          const count = rows.filter((r) => r.status === key).length;
+          const count = stats[key];
           return (
             <div key={key} className={`rounded-xl p-4 ${color}`}>
               <p className="text-2xl font-bold">{count}</p>
@@ -140,9 +175,28 @@ export default async function InsurerDashboardPage() {
         })}
       </div>
 
+      {/* Filter */}
+      <div className="flex flex-wrap gap-2">
+        {filterOptions.map((opt) => (
+          <Link
+            key={opt.key}
+            href={opt.key === "all" ? "/dashboard/insurer" : `/dashboard/insurer?status=${opt.key}`}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              statusFilter === opt.key
+                ? "bg-slate-900 text-white"
+                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            {opt.label}
+          </Link>
+        ))}
+      </div>
+
       {rows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
-          Noch keine Rechnungen vorhanden.
+          {statusFilter === "all"
+            ? "Noch keine Rechnungen vorhanden."
+            : "Keine Rechnungen mit diesem Filter."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">

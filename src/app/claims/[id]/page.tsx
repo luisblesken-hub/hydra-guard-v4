@@ -101,12 +101,29 @@ export default async function ClaimDetailPage({ params }: Params) {
     dryingEntries = (data ?? []) as DryingLogEntry[];
   }
 
+  // Adresse aus property laden für bessere Header-Darstellung
+  const { data: propertyRow } = await admin
+    .from("properties")
+    .select("street, city, postal_code, label")
+    .eq("id", claim.property_id)
+    .maybeSingle();
+  const address = propertyRow
+    ? [propertyRow.street, propertyRow.postal_code, propertyRow.city].filter(Boolean).join(", ")
+    : propertyRow?.label ?? "";
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-8">
       <header className="space-y-2">
-        <p className="font-mono text-xs text-slate-400">
-          Schaden-ID: {claim.id}
-        </p>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              {address || "Schadensakte"}
+            </h1>
+            <p className="font-mono text-[10px] text-slate-400">
+              ID: {claim.id}
+            </p>
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColor(
