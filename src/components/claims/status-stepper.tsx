@@ -28,16 +28,23 @@ export function StatusStepper({ status }: { status: string }) {
 
   if (currentIdx < 0) return null; // Sonderstatus – kein Stepper sinnvoll
 
+  const currentLabel = STEPS[currentIdx]?.label ?? "Unbekannt";
+
   return (
-    <div className="overflow-x-auto">
-      <ol className="flex min-w-max items-center gap-0">
+    <div className="overflow-x-auto" role="region" aria-label={`Fortschritt: ${currentLabel}`}>
+      <ol className="flex min-w-max items-center gap-0" aria-label="Schadensfall-Fortschritt">
         {STEPS.map((step, i) => {
           const done = i < currentIdx;
           const active = i === currentIdx;
           const future = i > currentIdx;
 
           return (
-            <li key={step.key} className="flex items-center">
+            <li
+              key={step.key}
+              className="flex items-center"
+              aria-current={active ? "step" : undefined}
+              aria-label={`Schritt ${i + 1}: ${step.label}${done ? " (abgeschlossen)" : active ? " (aktuell)" : ""}`}
+            >
               <div className="flex flex-col items-center">
                 <div
                   className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
