@@ -32,11 +32,20 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
+.vercel-env-tmp.json
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 .env.deploy
+
+# local / generated supabase junk
+supabase/.temp/
+supabase/_all_migrations_combined.sql
+
+# Claude/Cursor local settings (may contain machine paths)
+.claude/settings.local.json
