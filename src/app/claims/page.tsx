@@ -36,7 +36,7 @@ export default async function ClaimsPage() {
       <section>
         <h1 className="text-2xl font-bold mb-1">Schaden melden</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Für Schäden zwischen €500 und €15.000 übernehmen wir die vollständige Abwicklung.
+          Schäden bis 12.500 € laufen über den HydraGuard-Standard-Workflow. Darüber übernehmen wir die Dokumentation und übergeben an einen Gutachter.
         </p>
         <CreateClaimForm />
       </section>

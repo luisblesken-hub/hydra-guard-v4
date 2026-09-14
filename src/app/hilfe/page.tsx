@@ -26,8 +26,8 @@ const FAQ = [
     a: "Beim Upload werden EXIF- und GPS-Daten automatisch aus JPEG-Dateien entfernt (DSGVO-konform).",
   },
   {
-    q: "Was passiert bei Schäden > 15.000 €?",
-    a: "Schäden werden automatisch als 'Out of Scope' markiert und zur Prüfung an einen Gutachter übergeben.",
+    q: "Was passiert bei Schäden über 12.500 €?",
+    a: "Solche Schäden werden als Gutachter-Track markiert und extern outgesourced. Unterhalb dieser Grenze läuft der Standard-Workflow in HydraGuard.",
   },
   {
     q: "Wie exportiere ich Rechnungen für die Buchhaltung?",

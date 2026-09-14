@@ -55,7 +55,7 @@ export function CreateClaimForm() {
         </label>
         <input
           id="estimated_amount" name="estimated_amount"
-          type="number" step="100" min="1" max="500000"
+          type="number" step="1" min="1" max="500000"
           value={amount} onChange={e => setAmount(e.target.value)}
           className="w-full border rounded px-3 py-2 text-sm" required
         />
