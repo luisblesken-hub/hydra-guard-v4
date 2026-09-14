@@ -70,6 +70,7 @@ export default async function ClaimDetailPage({ params }: Params) {
     .eq("id", user.id)
     .maybeSingle();
   const userRole = (profileEarly?.role as string | null) ?? null;
+  const role = userRole;
 
   let claim = null;
   let claimError = null;
@@ -160,7 +161,6 @@ export default async function ClaimDetailPage({ params }: Params) {
     photosResult = await getPhotosByClaimId(supabase, id, user.id);
   }
 
-  const role = userRole;
   const admin = adminClient;
 
   const { data: assignments } = await admin

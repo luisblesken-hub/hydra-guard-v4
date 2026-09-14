@@ -119,10 +119,15 @@ export default async function InsuranceDashboardPage({
     rows = rows.filter((r) => r.status === statusFilter);
   }
   if (searchQuery) {
-    rows = rows.filter((r) =>
-      r.address.toLowerCase().includes(searchQuery) ||
-      (CATEGORY_DE[r.category] ?? r.category).toLowerCase().includes(searchQuery)
-    );
+    rows = rows.filter((r) => {
+      const address = r.property
+        ? [r.property.street, r.property.city].filter(Boolean).join(", ")
+        : "";
+      return (
+        address.toLowerCase().includes(searchQuery) ||
+        (CATEGORY_DE[r.category] ?? r.category).toLowerCase().includes(searchQuery)
+      );
+    });
   }
 
   const awaitingPayment = rows.filter((r) => r.latest_invoice_status === "approved").length;
