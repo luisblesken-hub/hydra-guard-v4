@@ -1,40 +1,68 @@
-## Hydra Guard V4 – InsurTech B2B SaaS / KI-Clearing-Plattform (Leitungswasserschäden)
+# HydraGuard V4
 
-Dieses Projekt ist der eigenständige Produkt-Satellit **Hydra Guard V4**.  
-Ziel: Eine KI-gestützte B2B-Clearing-Plattform für Leitungswasserschäden, die Versicherer, Hausverwaltungen und Sanierungsbetriebe verbindet und einen End‑to‑End‑Flow von Schadenmeldung über Triage & Pricing bis zur revisionssicheren Abrechnung abbildet.
+**Wasserschaden-Management für Eigentümer, Sanierer und Versicherer.**
 
-- **Stack**: Next.js 15 (App Router, TypeScript strict) + Tailwind + shadcn/ui + Supabase (Postgres, Auth, RLS).
-- **Rolle**: Satellit – strikt getrennt von der Ops-/Control-Plane „Motherboard“ (`core/` im Workspace, wird von diesem Projekt nicht berührt).
-- **Quellen der Wahrheit** (im Workspace `c:\Users\julia\Desktop\MOTHERBOARD`):
-  - `AGENT_CHAT_EXTRACTIONS.md` → Abschnitt 7.1 „Hydra-Guard V4“ (Produkt‑Spec, Markt, Architektur, UI‑Tokens).
-  - `_SATELLITE_LAB/hydra-guard-core/master_migration_blueprint.md` → Supabase/Postgres‑Schema & RLS.
-  - `_SATELLITE_LAB/hydra-guard-core/business_logic_vault.md` → zentrale Formeln & Pricing-/Triage‑Regeln.
+Live: [hydra-guard-v4.vercel.app](https://hydra-guard-v4.vercel.app)
 
-## Lokale Entwicklung
+## Was es tut
 
-Voraussetzungen:
-- Node.js und npm installiert.
-- Ein Supabase‑Projekt (EU-Region) mit eingespielter Hydra-Guard-Schema-Migration.
+End-to-End-Flow für Leitungswasserschäden:
 
-Entwicklung starten:
+1. **Melden** — öffentlich per QR/Token (`/melden/[token]`), ohne Login  
+2. **Steuern** — Owner-Dashboard: Status, Fotos, Sanierer-Zuweisung, Mieter-Einladung  
+3. **Sanieren** — Sanierer: Aufträge, Trocknungsprotokoll, Rechnung  
+4. **Prüfen** — Versicherung: Fälle, Rechnungen, Freigabe/Zahlung, PDF-Export  
+
+## Rollen
+
+| Rolle | Dashboard |
+|---|---|
+| Eigentümer / HV | `/dashboard/owner` |
+| Sanierer | `/dashboard/sanierer` |
+| Versicherung | `/dashboard/insurance` |
+| Admin | `/dashboard/admin` |
+
+## Stack
+
+- **Frontend:** Next.js 16 (App Router), TypeScript strict, Tailwind 4, shadcn/ui  
+- **Backend:** Supabase (Postgres, Auth, RLS, Storage) — Region EU (Frankfurt)  
+- **Deploy:** Vercel EU  
+
+## Architektur (kurz)
+
+```
+Browser  →  Next.js (SSR + Route Handlers)
+                ↓
+         Supabase Auth (Cookies / @supabase/ssr)
+                ↓
+         Postgres + RLS   |   Storage (damage-photos, privat, Signed URLs)
+```
+
+- Serverseitige Admin-Queries nur über Service-Role (`src/lib/supabase/admin.ts`)  
+- Öffentlicher Melde-Wizard nutzt Admin-Client gezielt (Token → Property)  
+- Claim-Tiering per Betrag (Auto / Expert / Out-of-scope)  
+
+## Repo-Struktur
+
+```
+src/app/           # App Router (Dashboards, Claims, Melden, API)
+src/components/    # UI (Claims, Invoices, PDF, Nav)
+src/lib/           # Auth, DB, Supabase-Clients
+supabase/          # Migrations + _bootstrap_fresh.sql (frisches Schema)
+```
+
+## Status
+
+MVP / Sprint 5+ — produktionsfähig für Demo und Feedback.  
+Bekannte nächste Themen: Storage-Policies manuell prüfen, Rate-Limits härten, Feature-Tiefe je Rolle.
+
+## Lokal (nur für Entwickler)
 
 ```bash
 npm install
+# .env.local mit NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+# SUPABASE_SERVICE_ROLE_KEY
 npm run dev
 ```
 
-Danach ist das Hydra‑Guard‑MVP unter [http://localhost:3000](http://localhost:3000) erreichbar.
-
-> Hinweis: Die eigentlichen Domain‑Modelle, Supabase‑Migrationen und Quad‑Agent‑Routen werden schrittweise entlang der oben genannten Specs implementiert.
-
-### Erforderliche Umgebungsvariablen (Supabase)
-
-Lege im Projekt eine `.env.local` an und setze mindestens:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=deine_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=dein_anon_key
-SUPABASE_SERVICE_ROLE_KEY=dein_service_role_key # nur serverseitig verwendet
-```
-
-Diese Variablen werden in `src/lib/env.ts` validiert und von den Supabase-Clients (`src/lib/supabase/client.ts`, `src/lib/supabase/server.ts`) verwendet.
+Frische DB: `supabase/_bootstrap_fresh.sql` im Supabase SQL Editor.
