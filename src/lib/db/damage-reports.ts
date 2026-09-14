@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database.types'
+import { resolveClaimTier } from '@/lib/claims/tier'
 
 type Client = SupabaseClient<Database>
 
@@ -147,6 +148,17 @@ export async function createClaim(
   if (error) {
     console.error('[createClaim] insert error:', error.code)
     return { data: null, error: 'Fehler beim Speichern der Schadenmeldung.' }
+  }
+
+  // Enforce 2-track routing in app (DB trigger may lag behind until migration 0006).
+  const claimTier = resolveClaimTier(input.estimated_amount)
+  const { error: tierError } = await supabase
+    .from('damage_reports')
+    .update({ claim_tier: claimTier })
+    .eq('id', data.id)
+
+  if (tierError) {
+    console.error('[createClaim] claim_tier update error:', tierError.code)
   }
 
   return { data: { id: data.id }, error: null }

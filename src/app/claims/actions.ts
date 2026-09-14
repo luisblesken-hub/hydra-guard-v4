@@ -8,9 +8,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClaim, ensureProperty } from '@/lib/db/damage-reports'
-
-const EXPERT_TRACK_THRESHOLD = 5_000
-const OUT_OF_SCOPE_THRESHOLD = 15_000
+import { resolveClaimTier } from '@/lib/claims/tier'
 
 const Schema = z.object({
   estimated_amount: z.coerce
@@ -58,10 +56,7 @@ export async function createClaimAction(
     has_contents_damage, contents_insurer_name, contents_policy_number,
   } = parsed.data
 
-  const claimTier =
-    estimated_amount > OUT_OF_SCOPE_THRESHOLD ? 'out_of_scope' :
-    estimated_amount > EXPERT_TRACK_THRESHOLD ? 'expert_track' :
-    'auto_track'
+  const claimTier = resolveClaimTier(estimated_amount)
 
   const propertyResult = await ensureProperty(supabase, {
     owner_id: user.id,

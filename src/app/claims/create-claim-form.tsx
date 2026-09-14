@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { createClaimAction, type ClaimFormState } from './actions'
+import { getClaimTierPreview } from '@/lib/claims/tier'
 
 const initial: ClaimFormState = {}
 
@@ -24,35 +25,13 @@ function FieldError({ errors }: { errors?: string[] }) {
   return <p className="text-red-600 text-xs mt-1">{errors[0]}</p>
 }
 
-const EXPERT_TRACK_THRESHOLD = 5_000;
-const OUT_OF_SCOPE_THRESHOLD = 15_000;
-
-function getTier(amount: number): { label: string; color: string; desc: string } | null {
-  if (!amount || amount <= 0) return null;
-  if (amount > OUT_OF_SCOPE_THRESHOLD) return {
-    label: "Gutachter-Track",
-    color: "bg-red-50 border-red-200 text-red-700",
-    desc: "Schadenhöhe erfordert externen Gutachter. Kein automatischer Workflow.",
-  };
-  if (amount > EXPERT_TRACK_THRESHOLD) return {
-    label: "Experten-Track",
-    color: "bg-amber-50 border-amber-200 text-amber-700",
-    desc: "Manuelle Prüfung durch Versicherungsexperten.",
-  };
-  return {
-    label: "Auto-Track",
-    color: "bg-emerald-50 border-emerald-200 text-emerald-700",
-    desc: "Automatischer Workflow — schnelle Bearbeitung.",
-  };
-}
-
 export function CreateClaimForm() {
   const [state, action, pending] = useActionState(createClaimAction, initial)
   const [contents, setContents] = useState('no')
   const [amount, setAmount] = useState('')
 
   const num = parseFloat(amount) || 0
-  const tier = getTier(num)
+  const tier = getClaimTierPreview(num)
 
   if (state.success) {
     return (

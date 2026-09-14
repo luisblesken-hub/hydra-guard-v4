@@ -178,17 +178,15 @@ CREATE TABLE IF NOT EXISTS damage_reports (
   updated_at               timestamptz NOT NULL DEFAULT now()
 );
 
--- Trigger: auto-set claim_tier from estimated_amount
+-- Trigger: auto-set claim_tier from estimated_amount (2 tracks: <=12.500 auto, >12.500 outsourced)
 CREATE OR REPLACE FUNCTION set_claim_tier()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.estimated_amount > 15000 THEN
+  IF NEW.estimated_amount > 12500 THEN
     NEW.claim_tier := 'out_of_scope';
     IF NOT ('large_loss'::complexity_flag = ANY(NEW.complexity_flags)) THEN
       NEW.complexity_flags := array_append(NEW.complexity_flags, 'large_loss'::complexity_flag);
     END IF;
-  ELSIF NEW.estimated_amount > 5000 THEN
-    NEW.claim_tier := 'expert_track';
   ELSE
     NEW.claim_tier := 'auto_track';
   END IF;

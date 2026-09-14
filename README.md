@@ -40,7 +40,7 @@ Browser  →  Next.js (SSR + Route Handlers)
 
 - Serverseitige Admin-Queries nur über Service-Role (`src/lib/supabase/admin.ts`)  
 - Öffentlicher Melde-Wizard nutzt Admin-Client gezielt (Token → Property)  
-- Claim-Tiering per Betrag (Auto / Expert / Out-of-scope)  
+- Claim-Routing per Betrag: **Standard** (≤ 12.500 €) oder **Gutachter / outsourced** (> 12.500 €) 
 
 ## Repo-Struktur
 

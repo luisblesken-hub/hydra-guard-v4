@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveClaimTier } from "@/lib/claims/tier";
 
 export type SampleClaimState = {
   success?: boolean;
@@ -92,6 +93,11 @@ export async function createSampleClaimAction(): Promise<SampleClaimState> {
   if (claimError || !claim) {
     return { success: false, message: claimError?.message ?? "Schadenfall konnte nicht erstellt werden." };
   }
+
+  await admin
+    .from("damage_reports")
+    .update({ claim_tier: resolveClaimTier(amount) })
+    .eq("id", claim.id);
 
   // Activity Feed
   await admin.from("activity_feed").insert({

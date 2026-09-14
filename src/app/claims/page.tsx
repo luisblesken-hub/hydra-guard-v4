@@ -21,7 +21,7 @@ const TIER_STYLE: Record<string, string> = {
 }
 
 const TIER_DE: Record<string, string> = {
-  auto_track: 'Auto', expert_track: 'Experte', out_of_scope: 'Gutachter',
+  auto_track: 'Standard', expert_track: 'Experte', out_of_scope: 'Gutachter',
 }
 
 export default async function ClaimsPage() {

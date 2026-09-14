@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveClaimTier } from "@/lib/claims/tier";
 
 export type ClaimEditState = { success?: boolean; message?: string };
 
@@ -66,6 +67,14 @@ export async function updateClaimAction(
     .eq("id", reportId);
 
   if (error) return { success: false, message: error.message };
+
+  // Enforce 2-track routing after amount changes (DB trigger may lag until migration 0006).
+  if (updates.estimated_amount) {
+    await admin
+      .from("damage_reports")
+      .update({ claim_tier: resolveClaimTier(updates.estimated_amount) })
+      .eq("id", reportId);
+  }
 
   await admin.from("activity_feed").insert({
     report_id: reportId,
