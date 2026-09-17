@@ -61,7 +61,7 @@ export function ClaimsList({ claims }: Props) {
                 {statusLabel(claim.status)}
               </span>
               {claim.insurance_split && (
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
+                <span className="inline-flex items-center rounded border border-hg-line bg-slate-50 px-2 py-0.5 font-medium text-slate-700">
                   {splitLabel(claim.insurance_split)}
                 </span>
               )}
