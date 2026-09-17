@@ -50,8 +50,14 @@ export default async function InsuranceDashboardPage({
   const statusFilter = sp.status ?? "all";
   const searchQuery = (sp.q ?? "").trim().toLowerCase();
 
-  // Alle Schadensfälle ab Status "in_remediation" aufwärts — relevant für Versicherung
+  // Frühe Queue: ab Eingang bis Abschluss (nicht erst ab Sanierung)
   const RELEVANT_STATUSES = [
+    "submitted",
+    "validating",
+    "calculating",
+    "reviewing",
+    "approved",
+    "dispatched",
     "in_remediation",
     "invoice_submitted",
     "invoice_approved",
@@ -190,9 +196,12 @@ export default async function InsuranceDashboardPage({
         <div className="flex flex-wrap gap-2">
           {[
             { key: "all", label: "Alle" },
+            { key: "submitted", label: "Neu eingegangen" },
+            { key: "approved", label: "Freigegeben" },
+            { key: "dispatched", label: "Beauftragt" },
             { key: "in_remediation", label: "In Sanierung" },
             { key: "invoice_submitted", label: "Rechnung offen" },
-            { key: "invoice_approved", label: "Freigegeben" },
+            { key: "invoice_approved", label: "Rechnung OK" },
             { key: "closed", label: "Abgeschlossen" },
           ].map((f) => (
             <Link

@@ -74,7 +74,7 @@ export async function POST(
       status: "submitted",
       estimated_amount: 0,
       reported_cause: description,
-      description,
+      description: `[Einheit: ${unitLabel}] [Melder: ${reporterName}]\n\n${description}`,
     })
     .select("id")
     .single();

@@ -213,14 +213,14 @@ export default async function OwnerDashboardPage({
 
       <RecentActivityWidget userId={user.id} role="owner" />
 
-      {properties?.length ? (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Meine Objekte</h2>
-            <Link href="/properties/new" className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
-              + Objekt anlegen
-            </Link>
-          </div>
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-900">Meine Objekte</h2>
+          <Link href="/properties/new" className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+            + Objekt anlegen
+          </Link>
+        </div>
+        {properties?.length ? (
           <div className="grid grid-cols-1 gap-4">
             {properties.map((p) => (
               <MeldenPropertyLink
@@ -234,8 +234,20 @@ export default async function OwnerDashboardPage({
               />
             ))}
           </div>
-        </section>
-      ) : null}
+        ) : (
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+            <p className="text-sm text-slate-600">
+              Noch keine Objekte. Legen Sie ein Objekt an, um den Mieter-Melde-Link (QR) zu erzeugen.
+            </p>
+            <Link
+              href="/properties/new"
+              className="mt-3 inline-flex rounded-md bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400"
+            >
+              Erstes Objekt anlegen
+            </Link>
+          </div>
+        )}
+      </section>
     </main>
   );
 }

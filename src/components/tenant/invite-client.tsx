@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { inviteTenantAction, type InviteState } from "./invite-actions";
 
 const INITIAL: InviteState = {};
@@ -23,10 +23,18 @@ export function InviteClient({
 }) {
   const [state, formAction, pending] = useActionState(inviteTenantAction, INITIAL);
   const [copiedFor, setCopiedFor] = useState<string | null>(null);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  function inviteUrl(token: string) {
+    return `${origin}/mieter-einladung/${token}`;
+  }
 
   function copy(token: string) {
-    const url = `${window.location.origin}/mieter-einladung/${token}`;
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(inviteUrl(token));
     setCopiedFor(token);
     setTimeout(() => setCopiedFor(null), 2000);
   }
@@ -35,13 +43,23 @@ export function InviteClient({
     <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">Mieter-Zugang</h2>
       <p className="text-xs text-slate-500">
-        Der Mieter kann den Schaden lesen (schreibgeschützt) und wird per Link eingeladen.
+        Der Mieter kann den Schaden lesen (schreibgeschützt). Link kopieren oder per E-Mail
+        weiterleiten (kein automatischer Versand).
       </p>
 
       {invitations.length > 0 && (
         <ul className="space-y-2">
           {invitations.map((inv) => {
             const expired = new Date(inv.expires_at) < new Date();
+            const url = inviteUrl(inv.token);
+            const mailto =
+              inv.email && origin
+                ? `mailto:${encodeURIComponent(inv.email)}?subject=${encodeURIComponent(
+                    "Einladung: Wasserschaden in HydraGuard verfolgen"
+                  )}&body=${encodeURIComponent(
+                    `Guten Tag,\n\nüber diesen Link können Sie den Stand Ihres Wasserschadens einsehen:\n${url}\n\nMit freundlichen Grüßen`
+                  )}`
+                : null;
             return (
               <li
                 key={inv.id}
@@ -57,14 +75,24 @@ export function InviteClient({
                     {inv.used_at ? " · angenommen" : expired ? " · abgelaufen" : ""}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => copy(inv.token)}
-                  disabled={expired}
-                  className="inline-flex items-center rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50"
-                >
-                  {copiedFor === inv.token ? "✓ Kopiert" : "Link kopieren"}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copy(inv.token)}
+                    disabled={expired || !origin}
+                    className="inline-flex items-center rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+                  >
+                    {copiedFor === inv.token ? "✓ Kopiert" : "Link kopieren"}
+                  </button>
+                  {mailto && !expired && (
+                    <a
+                      href={mailto}
+                      className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+                    >
+                      Per E-Mail senden
+                    </a>
+                  )}
+                </div>
               </li>
             );
           })}

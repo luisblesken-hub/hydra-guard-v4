@@ -6,7 +6,7 @@ const ROLE_PATHS: Record<
   owner: "/dashboard/owner",
   sanierer: "/dashboard/sanierer",
   versicherung: "/dashboard/insurance",
-  mieter: "/dashboard/owner",
+  mieter: "/dashboard/mieter",
   admin: "/dashboard/admin",
 };
 

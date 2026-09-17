@@ -377,7 +377,9 @@ export default function MeldeWizardPage({
             Vielen Dank!
           </h2>
           <p className="text-sm text-emerald-900">
-            Ihre Meldung wurde übermittelt. Die Hausverwaltung wurde informiert.
+            Ihre Meldung wurde übermittelt und in der Akte gespeichert.
+            Die Hausverwaltung sieht den Fall im Dashboard — bitte bewahren Sie
+            die Vorgangsnummer auf.
           </p>
           <p className="text-xs text-emerald-900/80">
             (Vorgangs-ID: {reportId})

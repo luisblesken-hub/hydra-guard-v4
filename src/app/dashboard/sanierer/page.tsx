@@ -173,9 +173,17 @@ export default async function SaniererDashboardPage() {
           </h1>
           <p className="text-sm text-slate-500">
             {total === 0
-              ? "Noch keine Aufträge vorhanden."
+              ? "Noch keine Aufträge. Legen Sie unter Einstellungen Ihr Pool-Profil an, damit Eigentümer Sie finden."
               : `${open} offene · ${total} gesamt`}
           </p>
+          {total === 0 && (
+            <Link
+              href="/dashboard/sanierer/einstellungen"
+              className="mt-2 inline-flex text-xs font-semibold text-sky-700 hover:underline"
+            >
+              Pool-Profil bearbeiten →
+            </Link>
+          )}
         </div>
       </header>
 
@@ -240,6 +248,25 @@ export default async function SaniererDashboardPage() {
                   {/* Left: Adresse + Kategorie */}
                   <div className="flex flex-col gap-1">
                     <p className="font-semibold text-slate-900">{address}</p>
+                    {report?.property &&
+                      (report.property.street || report.property.city) && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                            [
+                              report.property.street,
+                              report.property.postal_code,
+                              report.property.city,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium text-sky-700 hover:underline"
+                        >
+                          Route in Maps öffnen →
+                        </a>
+                      )}
                     <p className="text-sm text-slate-500">
                       {CATEGORY_DE[report?.category ?? ""] ??
                         report?.category ??
@@ -361,19 +388,11 @@ export default async function SaniererDashboardPage() {
                       assignmentId={row.id}
                       scheduledStart={row.scheduled_start}
                     />
-                  </div>
-                )}
-                {report && (
-                  <div className="mt-3 flex flex-wrap gap-2">
                     <AssignmentCardActions
                       assignmentId={row.id}
                       reportId={report.id}
                       currentStatus={row.status}
                       hasConfirmedCause={Boolean(report.confirmed_cause)}
-                    />
-                    <ScheduleAppointmentForm
-                      assignmentId={row.id}
-                      scheduledStart={row.scheduled_start}
                     />
                   </div>
                 )}

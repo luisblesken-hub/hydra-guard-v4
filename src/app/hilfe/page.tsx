@@ -15,7 +15,7 @@ const FAQ = [
   },
   {
     q: "Wie lade ich einen Mieter ein?",
-    a: 'In der Schadensakte findest du die Sektion "Mieter-Zugang". Gib die E-Mail-Adresse ein — der Mieter erhält einen Link und kann sich mit einem Konto einloggen (schreibgeschützt).',
+    a: 'In der Schadensakte unter „Mieter-Zugang“ E-Mail eintragen. Sie erhalten einen Einladungslink zum Kopieren und können ihn per E-Mail (mailto) weiterleiten — aktuell wird noch kein automatischer Versand ausgelöst.',
   },
   {
     q: "Wer darf Rechnungen freigeben?",

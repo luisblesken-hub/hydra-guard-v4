@@ -92,12 +92,13 @@ export function PhotoUpload({ claimId }: Props) {
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"
+          capture="environment"
           multiple
           onChange={onFileChange}
           className="mt-1 block w-full text-xs text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-50 hover:file:bg-slate-800"
         />
         <p className="mt-1 text-[11px] text-slate-400">
-          Maximal 10 Dateien, je bis 10 MB. Erlaubte Formate: JPEG, PNG, WebP.
+          Maximal 10 Dateien, je bis 10 MB. Am Handy öffnet sich bevorzugt die Kamera.
         </p>
       </div>
 

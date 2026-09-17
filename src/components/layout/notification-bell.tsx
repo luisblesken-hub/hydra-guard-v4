@@ -1,9 +1,13 @@
-import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  NotificationBellClient,
+  type BellEvent,
+} from "@/components/layout/notification-bell-client";
 
 /**
- * Zeigt eine kleine Glocke mit Badge für aktuelle Events, die den Nutzer betreffen.
+ * Zeigt eine Glocke mit Badge + Dropdown der letzten Events.
  * Owner: eigene Claims. Sanierer: zugewiesene Reports. Versicherung: alle Claims.
+ * Mieter: eingeladene Reports.
  */
 export async function NotificationBell({
   role,
@@ -14,7 +18,6 @@ export async function NotificationBell({
 }) {
   const admin = createAdminClient();
 
-  // Relevante Report-IDs je nach Rolle ermitteln
   let reportIds: string[] | null = null;
   if (role === "owner") {
     const { data } = await admin
@@ -42,55 +45,47 @@ export async function NotificationBell({
       reportIds = (data ?? []).map((i) => i.report_id);
     }
   }
-  // versicherung + admin: alle Events sehen → reportIds bleibt null → keine Filterung
+
+  const dashboardHref =
+    role === "owner"
+      ? "/dashboard/owner"
+      : role === "sanierer"
+        ? "/dashboard/sanierer"
+        : role === "versicherung"
+          ? "/dashboard/insurance"
+          : role === "mieter"
+            ? "/dashboard/mieter"
+            : "/dashboard";
 
   const since = new Date();
-  since.setDate(since.getDate() - 7); // Events der letzten 7 Tage
+  since.setDate(since.getDate() - 7);
 
-  let query = admin
-    .from("activity_feed")
-    .select("*", { count: "exact", head: true })
-    .gte("created_at", since.toISOString())
-    .neq("actor_id", userId); // Eigene Aktionen nicht zählen
-
-  if (reportIds !== null) {
-    if (reportIds.length === 0) {
-      return null;
-    }
-    query = query.in("report_id", reportIds);
+  if (reportIds !== null && reportIds.length === 0) {
+    return (
+      <NotificationBellClient events={[]} unreadCount={0} dashboardHref={dashboardHref} />
+    );
   }
 
-  const { count } = await query;
-  const unreadCount = count ?? 0;
+  let listQuery = admin
+    .from("activity_feed")
+    .select("id, report_id, note, event_type, created_at")
+    .gte("created_at", since.toISOString())
+    .neq("actor_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (reportIds !== null) {
+    listQuery = listQuery.in("report_id", reportIds);
+  }
+
+  const { data: rows } = await listQuery;
+  const events = (rows ?? []) as BellEvent[];
 
   return (
-    <Link
-      href={
-        role === "owner"
-          ? "/dashboard/owner"
-          : role === "sanierer"
-            ? "/dashboard/sanierer"
-            : role === "versicherung"
-              ? "/dashboard/insurance"
-              : role === "mieter"
-                ? "/dashboard/mieter"
-                : "/dashboard"
-      }
-      className="relative rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-      title={`${unreadCount} aktuelle Ereignisse`}
-    >
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-        />
-      </svg>
-      {unreadCount > 0 && (
-        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </span>
-      )}
-    </Link>
+    <NotificationBellClient
+      events={events}
+      unreadCount={events.length}
+      dashboardHref={dashboardHref}
+    />
   );
 }

@@ -1,57 +1,101 @@
 # HydraGuard — Backlog & Session-Stand
 
-Stand: **14.09.2026** (Feierabend)
-
-## Stand heute (für nächste Session)
-
-### Live & Deploy
-- Live: https://hydra-guard-v4.vercel.app
-- Repo: `main` aktuell (Vercel auto-deploy)
-- Lokal: `npm run dev` → http://localhost:3000
-- Supabase-Projekt: `psicmrjjwsxtwruncnar` (Frankfurt)
-- Migration `0006_claim_tier_two_track.sql` **wurde im SQL Editor ausgeführt** ✅
-
-### Claim-Routing (neu)
-| Betrag | Track |
-|--------|--------|
-| ≤ 12.500 € | Standard (`auto_track`) |
-| > 12.500 € | Gutachter / outsourced (`out_of_scope`) |
-
-- Experten-Mittelstufe entfällt für neue Claims (Enum bleibt für Legacy)
-- Logik: `src/lib/claims/tier.ts` + DB-Trigger `set_claim_tier()`
-- Getestet: Trigger, UI-Preview, Create 8.500 → Standard, Create 15.000 → Gutachter
-
-### Review / Feedback
-- IT-Freund (`degeable`): Einladung + WhatsApp mit Live-Link + Test-Login geschickt
-- Feedback noch ausstehend — parallel warten ok
-
-### Test-Logins (Demo)
-- Passwort: `HydraTest2026!`
-- `owner@test.hydra.de`, `admin@test.hydra.de`, `sanierer@test.hydra.de`, `insurer@test.hydra.de`
+Stand: **17.09.2026** — Rollen-Audit + UX-Sprint
 
 ---
 
-## Geplant (noch nicht umsetzen)
+## Rollen-Audit: Analog → App → „Beste App“
 
-### Adress-Autocomplete bei Eingabe
-- **Status:** geplant  
-- **Warum:** PLZ/Ort/Straße heute manuell → Tippfehler, inkonsistente Objekte  
-- **Sinnvoll:** ja — zuerst **PLZ → Ort**, später optional Straße  
-- **Constraints:** keine neuen npm-Packages ohne Freigabe; EU/DSGVO  
-- **Nicht jetzt:** erst nach Feedback / klarer Prio
+### 1) Mieter
+**Analog:** Schaden entdecken → Fotos → HV anrufen → warten → Termin → Handwerker reinlassen → „wann trocken?“ → zurück zum Normal.
+**Jetzt „nette App“:** Melden-Wizard, Read-only Status, Feuchtewerte, Sanierer-Mail/Termin.
+**Damit „beste App“:** Sofort-Tracking ohne Chaos, klare Ansprechpartner (Name+Tel), Fortschritt wie DHL, ehrliche Infos, Fotos sehen, Login landet richtig.
 
-### Optional / Hygiene (wenn Zeit)
-- Collaborator-Rolle auf **Read** stellen (falls Write)
-- Service-Role-Key rotieren, falls je im Chat exponiert
-- Storage-Policies `damage-photos` im Dashboard nochmal prüfen
+| Prio | Todo |
+|------|------|
+| P0 | Redirect `mieter` → `/dashboard/mieter` |
+| P0 | Ehrliche Melden-Success-Copy (kein Fake-„HV informiert“ ohne Mail) |
+| P0 | `unit_label` + `reporter_name` persistieren |
+| P1 | StatusStepper + Fotos (read-only) im Mieter-Dashboard |
+| P1 | Owner/Sanierer Name + Telefon auf Mieter-Karte |
+| P1 | Status-Seite nach Melden (Token) ohne Account |
+| P1 | Echte Invite-Zustellung (mailto/Email) + FAQ korrigieren |
+| P2 | Kategorie/Dringlichkeit im Melden-Wizard |
+| P2 | WhatsApp-Deep-Link an Verwaltung |
+
+### 2) Versicherer
+**Analog:** FNOL → Prüfung → Reserve → Freigabe → Sanierung → Rechnung → Zahlung → Archiv.
+**Jetzt „nette App“:** Späte Claims-Liste, Rechnungs-Queue, Batch-Pay, PDF/CSV, Schätzungs-Vergleich.
+**Damit „beste App“:** Frühe Queue ab Eingang, eine klare Home, Mobile-Cards, Reserve/Nachforderung, klare Owner-Freigabe vs. Zahler-Rolle.
+
+| Prio | Todo |
+|------|------|
+| P0 | Claims ab `submitted` (frühe Queue) |
+| P1 | Mobile Card-Layout statt nur Tabellen |
+| P1 | Einheitliche Insurer-Home (Tabs Claims/Rechnungen) |
+| P1 | Reserve-/Coverage-Felder |
+| P1 | „Dokumente nachfordern“-Vorlage |
+| P2 | Rechnungs-Suche nach Adresse |
+| P2 | Emojis entfernen, Copy Owner vs. Pay klären |
+
+### 3) Sanierer
+**Analog:** Auftrag → Vor-Ort → Ursache → Trocknung → Protokoll → Rechnung → Geld.
+**Jetzt „nette App“:** Assignments, Quick-Drying, Quick-Invoice, Termin, Pool-Profil, PDF.
+**Damit „beste App“:** Heute-Agenda, Kontakte/Zugang, Kamera-first, keine UI-Bugs, Maps, klare Ablehnungsgründe.
+
+| Prio | Todo |
+|------|------|
+| P0 | Doppeltes `ScheduleAppointmentForm` entfernen |
+| P0 | Site-Card: Owner-/Mieter-Kontakt + Zugang |
+| P1 | Kamera `capture="environment"` beim Foto-Upload |
+| P1 | „Heute“-Agenda (scheduled_start heute) |
+| P1 | Reject-Reason Banner bei abgelehnter Rechnung |
+| P2 | Google-Maps-Link zur Adresse |
+| P2 | Equipment-Checkliste |
+
+### 4) Hausverwalter / Eigentümer
+**Analog:** Anruf Mieter → Schaden anlegen → Sanierer → Status → Rechnung freigeben → Archiv.
+**Jetzt „nette App“:** Dashboard, Melde-Link, Dispatcher, Invite-Link, Fotos+KI-Schätzung, Freigabe.
+**Damit „beste App“:** Echte Alerts bei neuem Melden, immer CTA Objekt anlegen, QR druckbar, Bell mit Deep-Links, klarer Status→Dispatch.
+
+| Prio | Todo |
+|------|------|
+| P0 | Melden: Activity + ehrliche Copy; optional mailto Owner |
+| P0 | „Objekt anlegen“ Empty-State immer sichtbar |
+| P1 | Bell-Dropdown → `/claims/{id}` |
+| P1 | Klarer Pfad Status → Sanierer beauftragen |
+| P1 | QR druckbar / mailto Invite |
+| P2 | Sie-Form durchgängig |
+| P2 | Mieter-Roster pro Objekt |
 
 ---
 
-## Erledigt (Referenz)
+## Geplant (älter, noch offen)
+
+### Adress-Autocomplete
+- PLZ → Ort zuerst; Straße später; keine neuen Packages ohne Freigabe
+
+### Optional / Hygiene
+- Collaborator Read-Rolle
+- Service-Role rotieren falls exponiert
+- Storage-Policies prüfen
+- `OPENAI_API_KEY` für echte Vision-Foto-KI
+
+---
+
+## Sprint 17.09.2026 — umgesetzt
+- [x] Mieter-Redirect → `/dashboard/mieter`
+- [x] Ehrliche Melden-Success-Copy
+- [x] Melder/Einheit in Beschreibung persistieren
+- [x] Owner Empty-State „Objekt anlegen“
+- [x] Sanierer: doppeltes Termin-Formular entfernt + Maps-Link + Pool-CTA
+- [x] Versicherer: frühe Claim-Queue ab `submitted` + Filter
+- [x] Mieter: StatusStepper, Fotos, Owner/Sanierer-Kontakte (Name/Tel/Mail)
+- [x] Notification-Bell Dropdown mit Claim-Deep-Links
+- [x] Kamera-Capture am Foto-Upload
+- [x] Mieter-Invite mailto + FAQ korrigiert
+
 - Claim-Routing 2 Tracks bei 12.500 €
-- Form-Fix: Betragsfeld `step=1` (8500 war vorher HTML5-invalid)
-- Texte Claims/Hilfe auf 12.500 €
-- README + Review-Handoff
-- Security-Härtung (.gitignore, alter Client weg, Vercel Secret)
-- **Foto-Analyse Sprint:** Upload → `ai_analysis` JSON, Aggregate → Schätzung, UI Badge/Panel, Melden-Pfad, Invoice `system_estimate`
-  - Heuristik immer an; echte Vision-KI wenn `OPENAI_API_KEY` gesetzt (+ optional `OPENAI_VISION_MODEL`, `PHOTO_AI_ENABLED`)
+- Foto-Analyse → `ai_analysis` + Schätzung + UI
+- Form step=1, Texte 12.500 €
+- README / Review-Handoff / Security-Härtung

@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
+import { StatusStepper } from "@/components/claims/status-stepper";
+import { isPhotoAnalysisResult } from "@/lib/ai/photo-analysis-types";
+import { PhotoAnalysisBadge } from "@/components/claims/photo-analysis-badge";
 
 const CATEGORY_DE: Record<string, string> = {
   pipe_burst: "Rohrbruch",
@@ -100,31 +103,100 @@ export default async function MieterDashboardPage() {
     moisture_percent: number;
     room_label: string | null;
   };
-  // Sanierer-Info + Termin pro Report
   type AssignmentInfo = {
     sanierer_email: string | null;
+    sanierer_name: string | null;
+    sanierer_phone: string | null;
     scheduled_start: string | null;
     status: string;
   };
   const assignmentInfoMap: Record<string, AssignmentInfo> = {};
 
+  type OwnerInfo = {
+    email: string | null;
+    full_name: string | null;
+    phone: string | null;
+  };
+  const ownerInfoMap: Record<string, OwnerInfo> = {};
+
+  type PhotoInfo = {
+    id: string;
+    original_name: string | null;
+    signed_url: string;
+    ai_analysis: import("@/lib/ai/photo-analysis-types").PhotoAnalysisResult | null;
+  };
+  const photosMap: Record<string, PhotoInfo[]> = {};
+
   const dryingMap: Record<string, DryingEntry[]> = {};
   if (reportIds.length > 0) {
+    const { data: withOwner } = await admin
+      .from("damage_reports")
+      .select("id, owner_id")
+      .in("id", reportIds);
+    const reportOwner = Object.fromEntries((withOwner ?? []).map((r) => [r.id, r.owner_id]));
+    const uniqueOwners = [...new Set(Object.values(reportOwner))];
+    if (uniqueOwners.length > 0) {
+      const { data: owners } = await admin
+        .from("profiles")
+        .select("id, email, full_name, phone")
+        .in("id", uniqueOwners);
+      for (const o of owners ?? []) {
+        ownerInfoMap[o.id] = {
+          email: o.email,
+          full_name: o.full_name,
+          phone: o.phone,
+        };
+      }
+    }
+
+    for (const r of reports) {
+      (r as ReportRow & { owner_id?: string }).owner_id = reportOwner[r.id];
+    }
+
+    const { data: photoRows } = await admin
+      .from("damage_photos")
+      .select("id, report_id, original_name, storage_path, ai_analysis")
+      .in("report_id", reportIds)
+      .order("uploaded_at", { ascending: true });
+    for (const ph of photoRows ?? []) {
+      const { data: signed } = await admin.storage
+        .from("damage-photos")
+        .createSignedUrl(ph.storage_path, 3600);
+      if (!signed?.signedUrl) continue;
+      if (!photosMap[ph.report_id]) photosMap[ph.report_id] = [];
+      photosMap[ph.report_id].push({
+        id: ph.id,
+        original_name: ph.original_name,
+        signed_url: signed.signedUrl,
+        ai_analysis: isPhotoAnalysisResult(ph.ai_analysis) ? ph.ai_analysis : null,
+      });
+    }
+
     const { data: assignmentsData } = await admin
       .from("assignments")
       .select("id, report_id, sanierer_id, scheduled_start, status")
       .in("report_id", reportIds);
 
-    // Sanierer-Emails
     const saniererIds = [...new Set((assignmentsData ?? []).map((a) => a.sanierer_id))];
-    const saniererEmailMap: Record<string, string | null> = {};
+    const saniererMap: Record<
+      string,
+      { email: string | null; full_name: string | null; phone: string | null }
+    > = {};
     if (saniererIds.length > 0) {
-      const { data: profs } = await admin.from("profiles").select("id, email").in("id", saniererIds);
-      for (const p of profs ?? []) saniererEmailMap[p.id] = p.email;
+      const { data: profs } = await admin
+        .from("profiles")
+        .select("id, email, full_name, phone")
+        .in("id", saniererIds);
+      for (const p of profs ?? []) {
+        saniererMap[p.id] = { email: p.email, full_name: p.full_name, phone: p.phone };
+      }
     }
     for (const a of assignmentsData ?? []) {
+      const s = saniererMap[a.sanierer_id];
       assignmentInfoMap[a.report_id] = {
-        sanierer_email: saniererEmailMap[a.sanierer_id] ?? null,
+        sanierer_email: s?.email ?? null,
+        sanierer_name: s?.full_name ?? null,
+        sanierer_phone: s?.phone ?? null,
         scheduled_start: a.scheduled_start,
         status: a.status,
       };
@@ -204,6 +276,10 @@ export default async function MieterDashboardPage() {
                   </span>
                 </div>
 
+                <div className="border-b border-slate-100 px-4 py-3">
+                  <StatusStepper status={report.status} />
+                </div>
+
                 <div className="grid grid-cols-1 gap-0 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                   {/* Schadendaten */}
                   <div className="space-y-3 p-4">
@@ -263,25 +339,76 @@ export default async function MieterDashboardPage() {
                     </dl>
                   </div>
 
-                  {/* Sanierer-Info */}
-                  {assignmentInfoMap[report.id] && (
-                    <div className="border-t border-slate-100 p-4">
-                      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
-                        Sanierungsbetrieb
-                      </h2>
-                      <p className="text-sm text-slate-700">
-                        {assignmentInfoMap[report.id].sanierer_email ?? "Zugewiesen"}
-                      </p>
-                      {assignmentInfoMap[report.id].scheduled_start && (
-                        <p className="text-xs text-slate-500">
-                          Termin:{" "}
-                          {new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(
-                            new Date(assignmentInfoMap[report.id].scheduled_start!)
+                  {/* Kontakte */}
+                  <div className="space-y-3 p-4">
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Ansprechpartner
+                    </h2>
+                    {(() => {
+                      const oid = (report as ReportRow & { owner_id?: string }).owner_id;
+                      const owner = oid ? ownerInfoMap[oid] : null;
+                      const san = assignmentInfoMap[report.id];
+                      return (
+                        <dl className="space-y-3 text-sm">
+                          {owner && (
+                            <div>
+                              <dt className="text-xs text-slate-500">Hausverwaltung / Eigentümer</dt>
+                              <dd className="font-medium text-slate-800">
+                                {owner.full_name || owner.email || "—"}
+                              </dd>
+                              {owner.phone && (
+                                <dd>
+                                  <a href={`tel:${owner.phone}`} className="text-xs text-sky-700 hover:underline">
+                                    {owner.phone}
+                                  </a>
+                                </dd>
+                              )}
+                              {owner.email && (
+                                <dd>
+                                  <a href={`mailto:${owner.email}`} className="text-xs text-sky-700 hover:underline">
+                                    {owner.email}
+                                  </a>
+                                </dd>
+                              )}
+                            </div>
                           )}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                          {san && (
+                            <div>
+                              <dt className="text-xs text-slate-500">Sanierungsbetrieb</dt>
+                              <dd className="font-medium text-slate-800">
+                                {san.sanierer_name || san.sanierer_email || "Zugewiesen"}
+                              </dd>
+                              {san.sanierer_phone && (
+                                <dd>
+                                  <a href={`tel:${san.sanierer_phone}`} className="text-xs text-sky-700 hover:underline">
+                                    {san.sanierer_phone}
+                                  </a>
+                                </dd>
+                              )}
+                              {san.sanierer_email && (
+                                <dd>
+                                  <a href={`mailto:${san.sanierer_email}`} className="text-xs text-sky-700 hover:underline">
+                                    {san.sanierer_email}
+                                  </a>
+                                </dd>
+                              )}
+                              {san.scheduled_start && (
+                                <dd className="text-xs text-slate-500">
+                                  Termin:{" "}
+                                  {new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(
+                                    new Date(san.scheduled_start)
+                                  )}
+                                </dd>
+                              )}
+                            </div>
+                          )}
+                          {!owner && !san && (
+                            <p className="text-xs text-slate-400">Noch keine Kontakte hinterlegt.</p>
+                          )}
+                        </dl>
+                      );
+                    })()}
+                  </div>
 
                   {/* Trocknungs-Fortschritt */}
                   <div className="space-y-3 p-4">
@@ -344,6 +471,31 @@ export default async function MieterDashboardPage() {
                     )}
                   </div>
                 </div>
+
+                {(photosMap[report.id]?.length ?? 0) > 0 && (
+                  <div className="border-t border-slate-100 p-4">
+                    <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Fotos
+                    </h2>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {photosMap[report.id].map((ph) => (
+                        <figure key={ph.id} className="overflow-hidden rounded-lg border border-slate-200">
+                          <img
+                            src={ph.signed_url}
+                            alt={ph.original_name ?? "Schadenfoto"}
+                            className="aspect-video w-full object-cover"
+                          />
+                          <figcaption className="px-2 py-1.5">
+                            <p className="truncate text-[11px] text-slate-600">
+                              {ph.original_name ?? "Foto"}
+                            </p>
+                            <PhotoAnalysisBadge analysis={ph.ai_analysis} />
+                          </figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </li>
             );
           })}
