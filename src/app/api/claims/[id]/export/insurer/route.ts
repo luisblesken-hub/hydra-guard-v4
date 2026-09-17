@@ -1,7 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { VersichererReportDocument } from "@/components/pdf/versicherer-report";
+import {
+  VersichererReportDocument,
+  type VersichererReportData,
+} from "@/components/pdf/versicherer-report";
+import { loadPhotoImagesForPdf } from "@/lib/pdf/load-photo-images";
 
 // DSGVO: Art. 6 Abs. 1 lit. f – berechtigtes Interesse Vertragsanbahnung
 
@@ -32,7 +36,6 @@ export async function GET(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // Rollenbasiert: Owner RLS, Sanierer/Versicherung/Admin über Admin-Client
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from("profiles")
@@ -41,11 +44,14 @@ export async function GET(
     .maybeSingle();
   const role = (profile?.role as string | null) ?? null;
 
-  const client = role === "sanierer" || role === "versicherung" || role === "admin"
-    ? admin
-    : supabase;
+  const privileged =
+    role === "sanierer" ||
+    role === "versicherung" ||
+    role === "insurer" ||
+    role === "insurance" ||
+    role === "admin";
 
-  let reportQuery = client
+  let reportQuery = (privileged ? admin : supabase)
     .from("damage_reports")
     .select(`
       id,
@@ -53,6 +59,8 @@ export async function GET(
       estimated_amount,
       reported_cause,
       confirmed_cause,
+      description,
+      claim_tier,
       created_at,
       has_contents_damage,
       liability_involved,
@@ -66,7 +74,7 @@ export async function GET(
     `)
     .eq("id", id);
 
-  if (client === supabase) {
+  if (!privileged) {
     reportQuery = reportQuery.eq("owner_id", user.id);
   }
 
@@ -86,23 +94,12 @@ export async function GET(
     reportRow.liability_involved
   );
 
-  let photosQuery = client
-    .from("damage_photos")
-    .select("original_name, room_label, insurance_scope, uploaded_at")
-    .eq("report_id", id);
-  if (client === supabase) {
-    photosQuery = photosQuery.eq("uploaded_by", user.id);
-  }
-  const photosResult = await photosQuery.order("uploaded_at", { ascending: true });
+  const photos = await loadPhotoImagesForPdf({
+    reportId: id,
+    maxPhotos: 8,
+  });
 
-  const photos = (photosResult.data ?? []) as Array<{
-    original_name: string | null;
-    room_label: string | null;
-    insurance_scope: string | null;
-    uploaded_at: string;
-  }>;
-
-  const activityResult = await client
+  const activityResult = await admin
     .from("activity_feed")
     .select("event_type, created_at")
     .eq("report_id", id)
@@ -113,7 +110,7 @@ export async function GET(
     created_at: string;
   }>;
 
-  const invoicesResult = await client
+  const invoicesResult = await admin
     .from("sanierer_invoices")
     .select("amount_gross, amount_net, status, submitted_at")
     .eq("report_id", id)
@@ -126,7 +123,7 @@ export async function GET(
     submitted_at: string | null;
   }>;
 
-  const pdfData = {
+  const pdfData: VersichererReportData = {
     report: {
       id: reportRow.id,
       status: reportRow.status,
@@ -134,6 +131,8 @@ export async function GET(
       insurance_split,
       reported_cause: reportRow.reported_cause,
       confirmed_cause: reportRow.confirmed_cause,
+      description: reportRow.description ?? null,
+      claim_tier: reportRow.claim_tier ?? null,
       created_at: reportRow.created_at,
     },
     property: {
@@ -142,12 +141,7 @@ export async function GET(
       zip: propertyRow?.postal_code ?? null,
       building_type: propertyRow?.building_type ?? null,
     },
-    photos: photos.map((p) => ({
-      original_name: p.original_name,
-      room_label: p.room_label,
-      insurance_scope: p.insurance_scope,
-      uploaded_at: p.uploaded_at,
-    })),
+    photos,
     activityFeed: activityFeed.map((a) => ({
       action: a.event_type,
       created_at: a.created_at,
@@ -162,13 +156,10 @@ export async function GET(
   const documentEl = (VersichererReportDocument as any)({ data: pdfData });
   const pdfBuffer = await renderToBuffer(documentEl as any);
 
-  const pdfBytes = new Uint8Array(pdfBuffer);
-
-  return new Response(pdfBytes, {
+  return new Response(new Uint8Array(pdfBuffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="schaden-${id}-versicherer.pdf"`,
+      "Content-Disposition": `attachment; filename="gutachten-versicherer-${id}.pdf"`,
     },
   });
 }
-

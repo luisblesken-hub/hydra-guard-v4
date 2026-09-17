@@ -312,7 +312,7 @@ export default async function ClaimDetailPage({ params }: Params) {
             rel="noreferrer"
             className="inline-flex w-max items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
-            Versicherer-Export
+            Gutachten Versicherer (PDF)
           </a>
           <a
             href={`/api/claims/${id}/export/sanierer`}
@@ -320,7 +320,7 @@ export default async function ClaimDetailPage({ params }: Params) {
             rel="noreferrer"
             className="inline-flex w-max items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
           >
-            Sanierer-Export
+            Gutachten Sanierer (PDF)
           </a>
         </div>
       </header>
