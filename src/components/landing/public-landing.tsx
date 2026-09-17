@@ -2,6 +2,7 @@ import { LandingContent } from "./content";
 import { LandingFooter } from "./footer";
 import { LandingHeader } from "./header";
 import { LandingHero } from "./hero";
+import { SectionRail } from "./section-rail";
 
 export function PublicLanding() {
   return (
@@ -13,6 +14,7 @@ export function PublicLanding() {
         Zum Inhalt
       </a>
       <LandingHeader />
+      <SectionRail />
       <LandingHero />
       <main>
         <LandingContent />
