@@ -46,11 +46,16 @@ type AssignmentRow = {
     estimated_amount: number;
     confirmed_cause: string | null;
     reported_cause: string | null;
+    description: string | null;
     created_at: string;
     property: {
       street: string | null;
       city: string | null;
       postal_code: string | null;
+    } | null;
+    owner: {
+      email: string | null;
+      full_name: string | null;
     } | null;
   } | null;
   invoice: {
@@ -60,6 +65,13 @@ type AssignmentRow = {
     amount_net: number;
   } | null;
 };
+
+function parseMelderFromDescription(description: string | null) {
+  if (!description) return { unit: null as string | null, melder: null as string | null };
+  const unit = description.match(/\[Einheit:\s*([^\]]+)\]/i)?.[1]?.trim() ?? null;
+  const melder = description.match(/\[Melder:\s*([^\]]+)\]/i)?.[1]?.trim() ?? null;
+  return { unit, melder };
+}
 
 export default async function SaniererDashboardPage() {
   const supabase = await createClient();
@@ -94,7 +106,7 @@ export default async function SaniererDashboardPage() {
     const { data: report } = await admin
       .from("damage_reports")
       .select(
-        "id, status, category, estimated_amount, confirmed_cause, reported_cause, created_at, property_id"
+        "id, status, category, estimated_amount, confirmed_cause, reported_cause, description, created_at, property_id, owner_id"
       )
       .eq("id", a.report_id)
       .maybeSingle();
@@ -107,6 +119,21 @@ export default async function SaniererDashboardPage() {
         .eq("id", report.property_id)
         .maybeSingle();
       property = prop;
+    }
+
+    let owner: { email: string | null; full_name: string | null } | null = null;
+    if (report?.owner_id) {
+      const { data: ownerProfile } = await admin
+        .from("profiles")
+        .select("email, full_name")
+        .eq("id", report.owner_id)
+        .maybeSingle();
+      owner = ownerProfile
+        ? {
+            email: ownerProfile.email ?? null,
+            full_name: (ownerProfile as { full_name?: string | null }).full_name ?? null,
+          }
+        : null;
     }
 
     // Neueste Rechnung zu diesem Auftrag
@@ -132,8 +159,10 @@ export default async function SaniererDashboardPage() {
             estimated_amount: report.estimated_amount,
             confirmed_cause: report.confirmed_cause,
             reported_cause: report.reported_cause,
+            description: report.description,
             created_at: report.created_at,
             property,
+            owner,
           }
         : null,
       invoice: invoiceData ?? null,
@@ -254,7 +283,7 @@ export default async function SaniererDashboardPage() {
 
       {rows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
-          Du hast noch keine Aufträge erhalten.
+          Sie haben noch keine Aufträge erhalten.
         </div>
       ) : (
         <ul className="flex flex-col gap-4">
@@ -318,6 +347,49 @@ export default async function SaniererDashboardPage() {
                         </>
                       )}
                     </p>
+                    {(() => {
+                      const { unit, melder } = parseMelderFromDescription(
+                        report?.description ?? null
+                      );
+                      const ownerEmail = report?.owner?.email ?? null;
+                      const ownerLabel =
+                        report?.owner?.full_name || ownerEmail || null;
+                      if (!ownerLabel && !melder && !unit) return null;
+                      return (
+                        <div className="mt-2 rounded-md border border-slate-100 bg-slate-50 px-2.5 py-2 text-xs text-slate-600">
+                          {ownerLabel && (
+                            <p>
+                              <span className="font-medium text-slate-700">
+                                Eigentümer:{" "}
+                              </span>
+                              {ownerEmail ? (
+                                <a
+                                  href={`mailto:${ownerEmail}`}
+                                  className="text-sky-700 hover:underline"
+                                >
+                                  {ownerLabel}
+                                </a>
+                              ) : (
+                                ownerLabel
+                              )}
+                            </p>
+                          )}
+                          {(melder || unit) && (
+                            <p className="mt-0.5">
+                              <span className="font-medium text-slate-700">
+                                Zugang:{" "}
+                              </span>
+                              {[
+                                melder ? `Melder ${melder}` : null,
+                                unit ? `Einheit ${unit}` : null,
+                              ]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Right: Badges */}

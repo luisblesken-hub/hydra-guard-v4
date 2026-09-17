@@ -35,14 +35,17 @@ export async function POST(
 ): Promise<Response> {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (isRateLimited(ip)) {
-    return Response.json({ error: "Zu viele Anfragen. Bitte warte eine Stunde." }, { status: 429 });
+    return Response.json(
+      { error: "Zu viele Anfragen. Bitte versuchen Sie es in einer Stunde erneut." },
+      { status: 429 }
+    );
   }
 
   const body = await req.json();
   const parsed = SubmitSchema.safeParse(body);
 
   if (!parsed.success) {
-    return new Response("Invalid request", { status: 400 });
+    return new Response("Ungültige Angaben. Bitte prüfen Sie das Formular.", { status: 400 });
   }
 
   const { propertyToken, unitLabel, reporterName, description, photoStoragePaths } =
@@ -60,7 +63,7 @@ export async function POST(
     .maybeSingle();
 
   if (propertyError || !property) {
-    return new Response("Property not found", { status: 404 });
+    return new Response("Objekt nicht gefunden oder Link ungültig.", { status: 404 });
   }
 
   const {
@@ -80,7 +83,9 @@ export async function POST(
     .single();
 
   if (reportError || !reportRow?.id) {
-    return new Response("Failed to create report", { status: 500 });
+    return new Response("Schaden konnte nicht angelegt werden. Bitte erneut versuchen.", {
+      status: 500,
+    });
   }
 
   const reportId = reportRow.id;
@@ -103,7 +108,9 @@ export async function POST(
     .select("id, storage_path, original_name, mime_type, file_size_bytes");
 
   if (photosError) {
-    return new Response("Failed to upload photos", { status: 500 });
+    return new Response("Fotos konnten nicht gespeichert werden. Bitte erneut versuchen.", {
+      status: 500,
+    });
   }
 
   // Foto-Analyse + Schätzung (Melden startet mit estimated_amount=0)
@@ -137,16 +144,16 @@ export async function POST(
 
   const activityText = `Neuer Melde-Schaden von ${reporterName} (Einheit ${unitLabel})`;
 
+  // Non-blocking: claim+photos already exist. Use "tenant" (DB user_role enum).
   const { error: activityError } = await admin.from("activity_feed").insert({
     report_id: reportId,
     actor_id: null,
-    actor_role: "mieter",
+    actor_role: "tenant",
     event_type: "claim_created",
     note: activityText,
   });
-
   if (activityError) {
-    return new Response("Failed to record activity", { status: 500 });
+    console.error("[melden/submit] activity_feed insert failed (non-blocking)", activityError.code);
   }
 
   const { createClaimTrackingToken } = await import("@/lib/claims/tracking-token");

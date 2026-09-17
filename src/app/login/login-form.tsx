@@ -13,7 +13,7 @@ export function LoginForm() {
       <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
         <h1 className="text-xl font-semibold text-slate-50">Anmeldung</h1>
         <p className="mt-1 text-sm text-slate-400">
-          Melde dich mit deiner E-Mail-Adresse und deinem Passwort an.
+          Melden Sie sich mit Ihrer E-Mail-Adresse und Ihrem Passwort an.
         </p>
 
         <form action={formAction} className="mt-6 space-y-4">

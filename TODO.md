@@ -1,110 +1,99 @@
 # HydraGuard — Backlog & Session-Stand
 
-Stand: **17.09.2026** — Rollen-Audit + UX-Sprint
+Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 
 ---
 
-## Rollen-Audit: Analog → App → „Beste App“
+## Sprint 17.09.2026 #3 — getestet + umgesetzt
 
-### 1) Mieter
-**Analog:** Schaden entdecken → Fotos → HV anrufen → warten → Termin → Handwerker reinlassen → „wann trocken?“ → zurück zum Normal.
-**Jetzt „nette App“:** Melden-Wizard, Read-only Status, Feuchtewerte, Sanierer-Mail/Termin.
-**Damit „beste App“:** Sofort-Tracking ohne Chaos, klare Ansprechpartner (Name+Tel), Fortschritt wie DHL, ehrliche Infos, Fotos sehen, Login landet richtig.
+### Live-Verifikation (Prod)
+| Check | Ergebnis | Beleg |
+|-------|----------|-------|
+| Owner-Login → Dashboard | ✅ 6 Fälle, Stats, Melde-Links | Browser `owner@test.hydra.de` |
+| Claim `0fbb3ede…` Detail | ✅ Foto + KI-Schätzung 8.500 € vs 12.499 € | Screenshot/Snapshot |
+| Gutachten Versicherer PDF | ✅ `application/pdf`, ~55 KB, JPEG-Marker im Binary | `fetch` Status 200 |
+| Gutachten Sanierer PDF (Owner) | ✅ ~55 KB mit JPEG | `fetch` |
+| Gutachten Sanierer (als Sanierer) | ⚠️ 200 aber ~9 KB (ohne Bild) → Fix: alle Fotos + WebP-Fallback | gemessen |
+| Owner „CSV Export“ (vor Fix) | ❌ lieferte JSON | `Content-Type: application/json` |
+| Sanierer-Dashboard | ✅ 1 Auftrag, Maps-Link, Annehmen | Login `sanierer@test.hydra.de` |
+| Melde-Wizard öffentlich | ✅ Objekt lädt, Schritt 1 | `/melden/f774…` |
+| OpenPLZ PLZ→Ort | ✅ `52062` → Aachen | API-Call |
 
-| Prio | Todo |
-|------|------|
-| P0 | Redirect `mieter` → `/dashboard/mieter` |
-| P0 | Ehrliche Melden-Success-Copy (kein Fake-„HV informiert“ ohne Mail) |
-| P0 | `unit_label` + `reporter_name` persistieren |
-| P1 | StatusStepper + Fotos (read-only) im Mieter-Dashboard |
-| P1 | Owner/Sanierer Name + Telefon auf Mieter-Karte |
-| P1 | Status-Seite nach Melden (Token) ohne Account |
-| P1 | Echte Invite-Zustellung (mailto/Email) + FAQ korrigieren |
-| P2 | Kategorie/Dringlichkeit im Melden-Wizard |
-| P2 | WhatsApp-Deep-Link an Verwaltung |
+### Behoben in diesem Sprint (Code)
+- [x] Owner CSV Export = echtes CSV (nicht Summary-JSON)
+- [x] Melden `activity_feed`: `actor_role: "tenant"` + non-blocking (kein 500 nach Claim-Create)
+- [x] PDF Track-Labels: `auto_track` / `out_of_scope` (nicht expert/standard)
+- [x] PDF Status/Split/Scope auf Deutsch
+- [x] `/claims`-Liste klickbar → Detail
+- [x] Foto-Schätzung: Fehler sichtbar bei Übernahme
+- [x] Status-Stepper: `approved` zeigt „Freigegeben“ statt „Eingereicht“
+- [x] Sanierer Site-Card: Eigentümer-Mail + Melder/Einheit aus Beschreibung
+- [x] PLZ→Ort Autocomplete (OpenPLZ, kein neues npm-Package) bei Objekt neu/edit
+- [x] Melden-API Fehlertexte Deutsch + Sie-Form
+- [x] Login/Empty-States Sie-Form
+- [x] Sanierer-PDF: alle Fotos + Signed-URL-Fallback wenn Konvertierung scheitert
 
-### 2) Versicherer
-**Analog:** FNOL → Prüfung → Reserve → Freigabe → Sanierung → Rechnung → Zahlung → Archiv.
-**Jetzt „nette App“:** Späte Claims-Liste, Rechnungs-Queue, Batch-Pay, PDF/CSV, Schätzungs-Vergleich.
-**Damit „beste App“:** Frühe Queue ab Eingang, eine klare Home, Mobile-Cards, Reserve/Nachforderung, klare Owner-Freigabe vs. Zahler-Rolle.
-
-| Prio | Todo |
-|------|------|
-| P0 | Claims ab `submitted` (frühe Queue) |
-| P1 | Mobile Card-Layout statt nur Tabellen |
-| P1 | Einheitliche Insurer-Home (Tabs Claims/Rechnungen) |
-| P1 | Reserve-/Coverage-Felder |
-| P1 | „Dokumente nachfordern“-Vorlage |
-| P2 | Rechnungs-Suche nach Adresse |
-| P2 | Emojis entfernen, Copy Owner vs. Pay klären |
-
-### 3) Sanierer
-**Analog:** Auftrag → Vor-Ort → Ursache → Trocknung → Protokoll → Rechnung → Geld.
-**Jetzt „nette App“:** Assignments, Quick-Drying, Quick-Invoice, Termin, Pool-Profil, PDF.
-**Damit „beste App“:** Heute-Agenda, Kontakte/Zugang, Kamera-first, keine UI-Bugs, Maps, klare Ablehnungsgründe.
-
-| Prio | Todo |
-|------|------|
-| P0 | Doppeltes `ScheduleAppointmentForm` entfernen |
-| P0 | Site-Card: Owner-/Mieter-Kontakt + Zugang |
-| P1 | Kamera `capture="environment"` beim Foto-Upload |
-| P1 | „Heute“-Agenda (scheduled_start heute) |
-| P1 | Reject-Reason Banner bei abgelehnter Rechnung |
-| P2 | Google-Maps-Link zur Adresse |
-| P2 | Equipment-Checkliste |
-
-### 4) Hausverwalter / Eigentümer
-**Analog:** Anruf Mieter → Schaden anlegen → Sanierer → Status → Rechnung freigeben → Archiv.
-**Jetzt „nette App“:** Dashboard, Melde-Link, Dispatcher, Invite-Link, Fotos+KI-Schätzung, Freigabe.
-**Damit „beste App“:** Echte Alerts bei neuem Melden, immer CTA Objekt anlegen, QR druckbar, Bell mit Deep-Links, klarer Status→Dispatch.
-
-| Prio | Todo |
-|------|------|
-| P0 | Melden: Activity + ehrliche Copy; optional mailto Owner |
-| P0 | „Objekt anlegen“ Empty-State immer sichtbar |
-| P1 | Bell-Dropdown → `/claims/{id}` |
-| P1 | Klarer Pfad Status → Sanierer beauftragen |
-| P1 | QR druckbar / mailto Invite |
-| P2 | Sie-Form durchgängig |
-| P2 | Mieter-Roster pro Objekt |
+### Noch offen (belegt, nicht spekuliert)
+| Prio | Item | Evidenz |
+|------|------|---------|
+| P1 | Kategorie/Dringlichkeit im Melden-Wizard | `melden/[token]/page.tsx` nur unit/reporter/cause/photos |
+| P1 | Sanierer Reject-Reason Banner | kein `reject_reason` Feld; Status-Text only |
+| P1 | Insurer: Dokumente-nachfordern-Vorlage | keine Matches in `src/` |
+| P1 | Insurer: Reserve/Coverage-Felder | nicht in Schema/UI |
+| P2 | WhatsApp-Deep-Link Verwaltung | kein `wa.me` in `src/` |
+| P2 | Rechnungs-Suche nach Adresse | Insurer-Invoices nur Status-Filter |
+| P2 | Equipment-Checkliste | nur Freitext `equipment_notes` |
+| P2 | Mieter-Roster pro Objekt | nur Claim-Invites |
+| P2 | Emoji-Cleanup Insurer/Admin | noch vorhanden |
+| P2 | `database.types.ts` Drift (`full_name`, Rollen) | Types vs Live-DB |
+| P2 | Dispatcher „Beauftragen“ disabled bis Radio gewählt | UI-Quirk beobachtet |
+| P3 | Echte E-Mail-Zustellung (nicht nur mailto) | bewusst kein Server-Mail |
+| P3 | `OPENAI_API_KEY` für Vision-Foto-KI | Heuristik live |
 
 ---
 
-## Geplant (älter, noch offen)
+## Rollen-Audit (gekürzt, Status nach Sprint #2/#3)
 
-### Adress-Autocomplete
-- PLZ → Ort zuerst; Straße später; keine neuen Packages ohne Freigabe
+### Mieter
+| Prio | Todo | Status |
+|------|------|--------|
+| P0 | Redirect → `/dashboard/mieter` | ✅ |
+| P0 | Ehrliche Melden-Success-Copy | ✅ |
+| P1 | Status-Seite Token | ✅ |
+| P1 | Invite mailto + FAQ | ✅ |
+| P2 | Kategorie/Dringlichkeit Melden | offen |
+| P2 | WhatsApp-Deep-Link | offen |
 
-### Optional / Hygiene
+### Versicherer
+| Prio | Todo | Status |
+|------|------|--------|
+| P0 | Frühe Queue ab submitted | ✅ |
+| P1 | Mobile Cards + Tabs | ✅ |
+| P1 | Reserve/Coverage | offen |
+| P1 | Dokumente nachfordern | offen |
+
+### Sanierer
+| Prio | Todo | Status |
+|------|------|--------|
+| P0 | Doppeltes Termin-Formular | ✅ |
+| P0 | Site-Card Kontakt/Zugang | ✅ (Mail + Melder/Einheit) |
+| P1 | Heute-Agenda | ✅ |
+| P1 | Reject-Reason Banner | offen |
+| P1 | Maps-Link | ✅ |
+
+### Eigentümer
+| Prio | Todo | Status |
+|------|------|--------|
+| P0 | Objekt-anlegen Empty-State | ✅ |
+| P1 | CSV Export echt | ✅ |
+| P1 | Gutachten mit Fotos | ✅ (Prod verifiziert) |
+| P1 | PLZ→Ort | ✅ |
+| P2 | Mieter-Roster | offen |
+
+---
+
+## Geplant / Hygiene
 - Collaborator Read-Rolle
 - Service-Role rotieren falls exponiert
 - Storage-Policies prüfen
-- `OPENAI_API_KEY` für echte Vision-Foto-KI
-
----
-
-## Sprint 17.09.2026 #2 — umgesetzt
-- [x] Öffentliche Status-Seite `/status/[token]` (HMAC, ~90 Tage, ohne Login)
-- [x] Melden-Success: Status-Link + optionales Owner-mailto
-- [x] QR drucken am Objekt-Melde-Link
-- [x] Insurer Mobile-Cards + Tabs Fälle/Rechnungen
-- [x] Sanierer „Heute geplant“-Agenda
-- [x] Owner: „Als beauftragt“ + Anker Sanierer zuweisen
-- [x] Sie-Form Claim-Neu + Owner-Dashboard-Text
-
-## Sprint 17.09.2026 — umgesetzt
-- [x] Mieter-Redirect → `/dashboard/mieter`
-- [x] Ehrliche Melden-Success-Copy
-- [x] Melder/Einheit in Beschreibung persistieren
-- [x] Owner Empty-State „Objekt anlegen“
-- [x] Sanierer: doppeltes Termin-Formular entfernt + Maps-Link + Pool-CTA
-- [x] Versicherer: frühe Claim-Queue ab `submitted` + Filter
-- [x] Mieter: StatusStepper, Fotos, Owner/Sanierer-Kontakte (Name/Tel/Mail)
-- [x] Notification-Bell Dropdown mit Claim-Deep-Links
-- [x] Kamera-Capture am Foto-Upload
-- [x] Mieter-Invite mailto + FAQ korrigiert
-
-- Claim-Routing 2 Tracks bei 12.500 €
-- Foto-Analyse → `ai_analysis` + Schätzung + UI
-- Form step=1, Texte 12.500 €
-- README / Review-Handoff / Security-Härtung
+- Types regenerieren (`supabase gen types`)

@@ -7,7 +7,7 @@ import { getUserRedirect } from '@/lib/auth/get-user-redirect';
 
 const LoginSchema = z.object({
   email: z.string().email('Bitte eine gültige E-Mail-Adresse eingeben.'),
-  password: z.string().min(1, 'Bitte dein Passwort eingeben.'),
+  password: z.string().min(1, "Bitte geben Sie Ihr Passwort ein."),
 });
 
 export type LoginFormState = {

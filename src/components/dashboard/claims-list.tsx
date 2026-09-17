@@ -29,7 +29,7 @@ export function ClaimsList({ claims }: Props) {
           Noch keine Schadensfälle vorhanden.
         </p>
         <p className="mt-1 text-xs text-slate-500">
-          Lege deinen ersten Fall an, um den Hydra-Guard-Flow zu testen.
+          Lege Sie Ihren ersten Fall an, um den Hydra-Guard-Flow zu testen.
         </p>
         <Link
           href="/claims/new"

@@ -35,8 +35,9 @@ function formatEUR(amount: number | null) {
 }
 
 function tierLabel(tier: string | null) {
-  if (tier === "expert") return "Gutachter-Track (> 12.500 €)";
-  if (tier === "standard") return "Standard-Track (≤ 12.500 €)";
+  if (tier === "auto_track") return "Standard-Track (≤ 12.500 €)";
+  if (tier === "out_of_scope") return "Gutachter-Track (> 12.500 €)";
+  if (tier === "expert_track") return "Experte (Legacy)";
   return tier || "—";
 }
 

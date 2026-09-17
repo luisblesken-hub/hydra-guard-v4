@@ -1,5 +1,6 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { PdfPhotoImage } from "@/lib/pdf/load-photo-images";
+import { splitLabel, statusLabel } from "@/lib/utils/claim-status";
 
 export type VersichererReportData = {
   report: {
@@ -52,9 +53,27 @@ function formatEUR(amount: number) {
 }
 
 function tierLabel(tier: string | null) {
-  if (tier === "expert") return "Gutachter-Track (> 12.500 €)";
-  if (tier === "standard") return "Standard-Track (≤ 12.500 €)";
+  if (tier === "auto_track") return "Standard-Track (≤ 12.500 €)";
+  if (tier === "out_of_scope") return "Gutachter-Track (> 12.500 €)";
+  if (tier === "expert_track") return "Experte (Legacy)";
   return tier || "—";
+}
+
+function invoiceStatusDe(status: string) {
+  switch (status) {
+    case "draft":
+      return "Entwurf";
+    case "submitted":
+      return "Eingereicht";
+    case "approved":
+      return "Freigegeben";
+    case "paid":
+      return "Bezahlt";
+    case "rejected":
+      return "Abgelehnt";
+    default:
+      return status;
+  }
 }
 
 function severityDe(s: string | null | undefined) {
@@ -182,7 +201,7 @@ export function VersichererReportDocument({
           <Text style={styles.sectionTitle}>Kurzfazit</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Status</Text>
-            <Text style={styles.value}>{report.status}</Text>
+            <Text style={styles.value}>{statusLabel(report.status)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Schätzwert</Text>
@@ -228,7 +247,7 @@ export function VersichererReportDocument({
           <View style={styles.row}>
             <Text style={styles.label}>Split</Text>
             <Text style={styles.value}>
-              {report.insurance_split ? report.insurance_split : "—"}
+              {report.insurance_split ? splitLabel(report.insurance_split) : "—"}
             </Text>
           </View>
           <Text style={styles.footerNote}>
@@ -249,7 +268,7 @@ export function VersichererReportDocument({
                 </View>
                 <View style={styles.row}>
                   <Text style={styles.label}>Status</Text>
-                  <Text style={styles.value}>{inv.status}</Text>
+                  <Text style={styles.value}>{invoiceStatusDe(inv.status)}</Text>
                 </View>
                 <Text style={styles.small}>Datum: {formatDate(inv.created_at)}</Text>
               </View>
@@ -306,7 +325,7 @@ export function VersichererReportDocument({
                 )}
                 <Text style={styles.photoCaption}>
                   {idx + 1}. {p.room_label || p.original_name || "Foto"}
-                  {p.insurance_scope ? ` (${p.insurance_scope})` : ""}
+                  {p.insurance_scope ? ` (${splitLabel(p.insurance_scope)})` : ""}
                 </Text>
                 <Text style={styles.photoMeta}>
                   {formatDateShort(p.uploaded_at)}

@@ -28,7 +28,11 @@ export function StatusStepper({ status }: { status: string }) {
 
   if (currentIdx < 0) return null; // Sonderstatus – kein Stepper sinnvoll
 
-  const currentLabel = STEPS[currentIdx]?.label ?? "Unbekannt";
+  // `approved` sits on step 0 but must not read as "Eingereicht"
+  const currentLabel =
+    status === "approved"
+      ? "Freigegeben"
+      : (STEPS[currentIdx]?.label ?? "Unbekannt");
 
   return (
     <div className="overflow-x-auto" role="region" aria-label={`Fortschritt: ${currentLabel}`}>
@@ -37,13 +41,15 @@ export function StatusStepper({ status }: { status: string }) {
           const done = i < currentIdx;
           const active = i === currentIdx;
           const future = i > currentIdx;
+          const label =
+            status === "approved" && i === 0 ? "Freigegeben" : step.label;
 
           return (
             <li
               key={step.key}
               className="flex items-center"
               aria-current={active ? "step" : undefined}
-              aria-label={`Schritt ${i + 1}: ${step.label}${done ? " (abgeschlossen)" : active ? " (aktuell)" : ""}`}
+              aria-label={`Schritt ${i + 1}: ${label}${done ? " (abgeschlossen)" : active ? " (aktuell)" : ""}`}
             >
               <div className="flex flex-col items-center">
                 <div
@@ -62,7 +68,7 @@ export function StatusStepper({ status }: { status: string }) {
                     active ? "font-semibold text-indigo-700" : future ? "text-slate-400" : "text-slate-500"
                   }`}
                 >
-                  {step.label}
+                  {label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (

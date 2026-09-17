@@ -61,6 +61,9 @@ export async function loadPhotoImagesForPdf(
         const buffer = Buffer.from(await blob.arrayBuffer());
         imageSrc = await bufferToJpegDataUri(buffer, row.mime_type);
       }
+      if (!imageSrc) {
+        imageSrc = await signedPhotoUrl(row.storage_path);
+      }
     } catch {
       imageSrc = null;
     }
@@ -85,9 +88,9 @@ async function bufferToJpegDataUri(
 ): Promise<string | null> {
   const mime = (mimeType ?? "").toLowerCase();
 
-  // Already PDF-safe formats — still normalize via sharp when available for size
+  // Always prefer sharp so WebP/HEIC become PDF-safe JPEG
   try {
-    // sharp is a transitive dep of Next.js; avoid adding a direct package
+    // sharp is shipped with Next.js; avoid adding a direct package
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const sharp = require("sharp") as typeof import("sharp");
     const jpeg = await sharp(buffer)
@@ -96,14 +99,31 @@ async function bufferToJpegDataUri(
       .jpeg({ quality: 72, mozjpeg: true })
       .toBuffer();
     return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
-  } catch {
-    // Fallback without sharp
-    if (mime.includes("png")) {
-      return `data:image/png;base64,${buffer.toString("base64")}`;
-    }
-    if (mime.includes("jpeg") || mime.includes("jpg")) {
-      return `data:image/jpeg;base64,${buffer.toString("base64")}`;
-    }
-    return null;
+  } catch (err) {
+    console.error("[pdf/photo] sharp convert failed", (err as Error)?.message);
   }
+
+  if (mime.includes("png")) {
+    return `data:image/png;base64,${buffer.toString("base64")}`;
+  }
+  if (mime.includes("jpeg") || mime.includes("jpg")) {
+    return `data:image/jpeg;base64,${buffer.toString("base64")}`;
+  }
+  return null;
+}
+
+/**
+ * Last-resort signed URL if bytes cannot be converted (e.g. WebP without sharp).
+ * react-pdf may still fail on WebP URLs — caller shows placeholder then.
+ */
+export async function signedPhotoUrl(
+  storagePath: string,
+  expiresIn = 300
+): Promise<string | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin.storage
+    .from("damage-photos")
+    .createSignedUrl(storagePath, expiresIn);
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
 }

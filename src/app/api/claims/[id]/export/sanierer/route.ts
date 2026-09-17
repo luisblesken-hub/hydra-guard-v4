@@ -74,14 +74,11 @@ export async function GET(
     ? (row as any).properties[0]
     : (row as any).properties;
 
-  let photos = await loadPhotoImagesForPdf({
+  // Full photo set for gutachten (not only building scope)
+  const photos = await loadPhotoImagesForPdf({
     reportId: id,
-    insuranceScope: "building",
     maxPhotos: 8,
   });
-  if (photos.length === 0) {
-    photos = await loadPhotoImagesForPdf({ reportId: id, maxPhotos: 8 });
-  }
 
   const pdfData: SaniererReportData = {
     report: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { applyPhotoEstimateAction } from "@/app/claims/[id]/photos/apply-estimate-action";
 import type { ClaimPhotoEstimate } from "@/lib/ai/photo-analysis-types";
 
@@ -13,6 +13,7 @@ type Props = {
 
 export function PhotoEstimatePanel({ claimId, estimate, currentAmount, canApply }: Props) {
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   if (!estimate) return null;
 
@@ -50,13 +51,18 @@ export function PhotoEstimatePanel({ claimId, estimate, currentAmount, canApply 
           <dd className="font-semibold text-sky-950">{source}</dd>
         </div>
       </dl>
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       {canApply && differs && (
         <button
           type="button"
           disabled={pending}
           onClick={() => {
+            setError(null);
             startTransition(async () => {
-              await applyPhotoEstimateAction(claimId);
+              const result = await applyPhotoEstimateAction(claimId);
+              if (!result.success) {
+                setError(result.error ?? "Übernahme fehlgeschlagen.");
+              }
             });
           }}
           className="mt-3 inline-flex rounded-md bg-sky-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-800 disabled:opacity-50"
