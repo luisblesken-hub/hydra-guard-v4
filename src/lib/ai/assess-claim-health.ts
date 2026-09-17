@@ -3,7 +3,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import {
   aggregatePhotoAnalyses,
+  loadFindingCorrections,
+  loadLocalWeights,
 } from "@/lib/ai/aggregate-claim-from-photos"
+import { aggregateWithCorrections } from "@/lib/ai/local-weights"
 import { isPhotoAnalysisResult } from "@/lib/ai/photo-analysis-types"
 import { OUT_OF_SCOPE_THRESHOLD, resolveClaimTier } from "@/lib/claims/tier"
 import { statusLabel } from "@/lib/utils/claim-status"
@@ -197,8 +200,23 @@ export async function assessClaimHealth(
   }
 
   const photoRows = photos ?? []
-  const analyses = photoRows.map((p) => p.ai_analysis).filter(isPhotoAnalysisResult)
-  const aggregate = aggregatePhotoAnalyses(analyses)
+  const analysisRows = photoRows
+    .map((p) => ({ photoId: p.id as string, analysis: p.ai_analysis }))
+    .filter((r): r is { photoId: string; analysis: NonNullable<typeof r.analysis> } =>
+      isPhotoAnalysisResult(r.analysis)
+    )
+    .map((r) => ({
+      photoId: r.photoId,
+      analysis: r.analysis as import("@/lib/ai/photo-analysis-types").PhotoAnalysisResult,
+    }))
+
+  const [corrections, weights] = await Promise.all([
+    loadFindingCorrections(supabase, claimId),
+    loadLocalWeights(supabase),
+  ])
+  const aggregate =
+    aggregateWithCorrections(analysisRows, corrections, weights) ??
+    aggregatePhotoAnalyses(analysisRows.map((r) => r.analysis))
 
   const { count: assignmentCount, error: assignmentError } = await supabase
     .from("assignments")

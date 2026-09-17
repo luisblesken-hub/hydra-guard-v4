@@ -6,7 +6,11 @@ import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { getPhotosByClaimId } from "@/lib/db/photos";
 import { PhotoGallery } from "@/components/claims/photo-gallery";
 import { PhotoEstimatePanel } from "@/components/claims/photo-estimate-panel";
-import { aggregatePhotoAnalyses } from "@/lib/ai/aggregate-claim-from-photos";
+import {
+  loadFindingCorrections,
+  loadLocalWeights,
+} from "@/lib/ai/aggregate-claim-from-photos";
+import { aggregateWithCorrections } from "@/lib/ai/local-weights";
 import { isPhotoAnalysisResult } from "@/lib/ai/photo-analysis-types";
 import { PhotoUpload } from "@/components/claims/photo-upload";
 import { DryingLogSection, type DryingLogEntry } from "@/components/drying-log-section";
@@ -152,13 +156,24 @@ export default async function ClaimDetailPage({ params }: Params) {
     photosResult = await getPhotosByClaimId(supabase, id);
   }
 
+  const findingCorrections = await loadFindingCorrections(adminClient, id);
+  const localWeights = await loadLocalWeights(adminClient);
+
   const photoEstimate = photosResult.success
-    ? aggregatePhotoAnalyses(
+    ? aggregateWithCorrections(
         photosResult.data
-          .map((p) => p.ai_analysis)
-          .filter(isPhotoAnalysisResult)
+          .filter((p) => isPhotoAnalysisResult(p.ai_analysis))
+          .map((p) => ({
+            photoId: p.id,
+            analysis: p.ai_analysis!,
+          })),
+        findingCorrections,
+        localWeights
       )
     : null;
+
+  const claimCorrection =
+    findingCorrections.find((c) => c.photo_id == null) ?? null;
 
   const admin = adminClient;
 
@@ -428,10 +443,16 @@ export default async function ClaimDetailPage({ params }: Params) {
             estimate={photoEstimate}
             currentAmount={amount}
             canApply={canApplyHealthFixes}
+            claimCorrection={claimCorrection}
           />
         )}
         {photosResult.success ? (
-          <PhotoGallery claimId={id} photos={photosResult.data} />
+          <PhotoGallery
+            claimId={id}
+            photos={photosResult.data}
+            corrections={findingCorrections}
+            canCorrect={canApplyHealthFixes}
+          />
         ) : (
           <p className="text-xs text-red-500">{photosResult.error}</p>
         )}

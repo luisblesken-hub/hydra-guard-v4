@@ -3,16 +3,25 @@
 import { useState, useTransition } from "react";
 import { applyPhotoEstimateAction } from "@/app/claims/[id]/photos/apply-estimate-action";
 import { reanalyzeClaimPhotosAction } from "@/app/claims/[id]/photos/reanalyze-action";
+import { ClaimFindingCorrectionForm } from "@/components/claims/claim-finding-correction-form";
 import type { ClaimPhotoEstimate } from "@/lib/ai/photo-analysis-types";
+import type { FindingCorrection } from "@/lib/ai/finding-correction-types";
 
 type Props = {
   claimId: string;
   estimate: ClaimPhotoEstimate | null;
   currentAmount: number;
   canApply: boolean;
+  claimCorrection?: FindingCorrection | null;
 };
 
-export function PhotoEstimatePanel({ claimId, estimate, currentAmount, canApply }: Props) {
+export function PhotoEstimatePanel({
+  claimId,
+  estimate,
+  currentAmount,
+  canApply,
+  claimCorrection = null,
+}: Props) {
   const [pending, startTransition] = useTransition();
   const [reanalyzePending, startReanalyze] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +120,12 @@ export function PhotoEstimatePanel({ claimId, estimate, currentAmount, canApply 
           </button>
         )}
       </div>
+      <ClaimFindingCorrectionForm
+        claimId={claimId}
+        estimate={estimate}
+        claimCorrection={claimCorrection}
+        canEdit={canApply}
+      />
     </div>
   );
 }

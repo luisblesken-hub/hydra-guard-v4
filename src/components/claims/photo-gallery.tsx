@@ -1,9 +1,11 @@
-'use client';
+"use client";
 
 import { useTransition, useState, useEffect } from "react";
 import { deletePhotoAction } from "@/app/claims/[id]/photos/actions";
 import { PhotoAnalysisBadge } from "@/components/claims/photo-analysis-badge";
+import { PhotoFindingCorrectionForm } from "@/components/claims/photo-finding-correction-form";
 import type { PhotoAnalysisResult } from "@/lib/ai/photo-analysis-types";
+import type { FindingCorrection } from "@/lib/ai/finding-correction-types";
 
 type Photo = {
   id: string;
@@ -18,11 +20,22 @@ type Photo = {
 type Props = {
   claimId: string;
   photos: Photo[];
+  corrections?: FindingCorrection[];
+  canCorrect?: boolean;
 };
 
-export function PhotoGallery({ claimId, photos }: Props) {
+export function PhotoGallery({
+  claimId,
+  photos,
+  corrections = [],
+  canCorrect = false,
+}: Props) {
   const [isPending, startTransition] = useTransition();
   const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null);
+
+  const correctionByPhoto = new Map(
+    corrections.filter((c) => c.photo_id).map((c) => [c.photo_id as string, c])
+  );
 
   useEffect(() => {
     if (!lightboxPhoto) return;
@@ -88,6 +101,13 @@ export function PhotoGallery({ claimId, photos }: Props) {
                 }).format(new Date(photo.uploaded_at))}
               </p>
               <PhotoAnalysisBadge analysis={photo.ai_analysis ?? null} />
+              <PhotoFindingCorrectionForm
+                claimId={claimId}
+                photoId={photo.id}
+                analysis={photo.ai_analysis ?? null}
+                existing={correctionByPhoto.get(photo.id) ?? null}
+                canEdit={canCorrect}
+              />
               <button
                 type="button"
                 disabled={isPending}

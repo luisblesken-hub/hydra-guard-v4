@@ -1,6 +1,27 @@
 # HydraGuard — Backlog & Session-Stand
 
-Stand: **17.09.2026** — Sprint OpenAI Vision Foto-KI
+Stand: **17.09.2026** — Sprint Owner AI-Finding-Korrekturen
+
+---
+
+## Sprint 17.09.2026 #6 — Owner korrigiert Foto-/Claim-Findings
+
+### Umgesetzt
+- [x] Migration `0007_ai_finding_corrections.sql` (idempotent, RLS Owner CRUD)
+- [x] Speichern: Tabelle + `activity_feed` mit strukturiertem `new_value` (`ai_finding_correction`)
+- [x] Aggregate berücksichtigt Korrekturen (höheres Gewicht) + Claim-Blend
+- [x] Lokale Gewichte aus Korrektur-Historie (`amount_mult_by_type`) — kein externes Training
+- [x] UI: pro Foto „Finding korrigieren“ + Claim „System-Vorschlag korrigieren“
+- [x] Claim-Health / Sync nutzen korrigierte Aggregate
+- [x] `tsc` + `build` grün
+
+### Ops
+- Migration 0007 in Supabase SQL Editor ausführen (falls noch nicht applied)
+
+---
+
+## Zurückgestellt
+- **OpenAI Vision Live** (`OPENAI_API_KEY` lokal+Vercel) — Code fertig, Key fehlt; nachholen wenn Key da
 
 ---
 
@@ -9,29 +30,17 @@ Stand: **17.09.2026** — Sprint OpenAI Vision Foto-KI
 ### Env (belegt)
 | Ort | `OPENAI_API_KEY` | `OPENAI_VISION_MODEL` |
 |-----|------------------|------------------------|
-| `.env.local` | ❌ fehlt | optional (Default `gpt-4o-mini`) |
+| `.env.local` | ❌ fehlt (übersprungen) | optional (Default `gpt-4o-mini`) |
 | Vercel Project Env | ❌ fehlt (nur Supabase-Keys) | optional |
 
-**Aktivierung:** Key in `.env.local` + Vercel (Production/Preview/Development) setzen, Dev-Server neu starten bzw. Redeploy. Optional `OPENAI_VISION_MODEL=gpt-4o-mini` (oder anderes Vision-fähiges Modell). `PHOTO_AI_ENABLED=false` erzwingt Heuristik.
+**Aktivierung (wenn Key da):** `.env.local` + Vercel setzen → Redeploy → Upload / „Fotos erneut analysieren“ → `ai_analysis.source=vision`.
 
 ### Code
-- [x] `analyzeDamagePhotoVision` robust: Timeout 25s, MIME-Check, JSON-Fence-Parsing, Payload-Validierung; **jeder Fehler → `null` → Heuristik**
-- [x] `analyzeDamagePhoto` wirft nie; Prefer Vision → Fallback System
-- [x] `env.openaiApiKey` / `openaiVisionModel` / `photoAiEnabled` (server-only)
-- [x] UI klar: Badge `Quelle: KI · Vision` vs `Quelle: System · Heuristik`; Panel `KI (Vision)` / `System (Heuristik)`
-- [x] Button „Fotos erneut analysieren“ (Owner/Admin) + Activity-Log
-- [x] Admin Health: `openai_vision` = `configured` | `missing_key` | `disabled`
-- [x] `.env.example` dokumentiert optionale Vars
+- [x] Vision robust + Heuristik-Fallback
+- [x] UI KI vs System
+- [x] Re-Analyse-Button, Health-Flag, `.env.example`
 - [x] `tsc` + `build` grün
-
-### Live-Verifikation (localhost, `owner@test.hydra.de`)
-| Check | Ergebnis | Beleg |
-|-------|----------|-------|
-| Badge/Panel Quelle System | ✅ `Quelle: System · Heuristik` / `System (Heuristik)` | Claim `0fbb3ede…` |
-| Re-Analyse ohne Key | ✅ Fallback Heuristik + Hinweis „Für KI: OPENAI_API_KEY setzen“ | Activity `0× KI, 1× System` |
-| `ai_analysis.source=vision` | ⚠️ blockiert — Key weder lokal noch Vercel | Env-Audit |
-
-Nach Key-Setzen: Upload oder „Fotos erneut analysieren“ → Badge **Quelle: KI · Vision**, `ai_analysis.source === "vision"`.
+- [ ] Live `source=vision` — zurückgestellt (kein Key)
 
 ---
 
@@ -112,7 +121,7 @@ Nach Key-Setzen: Upload oder „Fotos erneut analysieren“ → Badge **Quelle: 
 | P2 | `database.types.ts` Drift (`full_name`, Rollen) | Types vs Live-DB |
 | P2 | Dispatcher „Beauftragen“ disabled bis Radio gewählt | UI-Quirk beobachtet |
 | P3 | Echte E-Mail-Zustellung (nicht nur mailto) | bewusst kein Server-Mail |
-| P3 | `OPENAI_API_KEY` für Vision-Foto-KI | ⚠️ Key fehlt lokal+Vercel; Code + Fallback fertig (Sprint #5) |
+| P3 | `OPENAI_API_KEY` für Vision-Foto-KI | ⏸ zurückgestellt — Code fertig, Key fehlt (Sprint #5) |
 
 ---
 
@@ -153,7 +162,8 @@ Nach Key-Setzen: Upload oder „Fotos erneut analysieren“ → Badge **Quelle: 
 | P1 | Gutachten mit Fotos | ✅ (Prod verifiziert) |
 | P1 | PLZ→Ort | ✅ |
 | P1 | Claim-Health Systemprüfung | ✅ (Detail-Panel + sichere Fixes) |
-| P1 | Foto-KI Vision verdrahtet | ⚠️ Code fertig; Key setzen für `source=vision` |
+| P1 | Foto-KI Vision verdrahtet | ⏸ Code fertig; Key zurückgestellt |
+| P1 | Owner Finding-Korrekturen | ✅ Tabelle + Aggregate + UI (Migration 0007) |
 | P2 | Mieter-Roster | offen |
 
 ---
