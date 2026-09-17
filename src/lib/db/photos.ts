@@ -4,10 +4,14 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { analyzeAndPersistPhoto, syncClaimEstimateFromPhotos } from "@/lib/ai/aggregate-claim-from-photos";
+import { isPhotoAnalysisResult, type PhotoAnalysisResult } from "@/lib/ai/photo-analysis-types";
 
 type Client = SupabaseClient<Database>;
 
-export type UploadPhotoResult = { success: true } | { success: false; error: string };
+export type UploadPhotoResult =
+  | { success: true; photoId: string; analysis: PhotoAnalysisResult | null }
+  | { success: false; error: string };
 
 export type DamagePhoto = {
   id: string;
@@ -16,6 +20,7 @@ export type DamagePhoto = {
   signed_url: string;
   uploaded_at: string;
   storage_path: string;
+  ai_analysis: PhotoAnalysisResult | null;
 };
 
 /**
@@ -23,7 +28,7 @@ export type DamagePhoto = {
  * Findet APP0 (0xFFE0) und APP1 (0xFFE1) Marker und entfernt sie.
  * Für Nicht-JPEG-Dateien wird die Originaldatei zurückgegeben.
  */
-async function stripGpsFromFile(file: File): Promise<File | Blob> {
+export async function stripGpsFromFile(file: File): Promise<File | Blob> {
   // Nur JPEG verarbeiten
   if (!file.type.includes("jpeg") && !file.type.includes("jpg")) return file;
 
@@ -85,6 +90,7 @@ export async function uploadDamagePhoto(
 ): Promise<UploadPhotoResult> {
   try {
     const cleaned = await stripGpsFromFile(file);
+    const imageBytes = await cleaned.arrayBuffer();
     const timestamp = Date.now();
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const storagePath = `claims/${claimId}/${timestamp}_${safeName}`;
@@ -102,23 +108,50 @@ export async function uploadDamagePhoto(
       return { success: false, error: "Fehler beim Hochladen der Datei." };
     }
 
-    const { error: insertError } = await supabase.from("damage_photos").insert({
-      report_id: claimId,
-      uploaded_by: ownerId,
-      storage_path: storagePath,
-      original_name: file.name,
-      file_size_bytes: file.size,
-      mime_type: file.type,
-    });
+    const { data: inserted, error: insertError } = await supabase
+      .from("damage_photos")
+      .insert({
+        report_id: claimId,
+        uploaded_by: ownerId,
+        storage_path: storagePath,
+        original_name: file.name,
+        file_size_bytes: file.size,
+        mime_type: file.type,
+      })
+      .select("id")
+      .single();
 
-    if (insertError) {
-      console.error("[uploadDamagePhoto] insert error:", insertError.code);
-      // Attempt best-effort cleanup in storage.
+    if (insertError || !inserted) {
+      console.error("[uploadDamagePhoto] insert error:", insertError?.code);
       await supabase.storage.from("damage-photos").remove([storagePath]);
       return { success: false, error: "Fehler beim Speichern der Fotometadaten." };
     }
 
-    return { success: true };
+    // Claim context for analysis (best-effort)
+    const { data: claim } = await supabase
+      .from("damage_reports")
+      .select("category, description, reported_cause")
+      .eq("id", claimId)
+      .maybeSingle();
+
+    let analysis: PhotoAnalysisResult | null = null;
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const admin = createAdminClient();
+      analysis = await analyzeAndPersistPhoto(admin, inserted.id, {
+        fileName: file.name,
+        mimeType: file.type,
+        fileSizeBytes: file.size,
+        imageBytes,
+        claimCategory: claim?.category ?? null,
+        claimDescription: [claim?.description, claim?.reported_cause].filter(Boolean).join(" "),
+      });
+      await syncClaimEstimateFromPhotos(admin, claimId);
+    } catch {
+      console.error("[uploadDamagePhoto] analysis failed (non-blocking)");
+    }
+
+    return { success: true, photoId: inserted.id, analysis };
   } catch {
     console.error("[uploadDamagePhoto] unexpected error");
     return { success: false, error: "Unbekannter Fehler beim Foto-Upload." };
@@ -128,7 +161,7 @@ export async function uploadDamagePhoto(
 export async function getPhotosByClaimId(
   supabase: Client,
   claimId: string,
-  ownerId: string
+  ownerId?: string
 ): Promise<{ success: true; data: DamagePhoto[] } | { success: false; error: string }> {
   type DamagePhotoRow = {
     id: string;
@@ -136,14 +169,20 @@ export async function getPhotosByClaimId(
     file_size_bytes: number | null;
     storage_path: string;
     uploaded_at: string;
+    ai_analysis: PhotoAnalysisResult | null;
   };
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("damage_photos")
-    .select("id, original_name, file_size_bytes, storage_path, uploaded_at")
+    .select("id, original_name, file_size_bytes, storage_path, uploaded_at, ai_analysis")
     .eq("report_id", claimId)
-    .eq("uploaded_by", ownerId)
     .order("uploaded_at", { ascending: true });
+
+  if (ownerId) {
+    query = query.eq("uploaded_by", ownerId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("[getPhotosByClaimId] select error:", error.code);
@@ -171,6 +210,7 @@ export async function getPhotosByClaimId(
       signed_url: signed.signedUrl,
       uploaded_at: row.uploaded_at,
       storage_path: storagePath,
+      ai_analysis: isPhotoAnalysisResult(row.ai_analysis) ? row.ai_analysis : null,
     });
   }
 
@@ -182,8 +222,14 @@ export async function deleteDamagePhoto(
   photoId: string,
   storagePath: string,
   ownerId: string
-): Promise<UploadPhotoResult> {
+): Promise<{ success: true } | { success: false; error: string }> {
   try {
+    const { data: photo } = await supabase
+      .from("damage_photos")
+      .select("report_id")
+      .eq("id", photoId)
+      .maybeSingle();
+
     const { error: deleteDbError } = await supabase
       .from("damage_photos")
       .delete()
@@ -207,10 +253,13 @@ export async function deleteDamagePhoto(
       };
     }
 
+    if (photo?.report_id) {
+      await syncClaimEstimateFromPhotos(supabase, photo.report_id);
+    }
+
     return { success: true };
   } catch {
     console.error("[deleteDamagePhoto] unexpected error");
     return { success: false, error: "Unbekannter Fehler beim Löschen des Fotos." };
   }
 }
-

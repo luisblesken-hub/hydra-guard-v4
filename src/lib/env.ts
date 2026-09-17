@@ -31,5 +31,8 @@ export const env = {
   supabaseUrl: () => getEnv("NEXT_PUBLIC_SUPABASE_URL"),
   supabaseAnonKey: () => getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
   supabaseServiceRoleKey: () => getServerOnlyEnv("SUPABASE_SERVICE_ROLE_KEY"),
+  /** Optional: enables vision analysis on photo upload when set. */
+  openaiApiKey: () => process.env.OPENAI_API_KEY || null,
+  photoAiEnabled: () => process.env.PHOTO_AI_ENABLED !== "false",
 };
 

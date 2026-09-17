@@ -5,6 +5,9 @@ import { getClaimById } from "@/lib/db/damage-reports";
 import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
 import { getPhotosByClaimId } from "@/lib/db/photos";
 import { PhotoGallery } from "@/components/claims/photo-gallery";
+import { PhotoEstimatePanel } from "@/components/claims/photo-estimate-panel";
+import { aggregatePhotoAnalyses } from "@/lib/ai/aggregate-claim-from-photos";
+import { isPhotoAnalysisResult } from "@/lib/ai/photo-analysis-types";
 import { PhotoUpload } from "@/components/claims/photo-upload";
 import { DryingLogSection, type DryingLogEntry } from "@/components/drying-log-section";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -128,38 +131,21 @@ export default async function ClaimDetailPage({ params }: Params) {
   const split = typedClaim.insurance_split ?? null;
   const status = typedClaim.status;
 
-  // Owner: RLS-geschützt via supabase+ownerId. Sanierer/Insurer: direkte Admin-Query ohne Owner-Filter.
+  // Owner: RLS-geschützt. Sanierer/Insurer/Admin: Admin-Client ohne Owner-Filter.
   let photosResult: Awaited<ReturnType<typeof getPhotosByClaimId>>;
   if (role === "sanierer" || role === "versicherung" || role === "admin") {
-    const { data: rawPhotos, error: photosError } = await adminClient
-      .from("damage_photos")
-      .select("id, original_name, file_size_bytes, storage_path, uploaded_at")
-      .eq("report_id", id)
-      .order("uploaded_at", { ascending: true });
-    if (photosError) {
-      photosResult = { success: false, error: "Fehler beim Laden der Fotos." };
-    } else {
-      const enriched = [];
-      for (const row of rawPhotos ?? []) {
-        const { data: signed } = await adminClient.storage
-          .from("damage-photos")
-          .createSignedUrl(row.storage_path, 3600);
-        if (signed?.signedUrl) {
-          enriched.push({
-            id: row.id,
-            original_name: row.original_name,
-            file_size_bytes: row.file_size_bytes,
-            signed_url: signed.signedUrl,
-            uploaded_at: row.uploaded_at,
-            storage_path: row.storage_path,
-          });
-        }
-      }
-      photosResult = { success: true, data: enriched };
-    }
+    photosResult = await getPhotosByClaimId(adminClient, id);
   } else {
-    photosResult = await getPhotosByClaimId(supabase, id, user.id);
+    photosResult = await getPhotosByClaimId(supabase, id);
   }
+
+  const photoEstimate = photosResult.success
+    ? aggregatePhotoAnalyses(
+        photosResult.data
+          .map((p) => p.ai_analysis)
+          .filter(isPhotoAnalysisResult)
+      )
+    : null;
 
   const admin = adminClient;
 
@@ -410,6 +396,14 @@ export default async function ClaimDetailPage({ params }: Params) {
 
       <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Fotos</h2>
+        {photoEstimate && (
+          <PhotoEstimatePanel
+            claimId={id}
+            estimate={photoEstimate}
+            currentAmount={amount}
+            canApply={role === "owner" || (ownerId !== null && ownerId === user.id)}
+          />
+        )}
         {photosResult.success ? (
           <PhotoGallery claimId={id} photos={photosResult.data} />
         ) : (

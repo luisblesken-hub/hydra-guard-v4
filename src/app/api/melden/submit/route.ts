@@ -92,17 +92,47 @@ export async function POST(
     uploaded_by: property.owner_id,
     storage_path: storagePath,
     original_name: deriveOriginalName(storagePath),
-    mime_type: null,
-    file_size_bytes: null,
-    insurance_scope: "building",
+    mime_type: null as string | null,
+    file_size_bytes: null as number | null,
+    insurance_scope: "building" as const,
   }));
 
-  const { error: photosError } = await admin
+  const { data: insertedPhotos, error: photosError } = await admin
     .from("damage_photos")
-    .insert(photoRows as any);
+    .insert(photoRows)
+    .select("id, storage_path, original_name, mime_type, file_size_bytes");
 
   if (photosError) {
     return new Response("Failed to upload photos", { status: 500 });
+  }
+
+  // Foto-Analyse + Schätzung (Melden startet mit estimated_amount=0)
+  try {
+    const { analyzeAndPersistPhoto, syncClaimEstimateFromPhotos } = await import(
+      "@/lib/ai/aggregate-claim-from-photos"
+    );
+    for (const photo of insertedPhotos ?? []) {
+      let imageBytes: ArrayBuffer | null = null;
+      try {
+        const { data: blob } = await admin.storage
+          .from("damage-photos")
+          .download(photo.storage_path);
+        if (blob) imageBytes = await blob.arrayBuffer();
+      } catch {
+        // non-blocking
+      }
+      await analyzeAndPersistPhoto(admin, photo.id, {
+        fileName: photo.original_name ?? photo.storage_path,
+        mimeType: photo.mime_type,
+        fileSizeBytes: photo.file_size_bytes,
+        imageBytes,
+        claimCategory: null,
+        claimDescription: description,
+      });
+    }
+    await syncClaimEstimateFromPhotos(admin, reportId, { force: true });
+  } catch {
+    console.error("[melden/submit] photo analysis failed (non-blocking)");
   }
 
   const activityText = `Schaden gemeldet von ${reporterName}, Einheit ${unitLabel}`;
@@ -111,7 +141,7 @@ export async function POST(
     report_id: reportId,
     actor_id: null,
     event_type: activityText,
-  } as any);
+  } as never);
 
   if (activityError) {
     return new Response("Failed to record activity", { status: 500 });

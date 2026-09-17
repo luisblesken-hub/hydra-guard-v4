@@ -64,6 +64,17 @@ export async function uploadPhotoAction(formData: FormData) {
     return result;
   }
 
+  const admin = (await import("@/lib/supabase/admin")).createAdminClient();
+  await admin.from("activity_feed").insert({
+    report_id: claimId,
+    actor_id: user.id,
+    actor_role: "owner",
+    event_type: "photo_uploaded",
+    note: result.analysis
+      ? `Foto analysiert: ${result.analysis.summary_de}`
+      : "Foto hochgeladen",
+  });
+
   revalidatePath(`/claims/${claimId}`);
   return { success: true };
 }

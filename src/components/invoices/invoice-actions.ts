@@ -77,6 +77,17 @@ export async function submitInvoiceAction(
     };
   }
 
+  const { data: report } = await admin
+    .from("damage_reports")
+    .select("estimated_amount")
+    .eq("id", reportId)
+    .maybeSingle();
+
+  const systemEstimate =
+    report?.estimated_amount && report.estimated_amount > 0
+      ? Number(report.estimated_amount)
+      : null;
+
   const { error: insertError } = await admin.from("sanierer_invoices").insert({
     assignment_id: assignment.id,
     sanierer_id: user.id,
@@ -85,6 +96,7 @@ export async function submitInvoiceAction(
     amount_net,
     vat_rate,
     status: "submitted",
+    system_estimate: systemEstimate,
   });
 
   if (insertError) {

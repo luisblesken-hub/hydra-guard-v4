@@ -53,3 +53,5 @@ Stand: **14.09.2026** (Feierabend)
 - Texte Claims/Hilfe auf 12.500 €
 - README + Review-Handoff
 - Security-Härtung (.gitignore, alter Client weg, Vercel Secret)
+- **Foto-Analyse Sprint:** Upload → `ai_analysis` JSON, Aggregate → Schätzung, UI Badge/Panel, Melden-Pfad, Invoice `system_estimate`
+  - Heuristik immer an; echte Vision-KI wenn `OPENAI_API_KEY` gesetzt (+ optional `OPENAI_VISION_MODEL`, `PHOTO_AI_ENABLED`)

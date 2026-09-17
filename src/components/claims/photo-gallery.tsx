@@ -2,6 +2,8 @@
 
 import { useTransition, useState, useEffect } from "react";
 import { deletePhotoAction } from "@/app/claims/[id]/photos/actions";
+import { PhotoAnalysisBadge } from "@/components/claims/photo-analysis-badge";
+import type { PhotoAnalysisResult } from "@/lib/ai/photo-analysis-types";
 
 type Photo = {
   id: string;
@@ -10,6 +12,7 @@ type Photo = {
   signed_url: string;
   uploaded_at: string;
   storage_path: string;
+  ai_analysis?: PhotoAnalysisResult | null;
 };
 
 type Props = {
@@ -84,6 +87,7 @@ export function PhotoGallery({ claimId, photos }: Props) {
                   dateStyle: "short",
                 }).format(new Date(photo.uploaded_at))}
               </p>
+              <PhotoAnalysisBadge analysis={photo.ai_analysis ?? null} />
               <button
                 type="button"
                 disabled={isPending}
@@ -121,10 +125,13 @@ export function PhotoGallery({ claimId, photos }: Props) {
             className="max-h-full max-w-full rounded-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-4 py-1 text-xs text-white">
-            {lightboxPhoto.original_name ?? "Schadenfoto"}
+          <div className="absolute bottom-4 left-1/2 max-w-lg -translate-x-1/2 rounded-lg bg-black/70 px-4 py-2 text-xs text-white">
+            <p>{lightboxPhoto.original_name ?? "Schadenfoto"}</p>
+            {lightboxPhoto.ai_analysis && (
+              <p className="mt-1 text-white/85">{lightboxPhoto.ai_analysis.summary_de}</p>
+            )}
             {photos.length > 1 && (
-              <span className="ml-2 text-white/70">
+              <span className="mt-1 inline-block text-white/70">
                 {photos.findIndex((p) => p.id === lightboxPhoto.id) + 1} / {photos.length}
               </span>
             )}

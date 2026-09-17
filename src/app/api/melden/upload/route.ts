@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { stripGpsFromFile } from "@/lib/db/photos";
 
 export async function POST(req: Request): Promise<Response> {
   const formData = await req.formData();
@@ -9,6 +10,7 @@ export async function POST(req: Request): Promise<Response> {
     return new Response("Missing file or uuid", { status: 400 });
   }
 
+  const cleaned = await stripGpsFromFile(file);
   const safeName = (file.name || "foto")
     .replace(/[^a-zA-Z0-9._-]/g, "_")
     .slice(0, 180);
@@ -17,7 +19,7 @@ export async function POST(req: Request): Promise<Response> {
   const admin = createAdminClient();
   const { error } = await admin.storage
     .from("damage-photos")
-    .upload(storagePath, file, {
+    .upload(storagePath, cleaned, {
       contentType: file.type || "application/octet-stream",
       cacheControl: "3600",
       upsert: false,
@@ -36,5 +38,10 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  return Response.json({ storagePath });
+  return Response.json({
+    storagePath,
+    originalName: file.name,
+    mimeType: file.type || null,
+    fileSizeBytes: file.size,
+  });
 }
