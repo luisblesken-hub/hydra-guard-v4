@@ -22,17 +22,25 @@ export function LandingHeader() {
       setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
 
       let current = "";
+      let best = Number.POSITIVE_INFINITY;
       for (const section of SECTIONS) {
         const el = document.getElementById(section.id);
         if (!el) continue;
-        const top = el.getBoundingClientRect().top;
-        if (top <= 120) current = section.id;
+        const top = Math.abs(el.getBoundingClientRect().top - 96);
+        if (top < best) {
+          best = top;
+          current = section.id;
+        }
       }
       setActive(current);
     }
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("hashchange", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("hashchange", onScroll);
+    };
   }, []);
 
   return (

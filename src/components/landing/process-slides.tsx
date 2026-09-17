@@ -133,7 +133,7 @@ export function ProcessSlides() {
                 <span
                   className={[
                     "font-mono text-[11px] tracking-wider",
-                    active ? "text-white/70" : "text-hg-muted",
+                    active ? "text-white/80" : "text-hg-muted",
                   ].join(" ")}
                 >
                   {s.n}

@@ -12,15 +12,18 @@ const RAIL = [
 ] as const;
 
 export function SectionRail() {
-  const [active, setActive] = useState("hero");
+  const [active, setActive] = useState<(typeof RAIL)[number]["id"]>("hero");
 
   useEffect(() => {
     function onScroll() {
-      let current = "hero";
+      let current: (typeof RAIL)[number]["id"] = RAIL[0].id;
+      let best = Number.POSITIVE_INFINITY;
       for (const item of RAIL) {
         const el = document.getElementById(item.id);
         if (!el) continue;
-        if (el.getBoundingClientRect().top <= window.innerHeight * 0.45) {
+        const top = Math.abs(el.getBoundingClientRect().top - 96);
+        if (top < best) {
+          best = top;
           current = item.id;
         }
       }
@@ -28,7 +31,11 @@ export function SectionRail() {
     }
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("hashchange", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("hashchange", onScroll);
+    };
   }, []);
 
   return (
