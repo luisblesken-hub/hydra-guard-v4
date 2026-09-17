@@ -1,6 +1,7 @@
 // GDPR: Heuristic/vision analysis of damage photos. Never log file contents.
 // Legal basis: Art. 6(1)(b) DSGVO.
 
+import { env } from "@/lib/env"
 import type {
   PhotoAnalysisResult,
   PhotoAnalysisSeverity,
@@ -10,7 +11,7 @@ export type AnalyzePhotoInput = {
   fileName: string
   mimeType?: string | null
   fileSizeBytes?: number | null
-  /** Optional JPEG/PNG bytes for vision providers (stripped of EXIF preferred). */
+  /** Optional JPEG/PNG/WebP bytes for vision providers (stripped of EXIF preferred). */
   imageBytes?: ArrayBuffer | null
   claimCategory?: string | null
   claimDescription?: string | null
@@ -41,6 +42,10 @@ const CATEGORY_BASE: Record<string, { type: string; base: number; severity: Phot
   unknown: { type: "Unklarer Wasserschaden", base: 4500, severity: "medium" },
 }
 
+const VISION_MIME = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"])
+const VISION_TIMEOUT_MS = 25_000
+const MAX_B64_CHARS = 5_500_000
+
 function normalize(text: string): string {
   return text
     .toLowerCase()
@@ -62,6 +67,91 @@ function severityRank(s: PhotoAnalysisSeverity): number {
 
 function maxSeverity(a: PhotoAnalysisSeverity, b: PhotoAnalysisSeverity): PhotoAnalysisSeverity {
   return severityRank(a) >= severityRank(b) ? a : b
+}
+
+function severityLabel(s: PhotoAnalysisSeverity): string {
+  return { low: "gering", medium: "mittel", high: "hoch", critical: "kritisch" }[s]
+}
+
+function resolveVisionMime(mimeType?: string | null): string | null {
+  if (!mimeType) return "image/jpeg"
+  const normalized = mimeType.toLowerCase().split(";")[0]?.trim() ?? ""
+  if (normalized === "image/jpg") return "image/jpeg"
+  if (VISION_MIME.has(normalized)) return normalized
+  return null
+}
+
+function extractJsonObject(raw: string): unknown | null {
+  const trimmed = raw.trim()
+  try {
+    return JSON.parse(trimmed)
+  } catch {
+    // Models sometimes wrap JSON in markdown fences
+    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
+    if (fenced?.[1]) {
+      try {
+        return JSON.parse(fenced[1].trim())
+      } catch {
+        // fall through
+      }
+    }
+    const start = trimmed.indexOf("{")
+    const end = trimmed.lastIndexOf("}")
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(trimmed.slice(start, end + 1))
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+}
+
+function parseVisionPayload(
+  parsed: Record<string, unknown>,
+  model: string
+): PhotoAnalysisResult | null {
+  const severityRaw = String(parsed.severity ?? "medium")
+  const severity = (["low", "medium", "high", "critical"] as const).includes(
+    severityRaw as PhotoAnalysisSeverity
+  )
+    ? (severityRaw as PhotoAnalysisSeverity)
+    : "medium"
+
+  const amountRaw = Number(parsed.suggested_amount_eur)
+  if (!Number.isFinite(amountRaw)) return null
+  const amount = clampAmount(amountRaw)
+  const confidence = Math.max(
+    0.35,
+    Math.min(0.95, Number(parsed.confidence) || 0.7)
+  )
+  const damageType = String(parsed.damage_type ?? "Wasserschaden").slice(0, 120)
+  const roomHint = parsed.room_hint != null && String(parsed.room_hint).trim()
+    ? String(parsed.room_hint).slice(0, 80)
+    : null
+  const summary =
+    typeof parsed.summary_de === "string" && parsed.summary_de.trim()
+      ? parsed.summary_de.slice(0, 400)
+      : `KI-Einschätzung: ca. ${amount.toLocaleString("de-DE")} €.`
+
+  const signals = Array.isArray(parsed.signals)
+    ? parsed.signals.map((s) => String(s).slice(0, 80)).slice(0, 8)
+    : ["vision"]
+
+  return {
+    version: 1,
+    source: "vision",
+    model,
+    analyzed_at: new Date().toISOString(),
+    damage_type: damageType,
+    severity,
+    suggested_amount_eur: amount,
+    confidence,
+    room_hint: roomHint,
+    summary_de: summary,
+    signals,
+  }
 }
 
 /**
@@ -138,59 +228,69 @@ export function analyzeDamagePhotoHeuristic(input: AnalyzePhotoInput): PhotoAnal
   }
 }
 
-function severityLabel(s: PhotoAnalysisSeverity): string {
-  return { low: "gering", medium: "mittel", high: "hoch", critical: "kritisch" }[s]
-}
-
 /**
  * Optional OpenAI-compatible vision call. Uses native fetch (no new packages).
- * Returns null if no key / failure — caller falls back to heuristic.
+ * Returns null on any failure — caller MUST fall back to heuristic.
  */
 export async function analyzeDamagePhotoVision(
   input: AnalyzePhotoInput
 ): Promise<PhotoAnalysisResult | null> {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey || !input.imageBytes || input.imageBytes.byteLength < 100) return null
-  if (process.env.PHOTO_AI_ENABLED === "false") return null
-
   try {
-    const mime = input.mimeType && input.mimeType.startsWith("image/")
-      ? input.mimeType
-      : "image/jpeg"
-    const b64 = Buffer.from(input.imageBytes).toString("base64")
-    // Cap payload ~4MB base64-ish
-    if (b64.length > 5_500_000) return null
+    if (!env.photoAiEnabled()) return null
 
-    const model = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini"
+    const apiKey = env.openaiApiKey()
+    if (!apiKey) return null
+
+    if (!input.imageBytes || input.imageBytes.byteLength < 100) return null
+
+    const mime = resolveVisionMime(input.mimeType)
+    if (!mime) return null
+
+    const b64 = Buffer.from(input.imageBytes).toString("base64")
+    if (b64.length > MAX_B64_CHARS) {
+      console.error("[analyzeDamagePhotoVision] payload_too_large")
+      return null
+    }
+
+    const model = env.openaiVisionModel()
     const prompt = `Du bist Sachverständiger für Leitungswasserschäden in Deutschland.
 Analysiere das Schadenfoto. Antworte NUR mit JSON:
 {"damage_type":string,"severity":"low"|"medium"|"high"|"critical","suggested_amount_eur":number,"confidence":number,"room_hint":string|null,"summary_de":string,"signals":string[]}
 Beträge realistisch für DE Sanierung/Trocknung (500-125000). summary_de auf Deutsch, kurz.`
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.2,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              {
-                type: "image_url",
-                image_url: { url: `data:${mime};base64,${b64}` },
-              },
-            ],
-          },
-        ],
-      }),
-    })
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), VISION_TIMEOUT_MS)
+
+    let res: Response
+    try {
+      res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: prompt },
+                {
+                  type: "image_url",
+                  image_url: { url: `data:${mime};base64,${b64}` },
+                },
+              ],
+            },
+          ],
+        }),
+      })
+    } finally {
+      clearTimeout(timer)
+    }
 
     if (!res.ok) {
       console.error("[analyzeDamagePhotoVision] http", res.status)
@@ -201,54 +301,47 @@ Beträge realistisch für DE Sanierung/Trocknung (500-125000). summary_de auf De
       choices?: Array<{ message?: { content?: string } }>
     }
     const raw = json.choices?.[0]?.message?.content
-    if (!raw) return null
-
-    const parsed = JSON.parse(raw) as {
-      damage_type?: string
-      severity?: PhotoAnalysisSeverity
-      suggested_amount_eur?: number
-      confidence?: number
-      room_hint?: string | null
-      summary_de?: string
-      signals?: string[]
+    if (!raw || typeof raw !== "string") {
+      console.error("[analyzeDamagePhotoVision] empty_content")
+      return null
     }
 
-    const severity = (["low", "medium", "high", "critical"] as const).includes(
-      parsed.severity as PhotoAnalysisSeverity
-    )
-      ? (parsed.severity as PhotoAnalysisSeverity)
-      : "medium"
-
-    const amount = clampAmount(Number(parsed.suggested_amount_eur) || 4500)
-    const confidence = Math.max(0.35, Math.min(0.95, Number(parsed.confidence) || 0.7))
-
-    return {
-      version: 1,
-      source: "vision",
-      model,
-      analyzed_at: new Date().toISOString(),
-      damage_type: parsed.damage_type?.slice(0, 120) || "Wasserschaden",
-      severity,
-      suggested_amount_eur: amount,
-      confidence,
-      room_hint: parsed.room_hint ? String(parsed.room_hint).slice(0, 80) : null,
-      summary_de:
-        parsed.summary_de?.slice(0, 400) ||
-        `KI-Einschätzung: ca. ${amount.toLocaleString("de-DE")} €.`,
-      signals: Array.isArray(parsed.signals)
-        ? parsed.signals.map((s) => String(s).slice(0, 80)).slice(0, 8)
-        : ["vision"],
+    const parsed = extractJsonObject(raw)
+    if (!parsed || typeof parsed !== "object") {
+      console.error("[analyzeDamagePhotoVision] invalid_json")
+      return null
     }
+
+    const result = parseVisionPayload(parsed as Record<string, unknown>, model)
+    if (!result) {
+      console.error("[analyzeDamagePhotoVision] invalid_payload")
+      return null
+    }
+    return result
   } catch (err) {
-    console.error("[analyzeDamagePhotoVision] failed")
+    const name = err instanceof Error ? err.name : "Error"
+    console.error("[analyzeDamagePhotoVision] failed", name)
     return null
   }
 }
 
+/** True when Vision can be attempted (key present and not disabled). */
+export function isVisionAnalysisConfigured(): boolean {
+  return env.photoAiEnabled() && Boolean(env.openaiApiKey())
+}
+
+/**
+ * Prefer Vision when configured; always fall back to heuristic on any failure.
+ * Never throws.
+ */
 export async function analyzeDamagePhoto(
   input: AnalyzePhotoInput
 ): Promise<PhotoAnalysisResult> {
-  const vision = await analyzeDamagePhotoVision(input)
-  if (vision) return vision
+  try {
+    const vision = await analyzeDamagePhotoVision(input)
+    if (vision) return vision
+  } catch {
+    console.error("[analyzeDamagePhoto] vision_unexpected")
+  }
   return analyzeDamagePhotoHeuristic(input)
 }

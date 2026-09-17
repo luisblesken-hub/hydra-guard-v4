@@ -36,5 +36,13 @@ export async function GET() {
   checks.status = "ok";
   checks.timestamp = new Date().toISOString();
 
+  const { env } = await import("@/lib/env");
+  checks.openai_vision = env.photoAiEnabled() && env.openaiApiKey()
+    ? "configured"
+    : env.photoAiEnabled()
+      ? "missing_key"
+      : "disabled";
+  checks.openai_vision_model = env.openaiVisionModel();
+
   return NextResponse.json(checks);
 }

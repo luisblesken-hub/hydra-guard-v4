@@ -19,7 +19,19 @@ export async function applyPhotoEstimateAction(claimId: string) {
     .eq("id", claimId)
     .maybeSingle();
 
-  if (!claim || claim.owner_id !== user.id) {
+  if (!claim) {
+    return { success: false as const, error: "Schadenfall nicht gefunden." };
+  }
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const role = (profile?.role as string | null) ?? null;
+  const isOwner = claim.owner_id === user.id;
+  const isAdmin = role === "admin";
+  if (!isOwner && !isAdmin) {
     return { success: false as const, error: "Keine Berechtigung." };
   }
 
@@ -31,7 +43,7 @@ export async function applyPhotoEstimateAction(claimId: string) {
   await admin.from("activity_feed").insert({
     report_id: claimId,
     actor_id: user.id,
-    actor_role: "owner",
+    actor_role: isOwner ? "owner" : "admin",
     event_type: "note_added",
     note: `Schätzung aus Foto-Analyse übernommen (${estimate.suggested_amount_eur.toFixed(0)} €)`,
   });

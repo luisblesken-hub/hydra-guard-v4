@@ -1,6 +1,70 @@
 # HydraGuard — Backlog & Session-Stand
 
-Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
+Stand: **17.09.2026** — Sprint OpenAI Vision Foto-KI
+
+---
+
+## Sprint 17.09.2026 #5 — OpenAI Vision verdrahten
+
+### Env (belegt)
+| Ort | `OPENAI_API_KEY` | `OPENAI_VISION_MODEL` |
+|-----|------------------|------------------------|
+| `.env.local` | ❌ fehlt | optional (Default `gpt-4o-mini`) |
+| Vercel Project Env | ❌ fehlt (nur Supabase-Keys) | optional |
+
+**Aktivierung:** Key in `.env.local` + Vercel (Production/Preview/Development) setzen, Dev-Server neu starten bzw. Redeploy. Optional `OPENAI_VISION_MODEL=gpt-4o-mini` (oder anderes Vision-fähiges Modell). `PHOTO_AI_ENABLED=false` erzwingt Heuristik.
+
+### Code
+- [x] `analyzeDamagePhotoVision` robust: Timeout 25s, MIME-Check, JSON-Fence-Parsing, Payload-Validierung; **jeder Fehler → `null` → Heuristik**
+- [x] `analyzeDamagePhoto` wirft nie; Prefer Vision → Fallback System
+- [x] `env.openaiApiKey` / `openaiVisionModel` / `photoAiEnabled` (server-only)
+- [x] UI klar: Badge `Quelle: KI · Vision` vs `Quelle: System · Heuristik`; Panel `KI (Vision)` / `System (Heuristik)`
+- [x] Button „Fotos erneut analysieren“ (Owner/Admin) + Activity-Log
+- [x] Admin Health: `openai_vision` = `configured` | `missing_key` | `disabled`
+- [x] `.env.example` dokumentiert optionale Vars
+- [x] `tsc` + `build` grün
+
+### Live-Verifikation (localhost, `owner@test.hydra.de`)
+| Check | Ergebnis | Beleg |
+|-------|----------|-------|
+| Badge/Panel Quelle System | ✅ `Quelle: System · Heuristik` / `System (Heuristik)` | Claim `0fbb3ede…` |
+| Re-Analyse ohne Key | ✅ Fallback Heuristik + Hinweis „Für KI: OPENAI_API_KEY setzen“ | Activity `0× KI, 1× System` |
+| `ai_analysis.source=vision` | ⚠️ blockiert — Key weder lokal noch Vercel | Env-Audit |
+
+Nach Key-Setzen: Upload oder „Fotos erneut analysieren“ → Badge **Quelle: KI · Vision**, `ai_analysis.source === "vision"`.
+
+---
+
+## Sprint 17.09.2026 #4 — Claim Health (Erkennen → Anzeigen → sichere Fixes)
+
+### Live-Verifikation (localhost:3000, `owner@test.hydra.de`)
+| Check | Ergebnis | Beleg |
+|-------|----------|-------|
+| Claim `0fbb3ede…` Systemprüfung | ✅ Warnung Foto-Schätzung 8.500 € vs 12.499 € | Panel „1 Warnung“ |
+| Vorschlag übernehmen (Foto-Schätzung) | ✅ Betrag → 8.500 €, Panel „Keine Auffälligkeiten“, Activity-Log | Snapshot nach Klick |
+| Claim `c7794a10…` ohne Fotos | ✅ Warnung „eingereicht, keine Fotos“; kein Fix-Button | submitted, 0 Fotos |
+| Claim `29cfb0fe…` 15.000 € | ✅ Foto-Divergenz 9.700 € vs 15.000 €; Track bereits `out_of_scope` (kein False-Positive) | Detail |
+
+### Umgesetzt
+- [x] `assessClaimHealth(claimId)` unter `src/lib/ai/assess-claim-health.ts`
+- [x] Findings: `severity` (`info`|`warn`|`error`), stabiler `code`, `message_de`, optional `suggestedFix`
+- [x] Checks (echte Queries gegen `damage_reports` / `damage_photos` / `assignments` / `activity_feed`):
+  - `PHOTO_ESTIMATE_DIVERGENCE` (≥100 € oder ≥20 %)
+  - `STATUS_WITHOUT_ASSIGNMENT` (`dispatched` / `in_remediation` ohne Assignment)
+  - `TIER_AMOUNT_MISMATCH` vs. `resolveClaimTier`
+  - `STATUS_SCOPE_MISMATCH` (Status `out_of_scope` bei Betrag unter Schwelle)
+  - `MISSING_PHOTOS` (submitted+ ohne Fotos)
+  - `MISSING_MELDER_TAGS` (Melde-Claims ohne `[Melder:]`/`[Einheit:]`)
+- [x] Claim-Detail Panel „Systemprüfung“
+- [x] Sichere 1-Klick-Fixes (Owner/Admin, Activity-Log, kein Blind-Write):
+  - Schätzung aus Foto-Aggregate (`apply_photo_estimate` → `syncClaimEstimateFromPhotos`)
+  - `claim_tier` an `estimated_amount` (`align_claim_tier`)
+- [x] `npx tsc --noEmit` + `npm run build` grün
+
+### Nicht in diesem Sprint
+- ~~Vision/OpenAI-Produktion~~ → Sprint #5 (Key fehlt noch)
+- Reserve/Coverage, Reject-Reason, WhatsApp, Mieter-Roster
+- Globales Redesign
 
 ---
 
@@ -48,7 +112,7 @@ Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 | P2 | `database.types.ts` Drift (`full_name`, Rollen) | Types vs Live-DB |
 | P2 | Dispatcher „Beauftragen“ disabled bis Radio gewählt | UI-Quirk beobachtet |
 | P3 | Echte E-Mail-Zustellung (nicht nur mailto) | bewusst kein Server-Mail |
-| P3 | `OPENAI_API_KEY` für Vision-Foto-KI | Heuristik live |
+| P3 | `OPENAI_API_KEY` für Vision-Foto-KI | ⚠️ Key fehlt lokal+Vercel; Code + Fallback fertig (Sprint #5) |
 
 ---
 
@@ -58,7 +122,7 @@ Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 | Prio | Todo | Status |
 |------|------|--------|
 | P0 | Redirect → `/dashboard/mieter` | ✅ |
-| P0 | Ehrliche Melden-Success-Copy | ✅ |
+| P0 | Ehrliche Melde-Success-Copy | ✅ |
 | P1 | Status-Seite Token | ✅ |
 | P1 | Invite mailto + FAQ | ✅ |
 | P2 | Kategorie/Dringlichkeit Melden | offen |
@@ -70,7 +134,7 @@ Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 | P0 | Frühe Queue ab submitted | ✅ |
 | P1 | Mobile Cards + Tabs | ✅ |
 | P1 | Reserve/Coverage | offen |
-| P1 | Dokumente nachfordern | offen |
+| P1 | Dokumente nachfordern | ✅ mailto |
 
 ### Sanierer
 | Prio | Todo | Status |
@@ -88,6 +152,8 @@ Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 | P1 | CSV Export echt | ✅ |
 | P1 | Gutachten mit Fotos | ✅ (Prod verifiziert) |
 | P1 | PLZ→Ort | ✅ |
+| P1 | Claim-Health Systemprüfung | ✅ (Detail-Panel + sichere Fixes) |
+| P1 | Foto-KI Vision verdrahtet | ⚠️ Code fertig; Key setzen für `source=vision` |
 | P2 | Mieter-Roster | offen |
 
 ---
@@ -97,3 +163,4 @@ Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 - Service-Role rotieren falls exponiert
 - Storage-Policies prüfen
 - Types regenerieren (`supabase gen types`)
+- Claim-Health: echte Vision + Feedback-Loop (User korrigiert → Heuristik)

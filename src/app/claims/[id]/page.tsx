@@ -21,6 +21,8 @@ import { OwnerClaimActions } from "@/components/claims/owner-claim-actions";
 import { ShareClaimButton } from "@/components/claims/share-claim-button";
 import { PrintButton } from "@/components/claims/print-button";
 import { RequestDocumentsButton } from "@/components/claims/request-documents-button";
+import { ClaimHealthPanel } from "@/components/claims/claim-health-panel";
+import { assessClaimHealth } from "@/lib/ai/assess-claim-health";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -201,6 +203,10 @@ export default async function ClaimDetailPage({ params }: Params) {
     }
   }
 
+  const healthReport = await assessClaimHealth(admin, id);
+  const canApplyHealthFixes =
+    role === "admin" || (role === "owner" && ownerId === user.id);
+
   const backHref =
     role === "sanierer"
       ? "/dashboard/sanierer"
@@ -343,6 +349,8 @@ export default async function ClaimDetailPage({ params }: Params) {
         </div>
       </header>
 
+      <ClaimHealthPanel report={healthReport} canApply={canApplyHealthFixes} />
+
       {/* Schadensdetails */}
       <section className="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2">
         <div className="space-y-3">
@@ -419,7 +427,7 @@ export default async function ClaimDetailPage({ params }: Params) {
             claimId={id}
             estimate={photoEstimate}
             currentAmount={amount}
-            canApply={role === "owner" || (ownerId !== null && ownerId === user.id)}
+            canApply={canApplyHealthFixes}
           />
         )}
         {photosResult.success ? (

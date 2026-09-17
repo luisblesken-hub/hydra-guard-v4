@@ -31,8 +31,18 @@ export const env = {
   supabaseUrl: () => getEnv("NEXT_PUBLIC_SUPABASE_URL"),
   supabaseAnonKey: () => getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
   supabaseServiceRoleKey: () => getServerOnlyEnv("SUPABASE_SERVICE_ROLE_KEY"),
-  /** Optional: enables vision analysis on photo upload when set. */
-  openaiApiKey: () => process.env.OPENAI_API_KEY || null,
+  /** Optional: enables OpenAI Vision on photo upload when set. Never expose to client. */
+  openaiApiKey: () => {
+    if (typeof window !== "undefined") return null
+    const key = process.env.OPENAI_API_KEY?.trim()
+    return key || null
+  },
+  /** Optional model override; default gpt-4o-mini. */
+  openaiVisionModel: () => {
+    if (typeof window !== "undefined") return "gpt-4o-mini"
+    return process.env.OPENAI_VISION_MODEL?.trim() || "gpt-4o-mini"
+  },
+  /** Set PHOTO_AI_ENABLED=false to force heuristic only (even with key). */
   photoAiEnabled: () => process.env.PHOTO_AI_ENABLED !== "false",
 };
 
