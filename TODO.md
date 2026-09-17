@@ -83,6 +83,15 @@ Stand: **17.09.2026** — Rollen-Audit + UX-Sprint
 
 ---
 
+## Sprint 17.09.2026 #2 — umgesetzt
+- [x] Öffentliche Status-Seite `/status/[token]` (HMAC, ~90 Tage, ohne Login)
+- [x] Melden-Success: Status-Link + optionales Owner-mailto
+- [x] QR drucken am Objekt-Melde-Link
+- [x] Insurer Mobile-Cards + Tabs Fälle/Rechnungen
+- [x] Sanierer „Heute geplant“-Agenda
+- [x] Owner: „Als beauftragt“ + Anker Sanierer zuweisen
+- [x] Sie-Form Claim-Neu + Owner-Dashboard-Text
+
 ## Sprint 17.09.2026 — umgesetzt
 - [x] Mieter-Redirect → `/dashboard/mieter`
 - [x] Ehrliche Melden-Success-Copy

@@ -164,6 +164,16 @@ export default async function SaniererDashboardPage() {
     (s, i) => s + (i.amount_gross ?? i.amount_net ?? 0), 0
   );
 
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  const todayRows = rows.filter((r) => {
+    if (!r.scheduled_start) return false;
+    const t = new Date(r.scheduled_start).getTime();
+    return t >= todayStart.getTime() && t <= todayEnd.getTime();
+  });
+
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       <header className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
@@ -186,6 +196,34 @@ export default async function SaniererDashboardPage() {
           )}
         </div>
       </header>
+
+      {todayRows.length > 0 && (
+        <section className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <h2 className="text-sm font-semibold text-amber-950">Heute geplant</h2>
+          <ul className="mt-2 space-y-2">
+            {todayRows.map((row) => {
+              const address = row.report?.property
+                ? [row.report.property.street, row.report.property.city]
+                    .filter(Boolean)
+                    .join(", ")
+                : "Adresse offen";
+              return (
+                <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span className="font-medium text-amber-950">{address}</span>
+                  {row.report && (
+                    <Link
+                      href={`/claims/${row.report.id}`}
+                      className="text-xs font-semibold text-amber-800 hover:underline"
+                    >
+                      Akte öffnen →
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {total > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

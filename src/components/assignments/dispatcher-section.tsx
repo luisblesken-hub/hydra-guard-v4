@@ -90,10 +90,12 @@ export async function DispatcherSection({
   }));
 
   return (
-    <DispatcherSearch
-      reportId={reportId}
-      sanierer={sanierer}
-      existingAssignments={existingAssignments}
-    />
+    <section id="dispatcher">
+      <DispatcherSearch
+        reportId={reportId}
+        sanierer={sanierer}
+        existingAssignments={existingAssignments}
+      />
+    </section>
   );
 }

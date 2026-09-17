@@ -136,6 +136,15 @@ export default async function InsurerDashboardPage({
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       <header className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div className="flex flex-col gap-1">
+          <div className="mb-1 flex gap-2 text-xs font-medium">
+            <Link
+              href="/dashboard/insurance"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-600 hover:bg-slate-50"
+            >
+              Fälle
+            </Link>
+            <span className="rounded-full bg-slate-900 px-3 py-1 text-white">Rechnungen</span>
+          </div>
           <h1 className="text-2xl font-semibold text-slate-900">Rechnungen</h1>
           <p className="text-sm text-slate-500">
             {stats.approved > 0 ? (

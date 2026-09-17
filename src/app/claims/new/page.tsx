@@ -19,7 +19,7 @@ export default async function NewClaimPage() {
           Neuen Schaden melden
         </h1>
         <p className="text-sm text-slate-500">
-          Bitte gib die wichtigsten Eckdaten zum Schaden ein. Du kannst Details später ergänzen.
+          Bitte geben Sie die wichtigsten Eckdaten zum Schaden ein. Details können Sie später ergänzen.
         </p>
       </header>
       <CreateClaimForm />

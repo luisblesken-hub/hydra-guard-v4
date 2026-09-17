@@ -3,7 +3,10 @@
 import { useTransition, useState } from "react";
 import { ownerUpdateClaimStatusAction } from "./owner-status-actions";
 
-const TRANSITIONS: Record<string, { label: string; next: "approved" | "rejected" | "dispatched" | "closed"; style: string }[]> = {
+const TRANSITIONS: Record<
+  string,
+  { label: string; next: "approved" | "rejected" | "dispatched" | "closed"; style: string }[]
+> = {
   submitted: [
     { label: "Freigeben", next: "approved", style: "bg-emerald-600 text-white hover:bg-emerald-700" },
     { label: "Ablehnen", next: "rejected", style: "border border-red-300 text-red-700 hover:bg-red-50" },
@@ -13,10 +16,23 @@ const TRANSITIONS: Record<string, { label: string; next: "approved" | "rejected"
     { label: "Ablehnen", next: "rejected", style: "border border-red-300 text-red-700 hover:bg-red-50" },
   ],
   approved: [
-    { label: "Archivieren", next: "closed", style: "border border-slate-300 text-slate-700 hover:bg-slate-50" },
+    {
+      label: "Als beauftragt markieren",
+      next: "dispatched",
+      style: "bg-indigo-600 text-white hover:bg-indigo-700",
+    },
+    {
+      label: "Archivieren",
+      next: "closed",
+      style: "border border-slate-300 text-slate-700 hover:bg-slate-50",
+    },
   ],
   invoice_approved: [
-    { label: "Archivieren", next: "closed", style: "border border-slate-300 text-slate-700 hover:bg-slate-50" },
+    {
+      label: "Archivieren",
+      next: "closed",
+      style: "border border-slate-300 text-slate-700 hover:bg-slate-50",
+    },
   ],
 };
 
@@ -31,26 +47,36 @@ export function OwnerClaimActions({
   const [isPending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
 
-  if (!transitions || transitions.length === 0) return null;
+  if ((!transitions || transitions.length === 0) && status !== "approved" && status !== "dispatched") {
+    return null;
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {transitions.map((t) => (
+      {(transitions ?? []).map((t) => (
         <button
-          key={t.next}
+          key={t.next + t.label}
           type="button"
           disabled={isPending}
-          onClick={() =>
+          onClick={() => {
             startTransition(async () => {
               const res = await ownerUpdateClaimStatusAction(reportId, t.next);
               setMsg(res.message ?? null);
-            })
-          }
+            });
+          }}
           className={`inline-flex items-center rounded-md px-3 py-1.5 text-xs font-semibold disabled:opacity-50 ${t.style}`}
         >
-          {isPending ? "…" : t.label}
+          {t.label}
         </button>
       ))}
+      {(status === "approved" || status === "dispatched") && (
+        <a
+          href="#dispatcher"
+          className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-800 hover:bg-indigo-100"
+        >
+          Sanierer zuweisen ↓
+        </a>
+      )}
       {msg && <span className="text-xs text-slate-500">{msg}</span>}
     </div>
   );

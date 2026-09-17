@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 export function MeldenPropertyLink({
   id,
@@ -19,26 +19,56 @@ export function MeldenPropertyLink({
   postalCode: string | null;
 }) {
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const href = useMemo(() => {
-    const origin = window.location.origin;
+    if (!origin) return "";
     return `${origin}/melden/${publicToken}`;
-  }, [publicToken]);
+  }, [origin, publicToken]);
 
   const addressLine = useMemo(() => {
     const parts = [street, postalCode, city].filter(Boolean);
     return parts.length ? parts.join(" ") : "—";
   }, [city, postalCode, street]);
 
+  const qrUrl = href
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(href)}`
+    : "";
+
   async function copyLink() {
+    if (!href) return;
     try {
       await navigator.clipboard.writeText(href);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1200);
     } catch {
-      // If clipboard is blocked, user can still copy from the link.
       setCopied(false);
     }
+  }
+
+  function printQr() {
+    if (!href || !qrUrl) return;
+    const w = window.open("", "_blank", "noopener,noreferrer,width=420,height=560");
+    if (!w) return;
+    w.document.write(`<!doctype html><html><head><title>Melde-QR ${label}</title>
+      <style>
+        body{font-family:system-ui,sans-serif;text-align:center;padding:24px;color:#0f172a}
+        img{width:220px;height:220px;margin:16px auto;display:block}
+        p{font-size:13px;color:#475569;word-break:break-all}
+        h1{font-size:18px;margin:0}
+      </style></head><body>
+      <h1>HydraGuard — Schaden melden</h1>
+      <p><strong>${label}</strong><br/>${addressLine}</p>
+      <img src="${qrUrl}" alt="QR-Code Melde-Link" />
+      <p>${href}</p>
+      <p>QR-Code scannen und Wasserschaden melden</p>
+      <script>window.onload=()=>window.print()</script>
+      </body></html>`);
+    w.document.close();
   }
 
   return (
@@ -58,24 +88,48 @@ export function MeldenPropertyLink({
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <a
-          href={href}
-          target="_blank"
-          rel="noreferrer"
-          className="min-w-0 truncate text-xs font-medium text-indigo-600 hover:underline"
-        >
-          {href}
-        </a>
-        <button
-          type="button"
-          onClick={copyLink}
-          className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-        >
-          {copied ? "✓ Kopiert" : "Link kopieren"}
-        </button>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        {qrUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={qrUrl}
+            alt="QR-Code zum Melde-Link"
+            width={72}
+            height={72}
+            className="rounded border border-slate-200 bg-white"
+          />
+        ) : (
+          <div className="h-[72px] w-[72px] animate-pulse rounded bg-slate-100" />
+        )}
+        <div className="min-w-0 flex-1 space-y-2">
+          <a
+            href={href || undefined}
+            target="_blank"
+            rel="noreferrer"
+            className="block truncate text-xs font-medium text-indigo-600 hover:underline"
+          >
+            {href || "Link wird geladen…"}
+          </a>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={copyLink}
+              disabled={!href}
+              className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {copied ? "✓ Kopiert" : "Link kopieren"}
+            </button>
+            <button
+              type="button"
+              onClick={printQr}
+              disabled={!href}
+              className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+            >
+              QR drucken
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-

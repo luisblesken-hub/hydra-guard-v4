@@ -135,18 +135,34 @@ export async function POST(
     console.error("[melden/submit] photo analysis failed (non-blocking)");
   }
 
-  const activityText = `Schaden gemeldet von ${reporterName}, Einheit ${unitLabel}`;
+  const activityText = `Neuer Melde-Schaden von ${reporterName} (Einheit ${unitLabel})`;
 
   const { error: activityError } = await admin.from("activity_feed").insert({
     report_id: reportId,
     actor_id: null,
-    event_type: activityText,
-  } as never);
+    actor_role: "mieter",
+    event_type: "claim_created",
+    note: activityText,
+  });
 
   if (activityError) {
     return new Response("Failed to record activity", { status: 500 });
   }
 
-  return Response.json({ reportId });
+  const { createClaimTrackingToken } = await import("@/lib/claims/tracking-token");
+  const trackingToken = createClaimTrackingToken(reportId);
+
+  // Owner-Kontakt für optionales mailto (kein Server-Mailversand)
+  const { data: ownerProfile } = await admin
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", property.owner_id)
+    .maybeSingle();
+
+  return Response.json({
+    reportId,
+    trackingToken,
+    ownerEmail: ownerProfile?.email ?? null,
+  });
 }
 

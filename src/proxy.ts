@@ -10,6 +10,8 @@ function isPublicPath(pathname: string) {
   if (pathname.startsWith("/invite/")) return true;
   if (pathname.startsWith("/api/melden/")) return true;
   if (pathname.startsWith("/melden/")) return true;
+  if (pathname.startsWith("/status/")) return true;
+  if (pathname.startsWith("/mieter-einladung/")) return true;
   return false;
 }
 

@@ -32,6 +32,8 @@ export default function MeldeWizardPage({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
+  const [trackingToken, setTrackingToken] = useState<string | null>(null);
+  const [ownerEmail, setOwnerEmail] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,8 +138,14 @@ export default function MeldeWizardPage({
         throw new Error("Übermittlung fehlgeschlagen.");
       }
 
-      const json = (await res.json()) as { reportId: string };
+      const json = (await res.json()) as {
+        reportId: string;
+        trackingToken?: string;
+        ownerEmail?: string | null;
+      };
       setReportId(json.reportId);
+      setTrackingToken(json.trackingToken ?? null);
+      setOwnerEmail(json.ownerEmail ?? null);
       setStep(4);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unbekannter Fehler.");
@@ -378,12 +386,31 @@ export default function MeldeWizardPage({
           </h2>
           <p className="text-sm text-emerald-900">
             Ihre Meldung wurde übermittelt und in der Akte gespeichert.
-            Die Hausverwaltung sieht den Fall im Dashboard — bitte bewahren Sie
-            die Vorgangsnummer auf.
+            Die Hausverwaltung sieht den Fall im Dashboard.
           </p>
+          {trackingToken && (
+            <a
+              href={`/status/${trackingToken}`}
+              className="inline-flex w-full items-center justify-center rounded-md bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800"
+            >
+              Status dieser Meldung verfolgen →
+            </a>
+          )}
           <p className="text-xs text-emerald-900/80">
-            (Vorgangs-ID: {reportId})
+            Speichern Sie den Status-Link. Vorgangs-ID: {reportId.slice(0, 8)}…
           </p>
+          {ownerEmail && (
+            <a
+              href={`mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(
+                "Wasserschaden gemeldet"
+              )}&body=${encodeURIComponent(
+                `Guten Tag,\n\nich habe soeben einen Wasserschaden gemeldet (${reporterName}, ${unitLabel}).\nBitte prüfen Sie den Fall in HydraGuard.\n\nMit freundlichen Grüßen`
+              )}`}
+              className="inline-flex w-full items-center justify-center rounded-md border border-emerald-300 bg-white px-4 py-2.5 text-sm font-medium text-emerald-900 hover:bg-emerald-100"
+            >
+              Optional: Hausverwaltung per E-Mail benachrichtigen
+            </a>
+          )}
         </section>
       )}
     </main>

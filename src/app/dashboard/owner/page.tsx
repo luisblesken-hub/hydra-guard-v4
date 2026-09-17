@@ -84,7 +84,7 @@ export default async function OwnerDashboardPage({
           <p className="text-sm text-slate-500">
             {total === 0
               ? "Noch keine Schadenfälle erfasst."
-              : `${total} Schadensfälle in deinem Bestand.`}
+              : `${total} Schadensfälle in Ihrem Bestand.`}
           </p>
         </div>
         <div className="flex gap-2">
