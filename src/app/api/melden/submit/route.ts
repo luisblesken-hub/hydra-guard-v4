@@ -8,6 +8,9 @@ const SubmitSchema = z.object({
   unitLabel: z.string().min(1).max(200),
   reporterName: z.string().min(1).max(200),
   description: z.string().min(1).max(5000),
+  category: z
+    .enum(["pipe_burst", "appliance_leak", "human_error", "roof_leak", "unknown"])
+    .default("unknown"),
   photoStoragePaths: z.array(z.string().min(1)).min(1),
 });
 
@@ -48,7 +51,7 @@ export async function POST(
     return new Response("Ungültige Angaben. Bitte prüfen Sie das Formular.", { status: 400 });
   }
 
-  const { propertyToken, unitLabel, reporterName, description, photoStoragePaths } =
+  const { propertyToken, unitLabel, reporterName, description, category, photoStoragePaths } =
     parsed.data;
 
   const admin = createAdminClient();
@@ -76,6 +79,7 @@ export async function POST(
       owner_id: property.owner_id,
       status: "submitted",
       estimated_amount: 0,
+      category,
       reported_cause: description,
       description: `[Einheit: ${unitLabel}] [Melder: ${reporterName}]\n\n${description}`,
     })

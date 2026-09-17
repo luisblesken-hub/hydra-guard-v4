@@ -28,6 +28,9 @@ export default function MeldeWizardPage({
   const [reporterName, setReporterName] = useState("");
 
   const [reportedCause, setReportedCause] = useState("");
+  const [category, setCategory] = useState<
+    "pipe_burst" | "appliance_leak" | "human_error" | "roof_leak" | "unknown"
+  >("unknown");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -130,6 +133,7 @@ export default function MeldeWizardPage({
           unitLabel,
           reporterName,
           description: reportedCause,
+          category,
           photoStoragePaths: storagePaths,
         }),
       });
@@ -286,6 +290,32 @@ export default function MeldeWizardPage({
               rows={5}
               className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-indigo-500"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-900">
+              Vermutete Ursache
+            </label>
+            <select
+              value={category}
+              onChange={(e) =>
+                setCategory(
+                  e.target.value as
+                    | "pipe_burst"
+                    | "appliance_leak"
+                    | "human_error"
+                    | "roof_leak"
+                    | "unknown"
+                )
+              }
+              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-indigo-500"
+            >
+              <option value="unknown">Unbekannt / noch unklar</option>
+              <option value="pipe_burst">Rohrbruch</option>
+              <option value="appliance_leak">Haushaltsgerät (Waschmaschine etc.)</option>
+              <option value="human_error">Menschliches Versehen</option>
+              <option value="roof_leak">Dachleck</option>
+            </select>
           </div>
 
           <div className="space-y-2">

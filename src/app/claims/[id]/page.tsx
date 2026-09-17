@@ -20,6 +20,7 @@ import { ClaimNotes } from "@/components/claims/claim-notes";
 import { OwnerClaimActions } from "@/components/claims/owner-claim-actions";
 import { ShareClaimButton } from "@/components/claims/share-claim-button";
 import { PrintButton } from "@/components/claims/print-button";
+import { RequestDocumentsButton } from "@/components/claims/request-documents-button";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -116,6 +117,16 @@ export default async function ClaimDetailPage({ params }: Params) {
     .eq("id", id)
     .maybeSingle();
   const ownerId = ownerRow?.owner_id ?? null;
+
+  let ownerEmail: string | null = null;
+  if (ownerId) {
+    const { data: ownerProfile } = await adminClient
+      .from("profiles")
+      .select("email")
+      .eq("id", ownerId)
+      .maybeSingle();
+    ownerEmail = ownerProfile?.email ?? null;
+  }
 
   const amount = typedClaim.estimated_amount ?? 0;
 
@@ -322,6 +333,13 @@ export default async function ClaimDetailPage({ params }: Params) {
           >
             Gutachten Sanierer (PDF)
           </a>
+          {(role === "versicherung" || role === "admin") && (
+            <RequestDocumentsButton
+              claimId={id}
+              address={address}
+              ownerEmail={ownerEmail}
+            />
+          )}
         </div>
       </header>
 

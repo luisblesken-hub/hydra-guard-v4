@@ -36,10 +36,10 @@ Stand: **17.09.2026** — Autonomer Test-Sprint (2h, zero-hallucination)
 ### Noch offen (belegt, nicht spekuliert)
 | Prio | Item | Evidenz |
 |------|------|---------|
-| P1 | Kategorie/Dringlichkeit im Melden-Wizard | `melden/[token]/page.tsx` nur unit/reporter/cause/photos |
-| P1 | Sanierer Reject-Reason Banner | kein `reject_reason` Feld; Status-Text only |
-| P1 | Insurer: Dokumente-nachfordern-Vorlage | keine Matches in `src/` |
-| P1 | Insurer: Reserve/Coverage-Felder | nicht in Schema/UI |
+| P1 | Kategorie/Dringlichkeit im Melden-Wizard | ✅ Kategorie (Ursache) | `melden/[token]` + submit API |
+| P1 | Sanierer Reject-Reason Banner | offen | kein `reject_reason` Feld; Status-Text only |
+| P1 | Insurer: Dokumente-nachfordern-Vorlage | ✅ mailto-Entwurf | `RequestDocumentsButton` |
+| P1 | Insurer: Reserve/Coverage-Felder | offen | nicht in Schema/UI |
 | P2 | WhatsApp-Deep-Link Verwaltung | kein `wa.me` in `src/` |
 | P2 | Rechnungs-Suche nach Adresse | Insurer-Invoices nur Status-Filter |
 | P2 | Equipment-Checkliste | nur Freitext `equipment_notes` |
