@@ -5,7 +5,11 @@ import { signupAction, type SignupFormState } from "./actions";
 
 const initialState: SignupFormState = {};
 
-export function SignupForm() {
+type Props = {
+  defaultRole?: "owner" | "sanierer" | "versicherung";
+};
+
+export function SignupForm({ defaultRole = "owner" }: Props) {
   const [state, formAction, pending] = useActionState(signupAction, initialState);
 
   return (
@@ -86,7 +90,7 @@ export function SignupForm() {
                 id="role_choice"
                 name="role_choice"
                 className="hg-input mt-1"
-                defaultValue="owner"
+                defaultValue={defaultRole}
                 required
               >
                 <option value="owner">Hausverwaltung / Vermieter</option>

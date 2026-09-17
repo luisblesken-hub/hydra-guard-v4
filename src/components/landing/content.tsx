@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ContrastSlides } from "./contrast-slides";
+import { DayOneOutcomes } from "./day-one-outcomes";
+import { PersonaPaths } from "./persona-paths";
 import { ProcessSlides } from "./process-slides";
 import { RoleExplorer } from "./role-explorer";
 import { TrustPanel } from "./trust-panel";
@@ -8,8 +10,10 @@ export function LandingContent() {
   return (
     <>
       <div id="inhalt">
-        <ProcessSlides />
+        <PersonaPaths />
       </div>
+      <DayOneOutcomes />
+      <ProcessSlides />
       <ContrastSlides />
       <RoleExplorer />
       <TrustPanel />
@@ -27,18 +31,36 @@ export function LandingContent() {
             id="cta-heading"
             className="mt-3 max-w-xl text-2xl font-semibold tracking-tight text-white sm:text-3xl"
           >
-            Vorgänge an einem Ort führen.
+            Mit der richtigen Rolle starten.
           </h2>
           <p className="mt-4 max-w-lg text-base leading-relaxed text-[#c5d0d6]">
-            Legen Sie ein Konto an oder melden Sie sich an — für
-            Hausverwaltungen, Sanierer und Versicherer.
+            Die Registrierung übernimmt Ihre Rolle vorausgewählt — Sie landen
+            danach im passenden Dashboard.
           </p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link href="/signup" className="hg-btn-invert">
-              Konto anlegen
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Link
+              href="/signup?role=owner"
+              className="hg-btn-invert justify-start px-5"
+            >
+              Hausverwaltung
             </Link>
-            <Link href="/login" className="hg-btn-outline-invert">
-              Anmelden
+            <Link
+              href="/signup?role=sanierer"
+              className="hg-btn-outline-invert justify-start px-5"
+            >
+              Sanierer
+            </Link>
+            <Link
+              href="/signup?role=versicherung"
+              className="hg-btn-outline-invert justify-start px-5"
+            >
+              Versicherer
+            </Link>
+            <Link
+              href="/login"
+              className="self-center text-sm text-[#9aa8b0] underline-offset-4 hover:text-white hover:underline sm:ml-2"
+            >
+              Bereits Konto? Anmelden
             </Link>
           </div>
         </div>

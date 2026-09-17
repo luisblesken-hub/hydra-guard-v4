@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
 
 const ROLES = [
   {
     id: "owner",
+    signupRole: "owner",
     title: "Eigentümer",
     subtitle: "Hausverwaltung & Vermieter",
     text: "Objekte führen, Meldungen aufnehmen, Sanierer beauftragen und Rechnungen freigeben.",
@@ -17,6 +19,7 @@ const ROLES = [
   },
   {
     id: "sanierer",
+    signupRole: "sanierer",
     title: "Sanierer",
     subtitle: "Ausführung & Dokumentation",
     text: "Aufträge annehmen, die Trocknung protokollieren und Leistungen digital abrechnen.",
@@ -29,6 +32,7 @@ const ROLES = [
   },
   {
     id: "insurer",
+    signupRole: "versicherung",
     title: "Versicherer",
     subtitle: "Prüfung & Zahlung",
     text: "Vorgänge prüfen, Freigaben erteilen, Zahlungen erfassen und Exporte erstellen.",
@@ -128,6 +132,14 @@ export function RoleExplorer() {
                 </li>
               ))}
             </ol>
+            <div className="mt-8">
+              <Link
+                href={`/signup?role=${role.signupRole}`}
+                className="hg-btn-primary px-5 py-2.5"
+              >
+                Konto als {role.title} anlegen
+              </Link>
+            </div>
           </div>
         </div>
       </div>

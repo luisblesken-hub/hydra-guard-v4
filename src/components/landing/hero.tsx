@@ -37,16 +37,16 @@ export function LandingHero() {
               Anmelden
             </Link>
             <a
-              href="#ablauf"
+              href="#fuer-wen"
               className="ml-1 text-sm text-[#9aa8b0] underline-offset-4 transition-colors hover:text-white hover:underline"
             >
-              Ablauf ansehen
+              Für Ihre Rolle
             </a>
           </div>
         </div>
 
         <a
-          href="#ablauf"
+          href="#fuer-wen"
           className="absolute bottom-8 left-6 hidden text-[11px] font-medium tracking-[0.16em] text-[#9aa8b0] uppercase transition-colors hover:text-white sm:block"
         >
           Weiter

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 const RAIL = [
   { id: "hero", label: "Start" },
+  { id: "fuer-wen", label: "Für wen" },
+  { id: "nutzen", label: "Nutzen" },
   { id: "ablauf", label: "Ablauf" },
   { id: "vergleich", label: "Vergleich" },
   { id: "rollen", label: "Rollen" },

@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const SECTIONS = [
+  { id: "fuer-wen", label: "Für wen" },
+  { id: "nutzen", label: "Nutzen" },
   { id: "ablauf", label: "Ablauf" },
-  { id: "vergleich", label: "Vergleich" },
   { id: "rollen", label: "Rollen" },
   { id: "betrieb", label: "Betrieb" },
   { id: "start", label: "Start" },
