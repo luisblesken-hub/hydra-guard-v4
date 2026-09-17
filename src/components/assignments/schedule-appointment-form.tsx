@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useState } from "react";
 import { scheduleAppointmentAction, type AppointmentState } from "./schedule-appointment-action";
@@ -18,7 +18,7 @@ export function ScheduleAppointmentForm({
   const today = new Date().toISOString().slice(0, 10);
 
   if (state.success) {
-    return <span className="text-xs text-emerald-600">✓ Termin gespeichert</span>;
+    return <span className="text-xs text-hg-steel">✓ Termin gespeichert</span>;
   }
 
   if (!open) {
@@ -28,7 +28,7 @@ export function ScheduleAppointmentForm({
         onClick={() => setOpen(true)}
         className="inline-flex items-center rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
       >
-        📅 {scheduledStart
+        {scheduledStart
           ? new Intl.DateTimeFormat("de-DE", { dateStyle: "short" }).format(new Date(scheduledStart))
           : "Termin festlegen"}
       </button>
@@ -59,7 +59,7 @@ export function ScheduleAppointmentForm({
         />
       </label>
       <div className="flex gap-1">
-        <button type="submit" disabled={pending} className="rounded bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">
+        <button type="submit" disabled={pending} className="rounded bg-hg-steel px-2.5 py-1 text-xs font-semibold text-white hover:bg-hg-ink disabled:opacity-50">
           {pending ? "…" : "Speichern"}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">

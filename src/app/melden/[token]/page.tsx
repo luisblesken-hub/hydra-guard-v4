@@ -187,11 +187,13 @@ export default function MeldeWizardPage({
   return (
     <main className="mx-auto w-full max-w-xl px-4 py-6">
       <header className="space-y-2">
-        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-emerald-600">
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3C8 8 4 10.5 4 14a8 8 0 0016 0c0-3.5-4-6-8-11z" />
-          </svg>
-          HydraGuard
+        <div className="mb-3 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded bg-hg-ink text-[9px] font-bold text-white">
+            HG
+          </span>
+          <span className="text-xs font-semibold tracking-tight text-hg-ink">
+            HydraGuard
+          </span>
         </div>
         <h1 className="text-xl font-semibold text-slate-900">
           Schaden melden
@@ -206,18 +208,18 @@ export default function MeldeWizardPage({
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex flex-1 items-center gap-2">
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                className={`flex h-6 w-6 items-center justify-center rounded text-[11px] font-semibold ${
                   currentStep >= s
-                    ? "bg-emerald-500 text-white"
-                    : "bg-slate-200 text-slate-500"
+                    ? "bg-hg-ink text-white"
+                    : "border border-slate-300 bg-white text-slate-500"
                 }`}
               >
                 {currentStep > s ? "✓" : s}
               </div>
               {s < 3 && (
                 <div
-                  className={`h-1 flex-1 rounded-full ${
-                    currentStep > s ? "bg-emerald-500" : "bg-slate-200"
+                  className={`h-px flex-1 ${
+                    currentStep > s ? "bg-hg-ink" : "bg-slate-200"
                   }`}
                 />
               )}
@@ -246,7 +248,7 @@ export default function MeldeWizardPage({
               value={unitLabel}
               onChange={(e) => setUnitLabel(e.target.value)}
               placeholder='z.B. "EG links"'
-              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-indigo-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-hg-steel"
             />
           </div>
 
@@ -258,7 +260,7 @@ export default function MeldeWizardPage({
               value={reporterName}
               onChange={(e) => setReporterName(e.target.value)}
               placeholder="Vor- und Nachname"
-              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-indigo-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-hg-steel"
             />
           </div>
 
@@ -266,7 +268,7 @@ export default function MeldeWizardPage({
             type="button"
             disabled={!canGoStep2}
             onClick={() => setStep(2)}
-            className="w-full rounded-md bg-indigo-600 px-4 py-3 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-md bg-hg-steel px-4 py-3 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             Weiter
           </button>
@@ -288,7 +290,7 @@ export default function MeldeWizardPage({
               onChange={(e) => setReportedCause(e.target.value)}
               placeholder="Kurz beschreiben, wann/wie es passiert ist…"
               rows={5}
-              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-indigo-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-hg-steel"
             />
           </div>
 
@@ -308,7 +310,7 @@ export default function MeldeWizardPage({
                     | "unknown"
                 )
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-indigo-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-3 text-base outline-none focus:border-hg-steel"
             >
               <option value="unknown">Unbekannt / noch unklar</option>
               <option value="pipe_burst">Rohrbruch</option>
@@ -334,7 +336,7 @@ export default function MeldeWizardPage({
                 }
                 setSelectedFiles(Array.from(files));
               }}
-              className="w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-base file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-500"
+              className="w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-base file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-hg-steel file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-hg-steel"
             />
             {selectedFiles.length > 0 && (
               <p className="text-sm text-slate-600">
@@ -354,7 +356,7 @@ export default function MeldeWizardPage({
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="rounded-md bg-indigo-600 px-4 py-3 text-base font-semibold text-white"
+              className="rounded-md bg-hg-steel px-4 py-3 text-base font-semibold text-white"
             >
               Weiter
             </button>
@@ -394,7 +396,7 @@ export default function MeldeWizardPage({
             type="button"
             disabled={isSubmitting}
             onClick={handleSubmit}
-            className="w-full rounded-md bg-emerald-600 px-4 py-3 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-md bg-hg-ink px-4 py-3 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Sende… " : "Schaden melden"}
           </button>
@@ -410,7 +412,7 @@ export default function MeldeWizardPage({
       )}
 
       {step === 4 && reportId && (
-        <section className="mt-6 space-y-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+        <section className="mt-6 space-y-4 rounded-xl border border-hg-line bg-slate-50 p-4">
           <h2 className="text-base font-semibold text-emerald-900">
             Vielen Dank!
           </h2>
@@ -436,7 +438,7 @@ export default function MeldeWizardPage({
               )}&body=${encodeURIComponent(
                 `Guten Tag,\n\nich habe soeben einen Wasserschaden gemeldet (${reporterName}, ${unitLabel}).\nBitte prüfen Sie den Fall in HydraGuard.\n\nMit freundlichen Grüßen`
               )}`}
-              className="inline-flex w-full items-center justify-center rounded-md border border-emerald-300 bg-white px-4 py-2.5 text-sm font-medium text-emerald-900 hover:bg-emerald-100"
+              className="inline-flex w-full items-center justify-center rounded-md border border-hg-line bg-white px-4 py-2.5 text-sm font-medium text-emerald-900 hover:bg-slate-100"
             >
               Optional: Hausverwaltung per E-Mail benachrichtigen
             </a>

@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -62,11 +62,11 @@ export default async function AdminDashboardPage() {
 
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Schadensfälle", value: totalReports ?? 0, color: "text-indigo-600" },
-          { label: "Nutzer", value: totalUsers ?? 0, color: "text-emerald-600" },
+          { label: "Schadensfälle", value: totalReports ?? 0, color: "text-hg-steel" },
+          { label: "Nutzer", value: totalUsers ?? 0, color: "text-hg-steel" },
           { label: "Rechnungen", value: totalInvoices ?? 0, color: "text-amber-600" },
         ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div key={label} className="rounded-lg border border-hg-line bg-white p-4">
             <p className={`text-3xl font-bold ${color}`}>{value}</p>
             <p className="mt-1 text-xs text-slate-500">{label}</p>
           </div>
@@ -81,11 +81,11 @@ export default async function AdminDashboardPage() {
         </a>
         <a href="/api/admin/users/export"
           className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-          📊 Nutzer-CSV
+          Nutzer-CSV
         </a>
         <a href="/api/admin/claims/export"
           className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-          📋 Schäden-CSV
+          Schäden-CSV
         </a>
         <Link href="/dashboard/admin/claims"
           className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
@@ -94,11 +94,11 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Migration-Status */}
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-lg border border-hg-line bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Migrations-Status</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {["0001_hydra_guard_init", "0002_hydra_guard_full", "0003_cause_and_pool", "0004_profile_full_name", "0005_owner_invitation_policy"].map((m) => (
-            <span key={m} className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+            <span key={m} className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-hg-steel">
               ✓ {m}
             </span>
           ))}
@@ -109,7 +109,7 @@ export default async function AdminDashboardPage() {
       </section>
 
       {/* Testdaten */}
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-lg border border-hg-line bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Dev-Tools</h2>
         <p className="mb-3 text-xs text-slate-500">
           Test-Daten für Smoke-Tests anlegen.
@@ -121,7 +121,7 @@ export default async function AdminDashboardPage() {
       </section>
 
       {/* User-Management */}
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-lg border border-hg-line bg-white">
         <div className="border-b border-slate-200 px-4 py-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-900">Nutzer & Rollen</h2>
@@ -149,7 +149,7 @@ export default async function AdminDashboardPage() {
               {(allUsers ?? []).map((u) => (
                 <tr key={u.id} className="hover:bg-slate-50">
                   <td className="px-4 py-2">
-                    <Link href={`/dashboard/admin/users/${u.id}`} className="font-medium text-slate-700 hover:text-indigo-600 hover:underline">
+                    <Link href={`/dashboard/admin/users/${u.id}`} className="font-medium text-slate-700 hover:text-hg-steel hover:underline">
                       {u.email ?? <span className="text-slate-400">—</span>}
                     </Link>
                     <p className="font-mono text-[10px] text-slate-400">{u.id.slice(0, 8)}</p>
@@ -172,7 +172,7 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-lg border border-hg-line bg-white">
         <div className="border-b border-slate-200 px-4 py-3">
           <h2 className="text-sm font-semibold text-slate-900">Letzte Schadensmeldungen</h2>
         </div>
@@ -193,7 +193,7 @@ export default async function AdminDashboardPage() {
                 <td className="px-4 py-2 font-mono text-xs text-slate-400">{r.id.slice(0, 8)}…</td>
                 <td className="px-4 py-2 text-slate-700">{CATEGORY_DE[r.category] ?? r.category}</td>
                 <td className="px-4 py-2">
-                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColor(r.status)}`}>
+                  <span className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${statusColor(r.status)}`}>
                     {statusLabel(r.status)}
                   </span>
                 </td>
@@ -204,7 +204,7 @@ export default async function AdminDashboardPage() {
                   {new Intl.DateTimeFormat("de-DE", { dateStyle: "short" }).format(new Date(r.created_at))}
                 </td>
                 <td className="px-4 py-2">
-                  <Link href={`/claims/${r.id}`} className="text-xs text-indigo-600 hover:underline">Details →</Link>
+                  <Link href={`/claims/${r.id}`} className="text-xs text-hg-steel hover:underline">Details →</Link>
                 </td>
               </tr>
             ))}

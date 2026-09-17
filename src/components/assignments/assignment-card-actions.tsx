@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTransition, useState, useActionState } from "react";
 import {
@@ -57,7 +57,7 @@ export function AssignmentCardActions({
             type="button"
             disabled={isPending}
             onClick={() => handleStatusUpdate("in_progress")}
-            className="inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-hg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
           >
             In Arbeit setzen
           </button>
@@ -105,12 +105,12 @@ export function AssignmentCardActions({
           <button
             type="submit"
             disabled={causePending}
-            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-hg-steel px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
           >
             {causePending ? "Speichert…" : "Ursache speichern"}
           </button>
           {causeState.message && (
-            <p className={`text-xs ${causeState.success ? "text-emerald-600" : "text-red-600"}`}>
+            <p className={`text-xs ${causeState.success ? "text-hg-steel" : "text-red-600"}`}>
               {causeState.message}
             </p>
           )}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useState } from "react";
 import { addDryingLogEntry, type DryingLogFormState } from "@/components/drying-log-actions";
@@ -10,7 +10,7 @@ export function QuickDryingLog({ reportId }: { reportId: string }) {
   const [state, formAction, pending] = useActionState(addDryingLogEntry, INITIAL);
 
   if (state.success && !open) {
-    return <span className="text-xs text-emerald-600">✓ Messung gespeichert</span>;
+    return <span className="text-xs text-hg-steel">✓ Messung gespeichert</span>;
   }
 
   if (!open) {

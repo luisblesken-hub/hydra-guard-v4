@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useState, useEffect } from "react";
 import { inviteTenantAction, type InviteState } from "./invite-actions";
@@ -40,7 +40,7 @@ export function InviteClient({
   }
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <section className="space-y-3 rounded-lg border border-hg-line bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">Mieter-Zugang</h2>
       <p className="text-xs text-slate-500">
         Der Mieter kann den Schaden lesen (schreibgeschützt). Link kopieren oder per E-Mail
@@ -87,7 +87,7 @@ export function InviteClient({
                   {mailto && !expired && (
                     <a
                       href={mailto}
-                      className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+                      className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-hg-steel hover:bg-slate-100"
                     >
                       Per E-Mail senden
                     </a>
@@ -114,14 +114,14 @@ export function InviteClient({
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-md bg-hg-steel px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
         >
           {pending ? "…" : "Einladen"}
         </button>
       </form>
 
       {state.message && (
-        <p className={`text-xs ${state.success ? "text-emerald-600" : "text-red-600"}`}>
+        <p className={`text-xs ${state.success ? "text-hg-steel" : "text-red-600"}`}>
           {state.message}
         </p>
       )}

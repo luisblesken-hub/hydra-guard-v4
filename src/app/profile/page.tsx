@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -80,9 +80,9 @@ export default async function ProfilePage() {
           </p>
         </header>
 
-        <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="space-y-3 rounded-lg border border-hg-line bg-white p-5">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-2xl font-bold text-emerald-700">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-2xl font-bold text-hg-steel">
               {email.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -104,7 +104,7 @@ export default async function ProfilePage() {
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="rounded-lg border border-hg-line bg-white p-4"
               >
                 <p className="text-3xl font-bold text-slate-900">{s.value}</p>
                 <p className="text-xs text-slate-500">{s.label}</p>
@@ -113,7 +113,7 @@ export default async function ProfilePage() {
           </section>
         )}
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-lg border border-hg-line bg-white p-5">
           <h2 className="text-sm font-semibold text-slate-900">Konto-Details</h2>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">

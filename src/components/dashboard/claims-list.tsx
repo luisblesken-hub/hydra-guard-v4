@@ -1,14 +1,14 @@
-'use client';
+﻿'use client';
 
 import Link from "next/link";
 import type { ClaimWithProperty } from "@/lib/db/damage-reports";
 import { splitLabel, statusColor, statusLabel } from "@/lib/utils/claim-status";
 
 const INV_STATUS_STYLE: Record<string, string> = {
-  submitted: "bg-blue-100 text-blue-800",
-  approved: "bg-emerald-100 text-emerald-800",
-  paid: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
+  submitted: "border-slate-300 bg-slate-50 text-slate-700",
+  approved: "border-hg-steel/30 bg-hg-steel/5 text-hg-steel",
+  paid: "border-slate-400 bg-slate-100 text-slate-800",
+  rejected: "border-red-300/70 bg-red-50 text-red-800",
 };
 const INV_STATUS_DE: Record<string, string> = {
   submitted: "Rechnung eingereicht",
@@ -33,7 +33,7 @@ export function ClaimsList({ claims }: Props) {
         </p>
         <Link
           href="/claims/new"
-          className="mt-4 inline-flex rounded-md bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400"
+          className="mt-4 inline-flex rounded-md bg-hg-ink px-4 py-2 text-xs font-semibold text-white hover:bg-hg-steel"
         >
           Ersten Schaden melden
         </Link>
@@ -46,7 +46,7 @@ export function ClaimsList({ claims }: Props) {
       {claims.map((claim) => (
         <article
           key={claim.id}
-          className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-lg border border-hg-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="space-y-1">
             <h3 className="text-sm font-semibold text-slate-900">
@@ -54,7 +54,7 @@ export function ClaimsList({ claims }: Props) {
             </h3>
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span
-                className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium ${statusColor(
+                className={`inline-flex items-center rounded border px-2 py-0.5 font-medium ${statusColor(
                   claim.status
                 )}`}
               >
@@ -67,7 +67,7 @@ export function ClaimsList({ claims }: Props) {
               )}
               {claim.latest_invoice_status && (
                 <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium ${
+                  className={`inline-flex items-center rounded border px-2 py-0.5 font-medium ${
                     INV_STATUS_STYLE[claim.latest_invoice_status] ?? "bg-gray-100 text-gray-600"
                   }`}
                 >
@@ -106,7 +106,7 @@ export function ClaimsList({ claims }: Props) {
             <div className="flex gap-1">
               <Link
                 href={`/claims/${claim.id}`}
-                className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                className="inline-flex items-center rounded-md bg-hg-steel px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-ink"
               >
                 Details →
               </Link>

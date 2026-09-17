@@ -1,4 +1,4 @@
-type ClaimSummaryProps = {
+﻿type ClaimSummaryProps = {
   id: string;
   status: string;
   category: string;
@@ -32,7 +32,7 @@ export function ClaimSummaryCard({
   confirmedCause,
 }: ClaimSummaryProps) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="rounded-lg border border-hg-line bg-white p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="font-semibold text-slate-900">{address}</p>
@@ -48,7 +48,7 @@ export function ClaimSummaryCard({
         <div className="text-right shrink-0">
           <p className="text-sm font-bold text-slate-900">{formatEUR(estimatedAmount)}</p>
           {invoiceAmount && invoiceAmount !== estimatedAmount && (
-            <p className={`text-xs ${invoiceAmount > estimatedAmount ? "text-red-500" : "text-emerald-600"}`}>
+            <p className={`text-xs ${invoiceAmount > estimatedAmount ? "text-red-500" : "text-hg-steel"}`}>
               Abrechnung: {formatEUR(invoiceAmount)}
             </p>
           )}

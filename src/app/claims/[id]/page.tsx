@@ -269,7 +269,7 @@ export default async function ClaimDetailPage({ params }: Params) {
                 )}
               </p>
               <p className={`text-lg font-semibold ${
-                invoiceAmount > amount ? "text-red-600" : "text-emerald-700"
+                invoiceAmount > amount ? "text-red-600" : "text-hg-steel"
               }`}>
                 {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(invoiceAmount)}
               </p>
@@ -314,14 +314,14 @@ export default async function ClaimDetailPage({ params }: Params) {
               href={`/claims/${id}/edit`}
               className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
-              ✏️ Bearbeiten
+              Bearbeiten
             </Link>
           )}
           <a
             href={`/api/claims/${id}/export/insurer`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex w-max items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            className="inline-flex w-max items-center justify-center rounded-md bg-hg-steel px-3 py-2 text-sm font-medium text-white hover:bg-hg-ink"
           >
             Gutachten Versicherer (PDF)
           </a>
@@ -329,7 +329,7 @@ export default async function ClaimDetailPage({ params }: Params) {
             href={`/api/claims/${id}/export/sanierer`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex w-max items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className="inline-flex w-max items-center justify-center rounded-md bg-hg-ink px-3 py-2 text-sm font-medium text-white hover:bg-hg-steel"
           >
             Gutachten Sanierer (PDF)
           </a>

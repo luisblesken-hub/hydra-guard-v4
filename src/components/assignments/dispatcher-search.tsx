@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
 import { assignSaniererAction, type DispatcherState } from "./dispatcher-actions";
@@ -21,7 +21,7 @@ const AVAIL_LABEL: Record<string, string> = {
 };
 
 const AVAIL_COLOR: Record<string, string> = {
-  available: "text-emerald-600",
+  available: "text-hg-steel",
   busy: "text-amber-600",
   unavailable: "text-red-500",
 };
@@ -54,7 +54,7 @@ export function DispatcherSearch({
   );
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <section className="space-y-3 rounded-lg border border-hg-line bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">Sanierer-Beauftragung</h2>
 
       {existingAssignments.length > 0 && (
@@ -121,12 +121,12 @@ export function DispatcherSearch({
           <button
             type="submit"
             disabled={pending || !selected}
-            className="inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-hg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
           >
             {pending ? "…" : "Beauftragen"}
           </button>
           {state.message && (
-            <p className={`text-xs ${state.success ? "text-emerald-600" : "text-red-600"}`}>{state.message}</p>
+            <p className={`text-xs ${state.success ? "text-hg-steel" : "text-red-600"}`}>{state.message}</p>
           )}
         </form>
       )}

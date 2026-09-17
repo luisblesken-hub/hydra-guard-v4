@@ -1,4 +1,4 @@
-import type { DryingLogEntry } from "./drying-log-section";
+﻿import type { DryingLogEntry } from "./drying-log-section";
 
 type Props = {
   entries: DryingLogEntry[];
@@ -58,7 +58,7 @@ export function DryingLogChart({ entries }: Props) {
         </p>
         <p
           className={`text-xs font-medium ${
-            trendGood ? "text-emerald-600" : "text-red-600"
+            trendGood ? "text-hg-steel" : "text-red-600"
           }`}
         >
           {trendGood ? "↓" : "↑"} {Math.abs(trendDelta).toFixed(1)}% {trendGood ? "getrocknet" : "zugenommen"}

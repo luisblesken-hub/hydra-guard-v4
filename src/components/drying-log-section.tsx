@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useEffect, useState } from "react";
 import { addDryingLogEntry, type DryingLogFormState } from "./drying-log-actions";
@@ -40,7 +40,7 @@ export function DryingLogSection({
   }, [state]);
 
   return (
-    <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+    <section className="space-y-4 rounded-lg border border-hg-line bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">
         Trocknungsprotokoll
       </h2>
@@ -80,7 +80,7 @@ export function DryingLogSection({
       )}
 
       <details className="group">
-        <summary className="cursor-pointer text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <summary className="cursor-pointer text-sm font-medium text-hg-steel hover:text-indigo-500">
           Eintrag hinzufügen
         </summary>
 
@@ -104,7 +104,7 @@ export function DryingLogSection({
                 max="100"
                 required
                 placeholder="z.B. 65.5"
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-hg-steel"
               />
             </div>
             <div>
@@ -138,7 +138,7 @@ export function DryingLogSection({
               type="text"
               maxLength={200}
               placeholder="z.B. Badezimmer EG"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-hg-steel"
             />
           </div>
 
@@ -155,7 +155,7 @@ export function DryingLogSection({
               rows={2}
               maxLength={2000}
               placeholder="z.B. Trocknungsgerät Modell XY aufgestellt..."
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-hg-steel"
             />
           </div>
 
@@ -166,7 +166,7 @@ export function DryingLogSection({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="rounded-md bg-hg-steel px-4 py-2 text-sm font-medium text-white hover:bg-hg-ink disabled:opacity-50"
           >
             {pending ? "Speichern…" : "Eintrag speichern"}
           </button>

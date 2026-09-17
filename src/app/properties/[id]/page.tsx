@@ -71,7 +71,7 @@ export default async function PropertyDetailPage({
             </Link>
             <Link
               href="/claims/new"
-              className="inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400"
+              className="inline-flex items-center rounded-md bg-hg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-steel"
             >
               Schaden melden
             </Link>
@@ -88,7 +88,7 @@ export default async function PropertyDetailPage({
             <p className="text-xs text-slate-500">Aktiv</p>
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
-            <p className="text-xl font-bold text-emerald-600">
+            <p className="text-xl font-bold text-hg-steel">
               {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(totalDamage)}
             </p>
             <p className="text-xs text-slate-500">Schadensvolumen</p>
@@ -112,7 +112,7 @@ export default async function PropertyDetailPage({
               href={`/melden/${property.public_token}`}
               target="_blank"
               rel="noreferrer"
-              className="font-mono text-xs text-indigo-600 hover:underline break-all"
+              className="font-mono text-xs text-hg-steel hover:underline break-all"
             >
               /melden/{property.public_token}
             </a>

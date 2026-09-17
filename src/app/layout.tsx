@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-ibm-plex",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
   title: "HydraGuard | Wasserschaden-Management",
-  description: "Professionelles Wasserschaden-Management für Eigentümer, Sanierer und Versicherer.",
+  description:
+    "Professionelles Wasserschaden-Management für Eigentümer, Sanierer und Versicherer.",
 };
 
 export default function RootLayout({
@@ -25,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-900`}
+        className={`${plexSans.variable} ${plexMono.variable} font-sans antialiased bg-hg-canvas text-hg-ink`}
       >
         {children}
       </body>

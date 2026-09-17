@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState } from "react";
 import { saveSaniererProfileAction, type SaniererProfileState } from "./profile-actions";
@@ -31,7 +31,7 @@ export function SaniererProfileForm({
   const [state, formAction, pending] = useActionState(saveSaniererProfileAction, INITIAL);
 
   return (
-    <form action={formAction} className="space-y-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form action={formAction} className="space-y-5 rounded-lg border border-hg-line bg-white p-5">
       <input type="hidden" name="userId" value={userId} />
 
       <div>
@@ -84,7 +84,7 @@ export function SaniererProfileForm({
       </div>
 
       {state.message && (
-        <p className={`text-sm ${state.success ? "text-emerald-600" : "text-red-600"}`}>
+        <p className={`text-sm ${state.success ? "text-hg-steel" : "text-red-600"}`}>
           {state.message}
         </p>
       )}
@@ -92,7 +92,7 @@ export function SaniererProfileForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+        className="rounded-md bg-hg-steel px-4 py-2 text-sm font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
       >
         {pending ? "Speichert…" : "Profil speichern"}
       </button>

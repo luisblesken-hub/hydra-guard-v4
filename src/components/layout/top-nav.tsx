@@ -43,34 +43,24 @@ export function TopNav({
   const navItems = ROLE_NAV[role ?? "owner"] ?? ROLE_NAV["owner"];
 
   return (
-    <nav className="sticky top-0 z-30 border-b border-slate-200 bg-white shadow-sm">
+    <nav className="sticky top-0 z-30 border-b border-hg-line bg-white">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-500"
+            className="flex items-center gap-2.5 text-sm font-semibold tracking-tight text-hg-ink hover:text-hg-steel"
           >
-            <svg
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 3C8 8 4 10.5 4 14a8 8 0 0016 0c0-3.5-4-6-8-11z"
-              />
-            </svg>
+            <span className="flex h-7 w-7 items-center justify-center rounded bg-hg-ink text-[10px] font-bold tracking-wide text-white">
+              HG
+            </span>
             HydraGuard
           </Link>
-          <div className="hidden items-center gap-1 sm:flex">
+          <div className="hidden items-center gap-0.5 sm:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-hg-ink"
               >
                 {item.label}
               </Link>
@@ -81,27 +71,18 @@ export function TopNav({
         <div className="flex items-center gap-3">
           <Link
             href="/hilfe"
-            className="hidden rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 sm:inline-flex"
-            title="Hilfe"
+            className="hidden rounded px-2 py-1.5 text-sm text-slate-500 hover:bg-slate-100 hover:text-hg-ink sm:inline-flex"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+            Hilfe
           </Link>
           {userId && <NotificationBell role={role} userId={userId} />}
           <Link
             href="/profile"
-            className="hidden flex-col items-end sm:flex"
+            className="hidden flex-col items-end leading-tight sm:flex"
             title="Profil anzeigen"
           >
-            <span className="text-xs font-medium text-slate-700 hover:text-slate-900">
-              {email}
-            </span>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs font-medium text-slate-800">{email}</span>
+            <span className="text-[11px] text-slate-500">
               {role ? ROLE_LABEL[role] ?? role : ""}
             </span>
           </Link>

@@ -21,120 +21,90 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Header */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2 text-lg font-bold text-emerald-600">
-          <svg
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 3C8 8 4 10.5 4 14a8 8 0 0016 0c0-3.5-4-6-8-11z"
-            />
-          </svg>
-          HydraGuard
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-md px-4 py-1.5 text-sm font-medium text-slate-700 hover:text-slate-900"
-          >
-            Anmelden
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-md bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-400"
-          >
-            Registrieren
-          </Link>
+    <div className="min-h-screen bg-hg-canvas">
+      <header className="border-b border-hg-line bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded bg-hg-ink text-[11px] font-bold tracking-wide text-white">
+              HG
+            </span>
+            <span className="text-sm font-semibold tracking-tight text-hg-ink">
+              HydraGuard
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="hg-btn-ghost">
+              Anmelden
+            </Link>
+            <Link href="/signup" className="hg-btn-primary">
+              Registrieren
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <main className="mx-auto max-w-5xl px-6 pt-10 pb-20">
-        <div className="text-center">
-          <div className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-            Wasserschaden-Management für Deutschland
-          </div>
-          <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Wasserschäden professionell abwickeln
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            Vom ersten Schadenfoto bis zur Zahlung durch die Versicherung — HydraGuard führt Eigentümer, Sanierer und Versicherer durch einen durchgängigen, DSGVO-konformen Workflow.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/signup"
-              className="inline-flex items-center rounded-md bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-400"
-            >
-              Kostenlos registrieren
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center rounded-md border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Zur Anmeldung
-            </Link>
-          </div>
+      <main className="mx-auto max-w-5xl px-6 pt-16 pb-24">
+        <p className="hg-kicker">Wasserschaden-Management</p>
+        <h1 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-hg-ink sm:text-4xl">
+          Schadensfälle strukturiert abwickeln — von der Meldung bis zur Zahlung
+        </h1>
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+          HydraGuard verbindet Eigentümer, Sanierer und Versicherer in einer
+          gemeinsamen Akte. Dokumentation, Freigaben und Exporte bleiben
+          nachvollziehbar und DSGVO-konform.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/signup" className="hg-btn-primary px-5 py-2.5">
+            Konto anlegen
+          </Link>
+          <Link href="/login" className="hg-btn-secondary px-5 py-2.5">
+            Zur Anmeldung
+          </Link>
         </div>
 
-        {/* Features */}
-        <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-hg-line bg-hg-line sm:grid-cols-3">
           {[
             {
               title: "Eigentümer",
-              desc: "Schaden melden, Sanierer beauftragen, Rechnungen freigeben — alles in einer Akte.",
-              icon: "🏠",
+              desc: "Meldung, Beauftragung und Rechnungsfreigabe in einer Akte.",
             },
             {
               title: "Sanierer",
-              desc: "Aufträge annehmen, Trocknungsverlauf dokumentieren, digital abrechnen.",
-              icon: "🔧",
+              desc: "Aufträge, Trocknungsprotokoll und digitale Abrechnung.",
             },
             {
               title: "Versicherer",
-              desc: "Schäden prüfen, freigegebene Rechnungen bezahlen, PDF- und CSV-Export.",
-              icon: "🛡️",
+              desc: "Prüfung, Freigabe, Zahlung sowie PDF- und CSV-Export.",
             },
-          ].map(({ title, desc, icon }) => (
-            <div
-              key={title}
-              className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="mb-3 text-3xl">{icon}</div>
-              <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{desc}</p>
+          ].map(({ title, desc }) => (
+            <div key={title} className="bg-white p-6">
+              <h2 className="text-sm font-semibold text-hg-ink">{title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{desc}</p>
             </div>
           ))}
         </div>
 
-        {/* Features Row */}
-        <div className="mt-16 grid grid-cols-2 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-6 sm:grid-cols-4">
+        <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-hg-line pt-8 sm:grid-cols-4">
           {[
-            { label: "DSGVO-konform", value: "EU-Hosting" },
-            { label: "Foto-Upload", value: "Ohne GPS-Daten" },
-            { label: "PDF-Export", value: "Versicherer-ready" },
-            { label: "Trocknungs-Chart", value: "Auto-generiert" },
+            { label: "Hosting", value: "EU / DSGVO" },
+            { label: "Fotos", value: "Ohne GPS-Daten" },
+            { label: "Export", value: "PDF & CSV" },
+            { label: "Protokoll", value: "Trocknungskurve" },
           ].map(({ label, value }) => (
-            <div key={label} className="text-center">
-              <p className="text-sm font-semibold text-slate-900">{value}</p>
-              <p className="text-xs text-slate-500">{label}</p>
+            <div key={label}>
+              <dt className="text-[11px] font-medium uppercase tracking-wider text-hg-muted">
+                {label}
+              </dt>
+              <dd className="mt-1 text-sm font-medium text-hg-ink">{value}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-xs text-slate-500">
+      <footer className="border-t border-hg-line bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4 text-xs text-slate-500">
           <p>© 2026 HydraGuard · Aachen</p>
-          <p>Wasserschaden-Management-SaaS</p>
+          <p>Dokumentenbasierte Schadenbearbeitung</p>
         </div>
       </footer>
     </div>

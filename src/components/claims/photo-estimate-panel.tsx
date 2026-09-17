@@ -30,25 +30,25 @@ export function PhotoEstimatePanel({ claimId, estimate, currentAmount, canApply 
         : "System";
 
   return (
-    <div className="rounded-lg border border-sky-200 bg-sky-50/80 p-4">
-      <h3 className="text-sm font-semibold text-sky-950">Foto-basierte Schätzung</h3>
-      <p className="mt-1 text-xs text-sky-900/80">{estimate.summary_de}</p>
+    <div className="rounded-lg border border-hg-line bg-slate-50 p-4">
+      <h3 className="text-sm font-semibold text-hg-ink">Foto-basierte Schätzung</h3>
+      <p className="mt-1 text-xs text-slate-600">{estimate.summary_de}</p>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
         <div>
-          <dt className="text-sky-800/70">Vorschlag</dt>
-          <dd className="font-semibold text-sky-950">{fmt(suggested)}</dd>
+          <dt className="text-slate-500">Vorschlag</dt>
+          <dd className="font-semibold text-hg-ink">{fmt(suggested)}</dd>
         </div>
         <div>
-          <dt className="text-sky-800/70">Aktuell</dt>
-          <dd className="font-semibold text-sky-950">{fmt(currentAmount)}</dd>
+          <dt className="text-slate-500">Aktuell</dt>
+          <dd className="font-semibold text-hg-ink">{fmt(currentAmount)}</dd>
         </div>
         <div>
-          <dt className="text-sky-800/70">Fotos</dt>
-          <dd className="font-semibold text-sky-950">{estimate.analyzed_count}</dd>
+          <dt className="text-slate-500">Fotos</dt>
+          <dd className="font-semibold text-hg-ink">{estimate.analyzed_count}</dd>
         </div>
         <div>
-          <dt className="text-sky-800/70">Quelle</dt>
-          <dd className="font-semibold text-sky-950">{source}</dd>
+          <dt className="text-slate-500">Quelle</dt>
+          <dd className="font-semibold text-hg-ink">{source}</dd>
         </div>
       </dl>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
@@ -65,7 +65,7 @@ export function PhotoEstimatePanel({ claimId, estimate, currentAmount, canApply 
               }
             });
           }}
-          className="mt-3 inline-flex rounded-md bg-sky-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-800 disabled:opacity-50"
+          className="mt-3 inline-flex rounded-md bg-hg-steel px-3 py-1.5 text-xs font-medium text-white hover:bg-hg-ink disabled:opacity-50"
         >
           {pending ? "Übernehme…" : `Vorschlag ${fmt(suggested)} als Schätzung übernehmen`}
         </button>

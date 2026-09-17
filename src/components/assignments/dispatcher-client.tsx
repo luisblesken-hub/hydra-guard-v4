@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useState } from "react";
 import { assignSaniererAction, type DispatcherState } from "./dispatcher-actions";
@@ -38,7 +38,7 @@ export function DispatcherClient({
   const available = sanierer.filter((s) => !assignedIds.has(s.id));
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <section className="space-y-3 rounded-lg border border-hg-line bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">
         Sanierer-Beauftragung
       </h2>
@@ -102,7 +102,7 @@ export function DispatcherClient({
           <button
             type="submit"
             disabled={pending || !selected}
-            className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-md bg-hg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
           >
             {pending ? "…" : "Beauftragen"}
           </button>
@@ -112,7 +112,7 @@ export function DispatcherClient({
       {state.message && (
         <p
           className={`text-xs ${
-            state.success ? "text-emerald-600" : "text-red-600"
+            state.success ? "text-hg-steel" : "text-red-600"
           }`}
         >
           {state.message}

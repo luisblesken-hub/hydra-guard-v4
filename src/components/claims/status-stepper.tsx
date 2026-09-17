@@ -1,4 +1,4 @@
-const STEPS = [
+﻿const STEPS = [
   { key: "submitted", label: "Eingereicht" },
   { key: "dispatched", label: "Beauftragt" },
   { key: "in_remediation", label: "In Sanierung" },
@@ -53,19 +53,19 @@ export function StatusStepper({ status }: { status: string }) {
             >
               <div className="flex flex-col items-center">
                 <div
-                  className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                  className={`flex h-6 w-6 items-center justify-center rounded text-[11px] font-semibold transition-colors ${
                     done
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-hg-ink text-white"
                       : active
-                        ? "bg-indigo-600 text-white ring-2 ring-indigo-200"
-                        : "bg-slate-200 text-slate-500"
+                        ? "bg-hg-steel text-white"
+                        : "border border-slate-300 bg-white text-slate-500"
                   }`}
                 >
                   {done ? "✓" : i + 1}
                 </div>
                 <span
                   className={`mt-1 max-w-[60px] text-center text-[10px] leading-tight ${
-                    active ? "font-semibold text-indigo-700" : future ? "text-slate-400" : "text-slate-500"
+                    active ? "font-semibold text-hg-ink" : future ? "text-slate-400" : "text-slate-500"
                   }`}
                 >
                   {label}
@@ -73,7 +73,7 @@ export function StatusStepper({ status }: { status: string }) {
               </div>
               {i < STEPS.length - 1 && (
                 <div
-                  className={`mb-4 h-0.5 w-8 ${done ? "bg-emerald-400" : "bg-slate-200"}`}
+                  className={`mb-4 h-px w-8 ${done ? "bg-hg-ink" : "bg-slate-200"}`}
                 />
               )}
             </li>

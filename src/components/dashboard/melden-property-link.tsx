@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -71,7 +71,7 @@ export function MeldenPropertyLink({
   const previewQr = qrUrlFor(`https://hydra-guard-v4.vercel.app${path}`);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div className="rounded-lg border border-hg-line bg-white p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="text-sm font-semibold text-slate-900">{label}</p>
@@ -100,7 +100,7 @@ export function MeldenPropertyLink({
             href={path}
             target="_blank"
             rel="noreferrer"
-            className="block truncate text-xs font-medium text-indigo-600 hover:underline"
+            className="block truncate text-xs font-medium text-hg-steel hover:underline"
           >
             {path}
           </a>
@@ -115,7 +115,7 @@ export function MeldenPropertyLink({
             <button
               type="button"
               onClick={printQr}
-              className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+              className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-hg-steel hover:bg-slate-100"
             >
               QR drucken
             </button>

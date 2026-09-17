@@ -1,4 +1,4 @@
-type DataPoint = { month: string; count: number; amount: number };
+﻿type DataPoint = { month: string; count: number; amount: number };
 
 function buildMonthlyData(claims: { created_at: string; damage_amount_estimate: number }[]): DataPoint[] {
   const map = new Map<string, { count: number; amount: number }>();
@@ -54,7 +54,7 @@ export function ClaimsTimelineChart({
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-hg-line bg-white p-4">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-700">Schadensvolumen nach Monat</p>
         <p className="text-xs text-slate-400">{data.length} Monate</p>

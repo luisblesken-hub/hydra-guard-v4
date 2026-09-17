@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -28,7 +28,7 @@ const ASSIGNMENT_STATUS_DE: Record<string, string> = {
 const ASSIGNMENT_STATUS_STYLE: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   accepted: "bg-blue-100 text-blue-800",
-  in_progress: "bg-emerald-100 text-emerald-800",
+  in_progress: "bg-slate-100 text-slate-800",
   completed: "bg-green-100 text-green-800",
   cancelled: "bg-gray-100 text-gray-600",
 };
@@ -218,7 +218,7 @@ export default async function SaniererDashboardPage() {
           {total === 0 && (
             <Link
               href="/dashboard/sanierer/einstellungen"
-              className="mt-2 inline-flex text-xs font-semibold text-sky-700 hover:underline"
+              className="mt-2 inline-flex text-xs font-semibold text-hg-steel hover:underline"
             >
               Pool-Profil bearbeiten →
             </Link>
@@ -256,22 +256,22 @@ export default async function SaniererDashboardPage() {
 
       {total > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-hg-line bg-white p-4">
             <p className="text-2xl font-bold text-slate-900">{total}</p>
             <p className="text-xs text-slate-500">Aufträge gesamt</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-hg-line bg-white p-4">
             <p className="text-2xl font-bold text-amber-600">{open}</p>
             <p className="text-xs text-slate-500">Aktiv</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-2xl font-bold text-emerald-600">
+          <div className="rounded-lg border border-hg-line bg-white p-4">
+            <p className="text-2xl font-bold text-hg-steel">
               {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(totalRevenue)}
             </p>
             <p className="text-xs text-slate-500">Umsatz (bezahlt)</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-2xl font-bold text-indigo-600">
+          <div className="rounded-lg border border-hg-line bg-white p-4">
+            <p className="text-2xl font-bold text-hg-steel">
               {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(pendingRevenue)}
             </p>
             <p className="text-xs text-slate-500">Ausstehend</p>
@@ -282,7 +282,7 @@ export default async function SaniererDashboardPage() {
       <RecentActivityWidget userId={user.id} role="sanierer" />
 
       {rows.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+        <div className="rounded-lg border border-hg-line bg-white p-8 text-center text-sm text-slate-500">
           Sie haben noch keine Aufträge erhalten.
         </div>
       ) : (
@@ -309,7 +309,7 @@ export default async function SaniererDashboardPage() {
             return (
               <li
                 key={row.id}
-                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="rounded-lg border border-hg-line bg-white p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   {/* Left: Adresse + Kategorie */}
@@ -329,7 +329,7 @@ export default async function SaniererDashboardPage() {
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-medium text-sky-700 hover:underline"
+                          className="text-xs font-medium text-hg-steel hover:underline"
                         >
                           Route in Maps öffnen →
                         </a>
@@ -365,7 +365,7 @@ export default async function SaniererDashboardPage() {
                               {ownerEmail ? (
                                 <a
                                   href={`mailto:${ownerEmail}`}
-                                  className="text-sky-700 hover:underline"
+                                  className="text-hg-steel hover:underline"
                                 >
                                   {ownerLabel}
                                 </a>
@@ -395,7 +395,7 @@ export default async function SaniererDashboardPage() {
                   {/* Right: Badges */}
                   <div className="flex flex-wrap gap-2">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${
                         ASSIGNMENT_STATUS_STYLE[row.status] ??
                         "bg-gray-100 text-gray-600"
                       }`}
@@ -404,7 +404,7 @@ export default async function SaniererDashboardPage() {
                     </span>
                     {report && (
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColor(
+                        className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${statusColor(
                           report.status
                         )}`}
                       >

@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import Link from "next/link";
 
 const EVENT_LABEL: Record<string, string> = {
@@ -14,7 +14,7 @@ const EVENT_LABEL: Record<string, string> = {
 
 const EVENT_COLOR: Record<string, string> = {
   invoice_paid: "text-green-600",
-  invoice_approved: "text-emerald-600",
+  invoice_approved: "text-hg-steel",
   invoice_submitted: "text-amber-600",
   claim_created: "text-blue-600",
 };
@@ -65,7 +65,7 @@ export async function RecentActivityWidget({ userId, role }: { userId: string; r
   if (entries.length === 0) return null;
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-lg border border-hg-line bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">Letzte Aktivitäten</h2>
       <ul className="mt-3 space-y-2">
         {entries.map((e) => (
@@ -82,7 +82,7 @@ export async function RecentActivityWidget({ userId, role }: { userId: string; r
               <p className="text-[10px] text-slate-400">
                 {new Intl.DateTimeFormat("de-DE", { dateStyle: "short", timeStyle: "short" }).format(new Date(e.created_at))}
               </p>
-              <Link href={`/claims/${e.report_id}`} className="text-[10px] text-indigo-600 hover:underline">
+              <Link href={`/claims/${e.report_id}`} className="text-[10px] text-hg-steel hover:underline">
                 Öffnen
               </Link>
             </div>

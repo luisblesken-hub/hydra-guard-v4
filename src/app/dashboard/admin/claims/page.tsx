@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -73,7 +73,7 @@ export default async function AdminClaimsPage({
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-hg-line bg-white">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -89,7 +89,7 @@ export default async function AdminClaimsPage({
               <tr key={c.id} className="hover:bg-slate-50">
                 <td className="px-4 py-2 text-slate-700">{CATEGORY_DE[c.category] ?? c.category}</td>
                 <td className="px-4 py-2">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor(c.status)}`}>
+                  <span className={`rounded border px-2 py-0.5 text-xs font-medium ${statusColor(c.status)}`}>
                     {statusLabel(c.status)}
                   </span>
                 </td>
@@ -100,7 +100,7 @@ export default async function AdminClaimsPage({
                   {new Intl.DateTimeFormat("de-DE", { dateStyle: "short" }).format(new Date(c.created_at))}
                 </td>
                 <td className="px-4 py-2">
-                  <Link href={`/claims/${c.id}`} className="text-xs text-indigo-600 hover:underline">Detail →</Link>
+                  <Link href={`/claims/${c.id}`} className="text-xs text-hg-steel hover:underline">Detail →</Link>
                 </td>
               </tr>
             ))}

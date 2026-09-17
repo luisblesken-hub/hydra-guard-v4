@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { statusColor, statusLabel } from "@/lib/utils/claim-status";
@@ -233,7 +233,7 @@ export default async function MieterDashboardPage() {
       </header>
 
       {reports.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+        <div className="rounded-lg border border-hg-line bg-white p-8 text-center text-sm text-slate-500">
           Noch kein Schadenfall mit Ihrer E-Mail-Adresse verknüpft.
           <br />
           <span className="text-xs text-slate-400">
@@ -253,7 +253,7 @@ export default async function MieterDashboardPage() {
             return (
               <li
                 key={report.id}
-                className="rounded-xl border border-slate-200 bg-white shadow-sm"
+                className="rounded-lg border border-hg-line bg-white"
               >
                 {/* Header */}
                 <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 p-4">
@@ -268,7 +268,7 @@ export default async function MieterDashboardPage() {
                     </p>
                   </div>
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColor(
+                    className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${statusColor(
                       report.status
                     )}`}
                   >
@@ -358,14 +358,14 @@ export default async function MieterDashboardPage() {
                               </dd>
                               {owner.phone && (
                                 <dd>
-                                  <a href={`tel:${owner.phone}`} className="text-xs text-sky-700 hover:underline">
+                                  <a href={`tel:${owner.phone}`} className="text-xs text-hg-steel hover:underline">
                                     {owner.phone}
                                   </a>
                                 </dd>
                               )}
                               {owner.email && (
                                 <dd>
-                                  <a href={`mailto:${owner.email}`} className="text-xs text-sky-700 hover:underline">
+                                  <a href={`mailto:${owner.email}`} className="text-xs text-hg-steel hover:underline">
                                     {owner.email}
                                   </a>
                                 </dd>
@@ -380,14 +380,14 @@ export default async function MieterDashboardPage() {
                               </dd>
                               {san.sanierer_phone && (
                                 <dd>
-                                  <a href={`tel:${san.sanierer_phone}`} className="text-xs text-sky-700 hover:underline">
+                                  <a href={`tel:${san.sanierer_phone}`} className="text-xs text-hg-steel hover:underline">
                                     {san.sanierer_phone}
                                   </a>
                                 </dd>
                               )}
                               {san.sanierer_email && (
                                 <dd>
-                                  <a href={`mailto:${san.sanierer_email}`} className="text-xs text-sky-700 hover:underline">
+                                  <a href={`mailto:${san.sanierer_email}`} className="text-xs text-hg-steel hover:underline">
                                     {san.sanierer_email}
                                   </a>
                                 </dd>
@@ -423,20 +423,20 @@ export default async function MieterDashboardPage() {
                     ) : (
                       <>
                         {latestMoisture && (
-                          <div className="rounded-lg bg-emerald-50 px-3 py-2">
-                            <p className="text-xs text-emerald-600">Aktueller Messwert</p>
-                            <p className="text-2xl font-bold text-emerald-700">
+                          <div className="rounded-lg bg-slate-50 px-3 py-2">
+                            <p className="text-xs text-hg-steel">Aktueller Messwert</p>
+                            <p className="text-2xl font-bold text-hg-steel">
                               {latestMoisture.moisture_percent}%
-                              <span className="ml-1 text-sm font-normal text-emerald-500">
+                              <span className="ml-1 text-sm font-normal text-hg-steel">
                                 Feuchtigkeit
                               </span>
                             </p>
                             {latestMoisture.room_label && (
-                              <p className="text-xs text-emerald-600">
+                              <p className="text-xs text-hg-steel">
                                 Raum: {latestMoisture.room_label}
                               </p>
                             )}
-                            <p className="text-xs text-emerald-500">
+                            <p className="text-xs text-hg-steel">
                               {new Intl.DateTimeFormat("de-DE", {
                                 dateStyle: "medium",
                                 timeStyle: "short",

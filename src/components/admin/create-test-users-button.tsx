@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTransition, useState } from "react";
 import Link from "next/link";
@@ -28,12 +28,12 @@ export function CreateSampleClaimButton() {
         type="button"
         onClick={run}
         disabled={isPending}
-        className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+        className="inline-flex items-center rounded-md bg-hg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
       >
-        {isPending ? "Legt an…" : "📋 Beispiel-Schaden erstellen"}
+        {isPending ? "Legt an…" : "Beispiel-Schaden erstellen"}
       </button>
       {result && (
-        <p className={`text-xs ${result.success ? "text-emerald-700" : "text-red-600"}`}>
+        <p className={`text-xs ${result.success ? "text-hg-steel" : "text-red-600"}`}>
           {result.message}
           {result.claimId && (
             <>
@@ -75,14 +75,14 @@ export function CreateTestUsersButton() {
         type="button"
         onClick={run}
         disabled={isPending}
-        className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+        className="inline-flex items-center rounded-md bg-hg-steel px-4 py-2 text-sm font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
       >
         {isPending ? "Legt an…" : "🧪 Testnutzer anlegen"}
       </button>
       {result && (
         <div className="rounded-lg bg-slate-50 p-3">
           {result.message && (
-            <p className={`text-xs ${result.success ? "text-emerald-700" : "text-red-600"}`}>
+            <p className={`text-xs ${result.success ? "text-hg-steel" : "text-red-600"}`}>
               {result.message}
             </p>
           )}

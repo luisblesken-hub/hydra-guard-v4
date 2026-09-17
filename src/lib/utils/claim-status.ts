@@ -1,6 +1,5 @@
 export function statusLabel(status: string): string {
   switch (status) {
-    // Legacy UI statuses (pre-claim_status enum alignment)
     case "new":
       return "Neu gemeldet";
     case "assigned":
@@ -13,8 +12,6 @@ export function statusLabel(status: string): string {
       return "Abgeschlossen";
     case "closed":
       return "Archiviert";
-
-    // DB enum values from `supabase/migrations/0002_hydra_guard_full.sql` (`claim_status`)
     case "draft":
       return "Entwurf";
     case "submitted":
@@ -44,58 +41,42 @@ export function statusLabel(status: string): string {
   }
 }
 
+/** Muted, border-first badges — less “app candy”, more dossier. */
 export function statusColor(status: string): string {
   switch (status) {
-    // Legacy UI statuses (pre-claim_status enum alignment)
     case "new":
-      return "bg-blue-100 text-blue-800";
-    case "assigned":
-      return "bg-yellow-100 text-yellow-800";
-    case "in_progress":
-      return "bg-orange-100 text-orange-800";
-    case "invoice_pending":
-      return "bg-red-100 text-red-800";
-    case "completed":
-      return "bg-green-100 text-green-800";
-    case "closed":
-      return "bg-gray-100 text-gray-800";
-
-    // DB enum values from `supabase/migrations/0002_hydra_guard_full.sql` (`claim_status`)
-    case "draft":
-      return "bg-slate-100 text-slate-700";
     case "submitted":
-      return "bg-blue-100 text-blue-800";
     case "validating":
-      return "bg-indigo-100 text-indigo-800";
-    case "calculating":
-      return "bg-orange-100 text-orange-800";
+      return "border-slate-300 bg-slate-50 text-slate-700";
+    case "assigned":
     case "reviewing":
-      return "bg-yellow-100 text-yellow-800";
+    case "calculating":
+      return "border-slate-300 bg-white text-slate-700";
     case "approved":
-      return "bg-emerald-100 text-emerald-800";
     case "dispatched":
-      return "bg-teal-100 text-teal-800";
+    case "in_progress":
     case "in_remediation":
-      return "bg-emerald-100 text-emerald-800";
+      return "border-hg-steel/30 bg-hg-steel/5 text-hg-steel";
+    case "invoice_pending":
     case "invoice_submitted":
-      return "bg-red-100 text-red-800";
+      return "border-amber-300/80 bg-amber-50 text-amber-900";
     case "invoice_approved":
-      return "bg-green-100 text-green-800";
+    case "completed":
+      return "border-slate-400 bg-slate-100 text-slate-800";
     case "closed":
-      return "bg-gray-100 text-gray-800";
+    case "draft":
+      return "border-slate-200 bg-slate-50 text-slate-500";
     case "out_of_scope":
-      return "bg-red-100 text-red-800";
     case "rejected":
-      return "bg-red-100 text-red-800";
+      return "border-red-300/70 bg-red-50 text-red-800";
     default:
-      return "bg-gray-100 text-gray-600";
+      return "border-slate-200 bg-slate-50 text-slate-600";
   }
 }
 
 export function splitLabel(split: string | null | undefined): string {
   if (!split) return "—";
   switch (split) {
-    // DB enum values from `supabase/migrations/0002_hydra_guard_full.sql` (`insurance_scope`)
     case "building":
       return "Gebäude";
     case "contents":
@@ -104,8 +85,6 @@ export function splitLabel(split: string | null | undefined): string {
       return "Haftpflicht";
     case "disputed":
       return "Streitfall";
-
-    // Legacy UI values
     case "gebaeude":
       return "Gebäude";
     case "hausrat":
@@ -116,4 +95,3 @@ export function splitLabel(split: string | null | undefined): string {
       return split;
   }
 }
-

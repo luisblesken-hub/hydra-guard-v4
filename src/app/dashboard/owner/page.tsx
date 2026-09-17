@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -98,7 +98,7 @@ export default async function OwnerDashboardPage({
           )}
           <Link
             href="/claims/new"
-            className="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
+            className="inline-flex items-center rounded-md bg-hg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-hg-steel"
           >
             Neuen Schaden melden
           </Link>
@@ -116,10 +116,10 @@ export default async function OwnerDashboardPage({
             {
               label: "Schadenssumme",
               value: new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(totalAmount),
-              color: "text-emerald-600",
+              color: "text-hg-steel",
             },
           ].map(({ label, value, color }) => (
-            <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div key={label} className="rounded-lg border border-hg-line bg-white p-4">
               <p className={`text-2xl font-bold ${color}`}>{value}</p>
               <p className="text-xs text-slate-500">{label}</p>
             </div>
@@ -149,18 +149,18 @@ export default async function OwnerDashboardPage({
             <Link
               key={key}
               href={key === "all" ? "/dashboard/owner" : `/dashboard/owner?filter=${key}`}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
+              className={`rounded px-3 py-1 text-xs font-medium ${
                 filter === key
-                  ? "bg-slate-900 text-white"
-                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  ? "bg-hg-ink text-white"
+                  : "border border-hg-line bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >
               {label}
               {key === "open" && openCount > 0 && (
-                <span className="ml-1 rounded-full bg-amber-500 px-1 text-white">{openCount}</span>
+                <span className="ml-1 rounded bg-white/15 px-1 tabular-nums">{openCount}</span>
               )}
               {key === "invoice_submitted" && awaitingApproval > 0 && (
-                <span className="ml-1 rounded-full bg-red-500 px-1 text-white">{awaitingApproval}</span>
+                <span className="ml-1 rounded bg-white/15 px-1 tabular-nums">{awaitingApproval}</span>
               )}
             </Link>
           ))}
@@ -174,9 +174,9 @@ export default async function OwnerDashboardPage({
               <Link
                 key={s.key}
                 href={`/dashboard/owner?filter=${filter}&sort=${s.key}`}
-                className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                className={`rounded px-2.5 py-1 text-xs font-medium ${
                   sort === s.key
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-hg-steel text-white"
                     : "border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
                 }`}
               >
@@ -204,7 +204,7 @@ export default async function OwnerDashboardPage({
             {filter === "all" ? "Noch keine Schadensfälle vorhanden." : "Keine Fälle mit diesem Filter."}
           </p>
           {filter === "all" && (
-            <Link href="/claims/new" className="mt-3 inline-flex rounded-md bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400">
+            <Link href="/claims/new" className="mt-3 inline-flex rounded-md bg-hg-ink px-4 py-2 text-xs font-semibold text-white hover:bg-hg-steel">
               Ersten Schaden melden
             </Link>
           )}
@@ -241,7 +241,7 @@ export default async function OwnerDashboardPage({
             </p>
             <Link
               href="/properties/new"
-              className="mt-3 inline-flex rounded-md bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400"
+              className="mt-3 inline-flex rounded-md bg-hg-ink px-4 py-2 text-xs font-semibold text-white hover:bg-hg-steel"
             >
               Erstes Objekt anlegen
             </Link>

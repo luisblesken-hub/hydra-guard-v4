@@ -1,26 +1,172 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f4f6;
+  --foreground: #0b1220;
+  --hg-ink: #0b1220;
+  --hg-steel: #1e3a4c;
+  --hg-accent: #245b6b;
+  --hg-line: #e2e5ea;
+  --hg-muted: #64748b;
+  --hg-surface: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-hg-ink: var(--hg-ink);
+  --color-hg-steel: var(--hg-steel);
+  --color-hg-accent: var(--hg-accent);
+  --color-hg-line: var(--hg-line);
+  --color-hg-muted: var(--hg-muted);
+  --color-hg-surface: var(--hg-surface);
+  --color-hg-canvas: #f3f4f6;
+  --font-sans: var(--font-ibm-plex);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Force light B2B UI — no OS dark-mode flip */
+html {
+  color-scheme: light;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ibm-plex), "Segoe UI", sans-serif;
+  font-feature-settings: "ss01" on, "kern" on;
+  letter-spacing: -0.011em;
+}
+
+/* Shared professional primitives */
+@layer components {
+  .hg-card {
+    border-radius: 0.5rem;
+    border: 1px solid var(--hg-line);
+    background: var(--hg-surface);
+  }
+
+  .hg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .hg-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .hg-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: var(--hg-ink);
+    color: #fff;
+    transition: background-color 0.15s ease;
+  }
+
+  .hg-btn-primary:hover {
+    background: var(--hg-steel);
+  }
+
+  .hg-btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .hg-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    border: 1px solid var(--hg-line);
+    background: #fff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: background-color 0.15s ease;
+  }
+
+  .hg-btn-secondary:hover {
+    background: #f8fafc;
+  }
+
+  .hg-btn-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .hg-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .hg-btn-ghost:hover {
+    background: #f1f5f9;
+    color: #0b1220;
+  }
+
+  .hg-input {
+    width: 100%;
+    border-radius: 0.375rem;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #0f172a;
+    outline: none;
+  }
+
+  .hg-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .hg-input:focus {
+    border-color: var(--hg-steel);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--hg-steel) 30%, transparent);
+  }
+
+  .hg-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.25rem;
+    border: 1px solid var(--hg-line);
+    padding: 0.125rem 0.5rem;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .hg-page {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 64rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .hg-kicker {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--hg-muted);
+  }
 }

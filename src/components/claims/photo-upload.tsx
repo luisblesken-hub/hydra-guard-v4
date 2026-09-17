@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -127,7 +127,7 @@ export function PhotoUpload({ claimId }: Props) {
         type="button"
         disabled={!hasUploadable || isPending}
         onClick={handleUpload}
-        className="inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400 disabled:opacity-50"
+        className="inline-flex items-center rounded-md bg-hg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
       >
         {isPending ? "Wird hochgeladen…" : "Fotos hochladen"}
       </button>

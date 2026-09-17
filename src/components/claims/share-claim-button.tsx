@@ -18,9 +18,9 @@ export function ShareClaimButton({ claimId }: { claimId: string }) {
       type="button"
       onClick={copy}
       title="Link zur Schadenakte kopieren"
-      className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      className="hg-btn-secondary"
     >
-      {copied ? "✓ Kopiert" : "🔗 Link kopieren"}
+      {copied ? "Kopiert" : "Link kopieren"}
     </button>
   );
 }

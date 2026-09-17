@@ -89,7 +89,7 @@ export function NotificationBellClient({
             <Link
               href={dashboardHref}
               onClick={() => setOpen(false)}
-              className="text-xs font-medium text-sky-700 hover:underline"
+              className="text-xs font-medium text-hg-steel hover:underline"
             >
               Zum Dashboard →
             </Link>

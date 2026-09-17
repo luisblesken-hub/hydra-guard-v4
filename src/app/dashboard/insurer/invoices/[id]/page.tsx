@@ -16,7 +16,7 @@ function formatDate(v: string | null | undefined) {
 
 const STATUS_DE: Record<string, { label: string; color: string }> = {
   submitted: { label: "Eingereicht", color: "bg-blue-100 text-blue-800" },
-  approved: { label: "Freigegeben", color: "bg-emerald-100 text-emerald-800" },
+  approved: { label: "Freigegeben", color: "bg-slate-100 text-slate-800" },
   paid: { label: "Bezahlt", color: "bg-green-100 text-green-800" },
   rejected: { label: "Abgelehnt", color: "bg-red-100 text-red-800" },
 };
@@ -101,7 +101,7 @@ export default async function InvoiceDetailPage({
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs text-slate-500">Brutto</p>
-          <p className="text-xl font-bold text-emerald-700">{formatEUR(invoice.amount_gross ?? invoice.amount_net)}</p>
+          <p className="text-xl font-bold text-hg-steel">{formatEUR(invoice.amount_gross ?? invoice.amount_net)}</p>
         </div>
       </section>
 
@@ -118,7 +118,7 @@ export default async function InvoiceDetailPage({
             <span>Abweichung: {(invoice.deviation_percent ?? 0).toFixed(1)}%</span>
             {invoice.nash_applied && <span className="text-amber-600">NASH-Regel angewendet</span>}
             {invoice.fast_pay_applied && (
-              <span className="text-emerald-600">
+              <span className="text-hg-steel">
                 FastPay {invoice.fast_pay_discount_percent}% Rabatt
               </span>
             )}
@@ -162,7 +162,7 @@ export default async function InvoiceDetailPage({
                 {report.confirmed_cause ?? report.reported_cause}
               </p>
             )}
-            <Link href={`/claims/${report.id}`} className="mt-1 inline-block text-xs text-indigo-600 hover:underline">
+            <Link href={`/claims/${report.id}`} className="mt-1 inline-block text-xs text-hg-steel hover:underline">
               Schadenakte öffnen →
             </Link>
           </div>

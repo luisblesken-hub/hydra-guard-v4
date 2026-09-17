@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useTransition, useState } from "react";
 import {
@@ -23,7 +23,7 @@ const STATUS_DE: Record<string, string> = {
 const STATUS_STYLE: Record<string, string> = {
   submitted: "bg-blue-100 text-blue-800",
   under_review: "bg-yellow-100 text-yellow-800",
-  approved: "bg-emerald-100 text-emerald-800",
+  approved: "bg-slate-100 text-slate-800",
   rejected: "bg-red-100 text-red-800",
   paid: "bg-green-100 text-green-800",
 };
@@ -81,7 +81,7 @@ export function InvoiceClient({
   const showSubmitForm = role === "sanierer" && canSubmit;
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <section className="space-y-3 rounded-lg border border-hg-line bg-white p-4">
       <header className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-900">Rechnungen</h2>
         <span className="text-xs text-slate-500">
@@ -105,7 +105,7 @@ export function InvoiceClient({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${
                         STATUS_STYLE[inv.status] ??
                         "bg-gray-100 text-gray-600"
                       }`}
@@ -142,7 +142,7 @@ export function InvoiceClient({
                           onClick={() =>
                             runAction(inv.id, approveInvoiceAction)
                           }
-                          className="inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                          className="inline-flex items-center rounded-md bg-hg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
                         >
                           Freigeben
                         </button>
@@ -227,14 +227,14 @@ export function InvoiceClient({
           <button
             type="submit"
             disabled={pending}
-            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-hg-steel px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
           >
             {pending ? "Wird eingereicht…" : "Rechnung einreichen"}
           </button>
           {state.message && (
             <p
               className={`text-xs ${
-                state.success ? "text-emerald-700" : "text-red-600"
+                state.success ? "text-hg-steel" : "text-red-600"
               }`}
             >
               {state.message}

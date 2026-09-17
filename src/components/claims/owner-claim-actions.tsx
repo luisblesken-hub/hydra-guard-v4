@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTransition, useState } from "react";
 import { ownerUpdateClaimStatusAction } from "./owner-status-actions";
@@ -8,18 +8,18 @@ const TRANSITIONS: Record<
   { label: string; next: "approved" | "rejected" | "dispatched" | "closed"; style: string }[]
 > = {
   submitted: [
-    { label: "Freigeben", next: "approved", style: "bg-emerald-600 text-white hover:bg-emerald-700" },
+    { label: "Freigeben", next: "approved", style: "bg-hg-ink text-white hover:bg-hg-steel" },
     { label: "Ablehnen", next: "rejected", style: "border border-red-300 text-red-700 hover:bg-red-50" },
   ],
   validating: [
-    { label: "Freigeben", next: "approved", style: "bg-emerald-600 text-white hover:bg-emerald-700" },
+    { label: "Freigeben", next: "approved", style: "bg-hg-ink text-white hover:bg-hg-steel" },
     { label: "Ablehnen", next: "rejected", style: "border border-red-300 text-red-700 hover:bg-red-50" },
   ],
   approved: [
     {
       label: "Als beauftragt markieren",
       next: "dispatched",
-      style: "bg-indigo-600 text-white hover:bg-indigo-700",
+      style: "bg-hg-steel text-white hover:bg-hg-ink",
     },
     {
       label: "Archivieren",
@@ -72,7 +72,7 @@ export function OwnerClaimActions({
       {(status === "approved" || status === "dispatched") && (
         <a
           href="#dispatcher"
-          className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-800 hover:bg-indigo-100"
+          className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-100"
         >
           Sanierer zuweisen ↓
         </a>

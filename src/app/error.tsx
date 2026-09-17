@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect } from "react";
@@ -33,7 +33,7 @@ export default function GlobalError({
           <button
             type="button"
             onClick={reset}
-            className="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
+            className="inline-flex items-center rounded-md bg-hg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-hg-steel"
           >
             Erneut versuchen
           </button>

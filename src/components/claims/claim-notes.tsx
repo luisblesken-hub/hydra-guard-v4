@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useState, useTransition } from "react";
 import { addClaimNoteAction } from "./claim-note-actions";
@@ -46,7 +46,7 @@ export function ClaimNotes({
   }
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <section className="space-y-3 rounded-lg border border-hg-line bg-white p-4">
       <h2 className="text-sm font-semibold text-slate-900">
         Notizen
         <span className="ml-2 text-xs font-normal text-slate-400">
@@ -93,7 +93,7 @@ export function ClaimNotes({
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-hg-steel px-3 py-1.5 text-xs font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
           >
             {isPending ? "…" : "Speichern"}
           </button>

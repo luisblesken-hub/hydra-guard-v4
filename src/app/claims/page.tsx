@@ -1,4 +1,4 @@
-// GDPR: Displays personal claim data for the authenticated owner.
+﻿// GDPR: Displays personal claim data for the authenticated owner.
 // RLS enforces row-level access. Defense-in-depth: explicit owner_id filter.
 
 import Link from "next/link";
@@ -85,7 +85,7 @@ export default async function ClaimsPage() {
                       {c.id.slice(0, 8)}…
                     </span>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${TIER_STYLE[c.claim_tier] ?? ""}`}
+                      className={`rounded border px-2 py-0.5 text-xs font-medium ${TIER_STYLE[c.claim_tier] ?? ""}`}
                     >
                       {TIER_DE[c.claim_tier] ?? c.claim_tier}
                     </span>

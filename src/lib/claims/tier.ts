@@ -26,7 +26,7 @@ export function getClaimTierPreview(amount: number): {
   }
   return {
     label: "Standard-Track",
-    color: "bg-emerald-50 border-emerald-200 text-emerald-700",
+    color: "bg-slate-50 border-hg-line text-hg-steel",
     desc: "Bearbeitung über den HydraGuard-Workflow (Sanierer, Status, Rechnungen).",
   }
 }

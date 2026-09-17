@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -72,10 +72,10 @@ export default async function HelpPage() {
           {FAQ.map((item, i) => (
             <details
               key={i}
-              className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              className="group rounded-lg border border-hg-line bg-white p-4"
             >
               <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900 hover:text-slate-700">
-                <span className="mr-2 text-emerald-500">›</span>
+                <span className="mr-2 text-hg-steel">›</span>
                 {item.q}
               </summary>
               <p className="mt-3 text-sm text-slate-600">{item.a}</p>
@@ -83,11 +83,11 @@ export default async function HelpPage() {
           ))}
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-lg border border-hg-line bg-white p-5">
           <h2 className="text-sm font-semibold text-slate-900">Weiterführende Hilfe</h2>
           <p className="mt-2 text-sm text-slate-600">
             Für weitere Fragen wende dich an{" "}
-            <a href="mailto:support@hydraguard.de" className="font-medium text-emerald-600 hover:underline">
+            <a href="mailto:support@hydraguard.de" className="font-medium text-hg-steel hover:underline">
               support@hydraguard.de
             </a>
             {" "}oder per Telefon werktags 9–17 Uhr.

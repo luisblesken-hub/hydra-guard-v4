@@ -106,7 +106,7 @@ export default async function AdminUserDetailPage({
                     {new Intl.DateTimeFormat("de-DE", { dateStyle: "short" }).format(new Date(c.created_at))}
                   </td>
                   <td className="px-4 py-2">
-                    <Link href={`/claims/${c.id}`} className="text-xs text-indigo-600 hover:underline">Detail →</Link>
+                    <Link href={`/claims/${c.id}`} className="text-xs text-hg-steel hover:underline">Detail →</Link>
                   </td>
                 </tr>
               ))}

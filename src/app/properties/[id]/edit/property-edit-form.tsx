@@ -22,7 +22,7 @@ export function PropertyEditForm({ property }: { property: Property }) {
 
   if (state.success) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+      <div className="rounded-xl border border-hg-line bg-slate-50 p-4 text-sm font-medium text-hg-steel">
         ✓ Gespeichert.{" "}
         <a href={`/properties/${property.id}`} className="underline">
           Zurück zum Objekt
@@ -102,7 +102,7 @@ export function PropertyEditForm({ property }: { property: Property }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+        className="rounded-md bg-hg-steel px-4 py-2 text-sm font-semibold text-white hover:bg-hg-ink disabled:opacity-50"
       >
         {pending ? "Speichert…" : "Speichern"}
       </button>

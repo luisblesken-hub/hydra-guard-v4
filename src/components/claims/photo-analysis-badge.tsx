@@ -20,7 +20,7 @@ export function PhotoAnalysisBadge({ analysis }: { analysis: PhotoAnalysisResult
   }).format(analysis.suggested_amount_eur);
 
   return (
-    <div className="mt-1 rounded-md border border-sky-200 bg-sky-50 px-2 py-1.5 text-[11px] text-sky-900">
+    <div className="mt-1 rounded-md border border-hg-line bg-sky-50 px-2 py-1.5 text-[11px] text-sky-900">
       <p className="font-semibold">
         {sourceLabel}-Analyse · {amount}
       </p>

@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 
 const EVENT_LABEL: Record<string, string> = {
   claim_created: "Schaden gemeldet",
@@ -20,33 +20,7 @@ const ROLE_LABEL: Record<string, string> = {
   versicherung: "Versicherung",
   mieter: "Mieter",
   admin: "Admin",
-};
-
-const EVENT_COLOR: Record<string, string> = {
-  claim_created: "bg-blue-400",
-  invoice_submitted: "bg-amber-400",
-  invoice_approved: "bg-emerald-400",
-  invoice_rejected: "bg-red-400",
-  invoice_paid: "bg-green-500",
-  assignment_created: "bg-indigo-400",
-  status_changed: "bg-slate-400",
-  drying_log_added: "bg-cyan-400",
-  photo_uploaded: "bg-violet-400",
-  note_added: "bg-slate-300",
-};
-
-const EVENT_ICON: Record<string, string> = {
-  claim_created: "📋",
-  claim_submitted: "📤",
-  status_changed: "🔄",
-  invoice_submitted: "🧾",
-  invoice_approved: "✅",
-  invoice_rejected: "❌",
-  invoice_paid: "💶",
-  photo_uploaded: "📷",
-  drying_log_added: "💧",
-  assignment_created: "🔧",
-  note_added: "📝",
+  tenant: "Mieter",
 };
 
 type ActivityEntry = {
@@ -71,45 +45,45 @@ export async function ActivityFeed({ reportId }: { reportId: string }) {
 
   if (entries.length === 0) {
     return (
-      <section className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Aktivitätsverlauf</h2>
-        <p className="text-xs text-slate-400">Noch keine Aktivitäten für diesen Fall.</p>
+      <section className="space-y-2 rounded-lg border border-hg-line bg-white p-4">
+        <h2 className="text-sm font-semibold text-hg-ink">Aktivitätsverlauf</h2>
+        <p className="text-xs text-slate-500">Noch keine Aktivitäten für diesen Fall.</p>
       </section>
     );
   }
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-      <h2 className="text-sm font-semibold text-slate-900">
+    <section className="space-y-3 rounded-lg border border-hg-line bg-white p-4">
+      <h2 className="text-sm font-semibold text-hg-ink">
         Aktivitätsverlauf
-        <span className="ml-2 text-xs font-normal text-slate-400">
+        <span className="ml-2 text-xs font-normal text-slate-500">
           {entries.length} Einträge
         </span>
       </h2>
 
-      <ol className="relative border-l border-slate-200 pl-4">
+      <ol className="relative space-y-0 border-l border-hg-line pl-4">
         {entries.map((entry) => {
-          const icon = EVENT_ICON[entry.event_type] ?? "•";
           const label = EVENT_LABEL[entry.event_type] ?? entry.event_type;
-          const role = entry.actor_role ? ROLE_LABEL[entry.actor_role] ?? entry.actor_role : null;
+          const role = entry.actor_role
+            ? ROLE_LABEL[entry.actor_role] ?? entry.actor_role
+            : null;
 
           return (
-            <li key={entry.id} className="mb-4 last:mb-0">
-              <div className={`absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-white ${EVENT_COLOR[entry.event_type] ?? "bg-slate-300"}`} />
-              <div className="flex flex-wrap items-start justify-between gap-1">
-                <div>
-                  <p className="text-sm font-medium text-slate-800">
-                    <span className="mr-1">{icon}</span>
-                    {label}
-                  </p>
+            <li key={entry.id} className="relative mb-4 last:mb-0">
+              <div className="absolute -left-[1.15rem] top-1.5 h-2 w-2 rounded-full border border-hg-line bg-white" />
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800">{label}</p>
                   {entry.note && (
-                    <p className="text-xs text-slate-500">{entry.note}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                      {entry.note}
+                    </p>
                   )}
                   {role && (
-                    <p className="text-xs text-slate-400">{role}</p>
+                    <p className="mt-0.5 text-[11px] text-slate-400">{role}</p>
                   )}
                 </div>
-                <time className="shrink-0 text-xs text-slate-400">
+                <time className="shrink-0 text-[11px] tabular-nums text-slate-400">
                   {new Intl.DateTimeFormat("de-DE", {
                     dateStyle: "medium",
                     timeStyle: "short",

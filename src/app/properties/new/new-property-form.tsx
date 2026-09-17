@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState } from "react";
 import { createPropertyAction, type PropertyState } from "./property-actions";
@@ -11,11 +11,11 @@ export function NewPropertyForm() {
 
   if (state.success && state.propertyId) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-        <p className="text-lg font-semibold text-emerald-800">✓ Objekt angelegt!</p>
+      <div className="rounded-xl border border-hg-line bg-slate-50 p-6 text-center">
+        <p className="text-lg font-semibold text-hg-ink">Objekt angelegt</p>
         <a
           href={`/properties/${state.propertyId}`}
-          className="mt-3 inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          className="mt-3 inline-flex items-center rounded-md bg-hg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-hg-steel"
         >
           Zum Objekt →
         </a>
@@ -26,7 +26,7 @@ export function NewPropertyForm() {
   return (
     <form
       action={formAction}
-      className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+      className="space-y-4 rounded-lg border border-hg-line bg-white p-5"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="col-span-2 flex flex-col gap-1 text-xs font-medium text-slate-600">
@@ -104,7 +104,7 @@ export function NewPropertyForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-emerald-500 py-2.5 text-sm font-semibold text-white hover:bg-emerald-400 disabled:opacity-50"
+        className="w-full rounded-md bg-hg-ink py-2.5 text-sm font-semibold text-white hover:bg-hg-steel disabled:opacity-50"
       >
         {pending ? "Wird angelegt…" : "Objekt anlegen"}
       </button>

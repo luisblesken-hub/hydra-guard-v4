@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -57,7 +57,7 @@ export default async function NotificationSettingsPage() {
           Für Echtzeit-Updates nutze die Benachrichtigungs-Glocke im Dashboard.
         </div>
 
-        <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="space-y-3 rounded-lg border border-hg-line bg-white p-5">
           <h2 className="text-sm font-semibold text-slate-900">Verfügbare Benachrichtigungen</h2>
           <ul className="divide-y divide-slate-100">
             {notifications.map((n) => (
