@@ -96,7 +96,7 @@ export function ProcessSlides() {
             <p className="hg-kicker">Ablauf</p>
             <h2
               id={labelId}
-              className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-hg-ink sm:text-3xl"
+              className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-hg-ink sm:text-4xl"
             >
               Vier Schritte, ein Vorgang.
             </h2>
@@ -158,7 +158,7 @@ export function ProcessSlides() {
           id="ablauf-panel"
           role="tabpanel"
           aria-labelledby={`ablauf-tab-${step.n}`}
-          className="hg-landing-fade mt-10 grid gap-10 border border-hg-line bg-hg-canvas p-6 sm:p-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+          className="hg-landing-fade mt-10 grid gap-10 rounded-2xl border border-hg-line bg-hg-canvas p-6 sm:p-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
           key={step.n}
         >
           <div>

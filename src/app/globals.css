@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #e8eef1;
+  --background: #f2f5f6;
   --foreground: #0b1220;
-  --hg-ink: #0b1220;
-  --hg-steel: #16384a;
-  --hg-accent: #0f8f82;
-  --hg-line: #d7dee4;
-  --hg-muted: #5b6b78;
+  --hg-ink: #071018;
+  --hg-steel: #134556;
+  --hg-accent: #12a594;
+  --hg-line: #e1e7eb;
+  --hg-muted: #667887;
   --hg-surface: #ffffff;
 }
 
@@ -20,10 +20,10 @@
   --color-hg-line: var(--hg-line);
   --color-hg-muted: var(--hg-muted);
   --color-hg-surface: var(--hg-surface);
-  --color-hg-canvas: #e8eef1;
-  --font-sans: var(--font-ibm-plex);
+  --color-hg-canvas: #f2f5f6;
+  --font-sans: var(--font-outfit);
   --font-mono: var(--font-ibm-plex-mono);
-  --font-display: var(--font-source-serif);
+  --font-display: var(--font-outfit);
 }
 
 /* Force light B2B UI — no OS dark-mode flip */
@@ -34,15 +34,15 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-ibm-plex), "Segoe UI", sans-serif;
-  font-feature-settings: "ss01" on, "kern" on;
-  letter-spacing: -0.011em;
+  font-family: var(--font-outfit), "Segoe UI", sans-serif;
+  font-feature-settings: "kern" on;
+  letter-spacing: -0.015em;
 }
 
 /* Shared professional primitives */
 @layer components {
   .hg-card {
-    border-radius: 0.5rem;
+    border-radius: 1rem;
     border: 1px solid var(--hg-line);
     background: var(--hg-surface);
   }
@@ -51,8 +51,8 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
-    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     font-weight: 500;
     transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -67,13 +67,13 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
-    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     font-weight: 500;
     background: var(--hg-accent);
     color: #fff;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, transform 0.15s ease;
   }
 
   .hg-btn-primary:hover {
@@ -89,10 +89,10 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
+    border-radius: 0.75rem;
     border: 1px solid var(--hg-line);
     background: #fff;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     font-weight: 500;
     color: #1e293b;
@@ -112,8 +112,8 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
-    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     font-weight: 500;
     color: #475569;
@@ -127,10 +127,10 @@ body {
 
   .hg-input {
     width: 100%;
-    border-radius: 0.375rem;
+    border-radius: 0.75rem;
     border: 1px solid #cbd5e1;
     background: #fff;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     color: #0f172a;
     outline: none;
@@ -142,18 +142,18 @@ body {
 
   .hg-input:focus {
     border-color: var(--hg-accent);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--hg-accent) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hg-accent) 22%, transparent);
   }
 
   .hg-badge {
     display: inline-flex;
     align-items: center;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     border: 1px solid var(--hg-line);
     padding: 0.125rem 0.5rem;
     font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
   }
 
   .hg-page {
@@ -176,26 +176,26 @@ body {
     font-weight: 500;
     letter-spacing: 0.01em;
     text-transform: none;
-    color: color-mix(in srgb, var(--hg-accent) 72%, white);
+    color: color-mix(in srgb, var(--hg-accent) 78%, white);
   }
 
   .hg-display {
-    font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+    font-family: var(--font-outfit), "Segoe UI", sans-serif;
     font-weight: 600;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.045em;
   }
 
   .hg-btn-invert {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
+    border-radius: 0.875rem;
     background: var(--hg-accent);
-    padding: 0.625rem 1.125rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+    padding: 0.75rem 1.35rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
     color: #fff;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, transform 0.15s ease;
   }
 
   .hg-btn-invert:hover {
@@ -211,19 +211,20 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    background: transparent;
-    padding: 0.625rem 1.125rem;
-    font-size: 0.875rem;
+    border-radius: 0.875rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.75rem 1.35rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     color: #fff;
+    backdrop-filter: blur(8px);
     transition: background-color 0.15s ease, border-color 0.15s ease;
   }
 
   .hg-btn-outline-invert:hover {
     border-color: color-mix(in srgb, var(--hg-accent) 55%, white);
-    background: rgba(15, 143, 130, 0.12);
+    background: rgba(18, 165, 148, 0.14);
   }
 
   .hg-btn-outline-invert:focus-visible {
@@ -232,35 +233,36 @@ body {
   }
 }
 
-/* Public landing — full-bleed ink field */
+/* Public landing — contemporary ink field, no CAD grid */
 .hg-landing-hero {
   background-color: var(--hg-ink);
   background-image:
     radial-gradient(
-      70% 55% at 100% 100%,
-      color-mix(in srgb, var(--hg-accent) 18%, transparent),
-      transparent 72%
+      55% 45% at 85% 70%,
+      color-mix(in srgb, var(--hg-accent) 26%, transparent),
+      transparent 70%
     ),
-    linear-gradient(180deg, #0b1220 0%, #0e1824 100%);
+    radial-gradient(
+      40% 35% at 12% 20%,
+      color-mix(in srgb, #1a4a5c 55%, transparent),
+      transparent 65%
+    ),
+    linear-gradient(180deg, #071018 0%, #0a1620 55%, #0c1a24 100%);
 }
 
-.hg-landing-hero-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(
+.hg-landing-hero-veil {
+  background: linear-gradient(
     90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.18) 55%,
-    rgba(0, 0, 0, 0.45) 100%
+    #071018 0%,
+    color-mix(in srgb, #071018 88%, transparent) 42%,
+    transparent 78%
   );
 }
 
 @keyframes hg-landing-rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
@@ -271,7 +273,7 @@ body {
 @keyframes hg-landing-fade {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -285,20 +287,31 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(4px);
+    transform: translateY(5px);
   }
 }
 
 .hg-landing-rise {
-  animation: hg-landing-rise 0.7s ease-out both;
+  animation: hg-landing-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .hg-landing-fade {
-  animation: hg-landing-fade 0.35s ease-out both;
+  animation: hg-landing-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .hg-landing-cue {
   animation: hg-landing-cue 1.8s ease-in-out infinite;
+}
+
+.hg-landing-mock {
+  border-radius: 1.25rem;
+  border: 1px solid var(--hg-line);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hg-accent) 10%, transparent),
+    0 28px 56px -28px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  background: #fff;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

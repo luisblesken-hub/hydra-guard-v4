@@ -44,7 +44,7 @@ export function ContrastSlides() {
         <p className="hg-kicker">Vergleich</p>
         <h2
           id={labelId}
-          className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-hg-ink sm:text-3xl"
+          className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-hg-ink sm:text-4xl"
         >
           Vom Medienbruch zur gemeinsamen Akte.
         </h2>
@@ -78,7 +78,7 @@ export function ContrastSlides() {
 
         <div
           key={slide.id}
-          className="hg-landing-fade mt-8 grid gap-0 border border-hg-line bg-white lg:grid-cols-2"
+          className="hg-landing-fade mt-8 grid gap-0 overflow-hidden rounded-2xl border border-hg-line bg-white lg:grid-cols-2"
           role="tabpanel"
         >
           <div className="border-b border-hg-line p-6 sm:p-10 lg:border-b-0 lg:border-r">

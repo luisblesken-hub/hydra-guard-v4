@@ -13,7 +13,7 @@ export function ProductShowcase() {
             <p className="hg-kicker">Produkt</p>
             <h2
               id="produkt-heading"
-              className="mt-3 text-2xl font-semibold tracking-tight text-hg-ink sm:text-3xl"
+              className="mt-3 text-3xl font-semibold tracking-tight text-hg-ink sm:text-4xl"
             >
               Die Akte, nicht das Postfach.
             </h2>

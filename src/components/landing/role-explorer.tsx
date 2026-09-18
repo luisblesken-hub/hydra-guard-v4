@@ -60,7 +60,7 @@ export function RoleExplorer() {
         <p className="hg-kicker">Beteiligte</p>
         <h2
           id={labelId}
-          className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-hg-ink sm:text-3xl"
+          className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-hg-ink sm:text-4xl"
         >
           Drei Rollen, derselbe Vorgang.
         </h2>

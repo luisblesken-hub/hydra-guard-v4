@@ -28,7 +28,7 @@ export function DayOneOutcomes() {
         <p className="hg-kicker-invert">Ergebnis</p>
         <h2
           id="nutzen-heading"
-          className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+          className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
           Was jede Partei sofort braucht — und bekommt.
         </h2>

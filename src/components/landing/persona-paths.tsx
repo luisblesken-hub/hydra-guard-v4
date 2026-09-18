@@ -57,7 +57,7 @@ export function PersonaPaths() {
         <p className="hg-kicker">Sofort-Einstieg</p>
         <h2
           id={labelId}
-          className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-hg-ink sm:text-3xl"
+          className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-hg-ink sm:text-4xl"
         >
           Was wollen Sie zuerst sehen?
         </h2>
@@ -83,10 +83,10 @@ export function PersonaPaths() {
                 id={`persona-tab-${p.id}`}
                 onClick={() => setActive(i)}
                 className={[
-                  "min-w-[9rem] flex-1 border px-4 py-3 text-left text-sm font-medium transition-colors",
+                  "min-w-[9rem] flex-1 rounded-xl border px-4 py-3.5 text-left text-sm font-medium transition-colors",
                   selected
                     ? "border-hg-ink bg-hg-ink text-white"
-                    : "border-hg-line bg-white text-hg-ink hover:border-hg-steel/40",
+                    : "border-hg-line bg-white text-hg-ink hover:border-hg-accent/40",
                 ].join(" ")}
               >
                 {p.label}
@@ -99,7 +99,7 @@ export function PersonaPaths() {
           id="persona-panel"
           role="tabpanel"
           aria-labelledby={`persona-tab-${path.id}`}
-          className="hg-landing-fade mt-8 border border-hg-line bg-hg-canvas p-6 sm:p-10"
+          className="hg-landing-fade mt-8 rounded-2xl border border-hg-line bg-hg-canvas p-6 sm:p-10"
           key={path.id}
         >
           <p className="hg-kicker">Sofort-Nutzen</p>

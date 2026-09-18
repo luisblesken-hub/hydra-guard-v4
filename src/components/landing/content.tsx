@@ -32,7 +32,7 @@ export function LandingContent() {
           <p className="hg-kicker-invert">Nächster Schritt</p>
           <h2
             id="cta-heading"
-            className="mt-3 max-w-xl text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+            className="mt-3 max-w-xl text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
             Mit der richtigen Rolle starten — oder Demo anfragen.
           </h2>

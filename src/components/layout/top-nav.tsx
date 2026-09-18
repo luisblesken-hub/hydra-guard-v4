@@ -50,7 +50,7 @@ export function TopNav({
             href="/dashboard"
             className="flex items-center gap-2.5 text-sm font-semibold tracking-tight text-hg-ink hover:text-hg-steel"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded bg-hg-ink text-[10px] font-bold tracking-wide text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-hg-accent text-[10px] font-bold tracking-wide text-white">
               HG
             </span>
             HydraGuard

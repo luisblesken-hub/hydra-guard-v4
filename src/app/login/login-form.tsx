@@ -12,7 +12,7 @@ export function LoginForm() {
     <div className="flex min-h-screen flex-col bg-hg-canvas">
       <header className="border-b border-hg-line bg-white">
         <div className="mx-auto flex max-w-5xl items-center gap-2.5 px-6 py-4">
-          <span className="flex h-7 w-7 items-center justify-center rounded bg-hg-accent text-[10px] font-bold text-white">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-hg-accent text-[10px] font-bold text-white">
             HG
           </span>
           <span className="hg-display text-base font-semibold text-hg-ink">
