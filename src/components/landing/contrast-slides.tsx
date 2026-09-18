@@ -6,7 +6,7 @@ const SLIDES = [
   {
     id: "analog",
     kicker: "Ausgangslage",
-    title: "Wasserschäden zerfallen in Postfächer, Ordner und Anrufe.",
+    title: "Wasserschäden verlieren sich in Postfächern, Ordnern und Anrufen.",
     body: "Eine Meldung kommt per E-Mail. Fotos liegen auf dem Mobiltelefon. Der Sanierer sendet ein eigenes PDF. Die Versicherung fordert Unterlagen an, die niemand mehr findet. Freigaben und Fristen laufen daneben — ohne gemeinsamen Stand.",
     rows: [
       { label: "Meldung", value: "E-Mail / Telefon" },
