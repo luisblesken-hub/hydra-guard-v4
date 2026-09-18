@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 
 // Supabase-Middleware für Session-Refresh und Basis-Auth-Gate.
 
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/invite", "/melden"];
+const PUBLIC_PATHS = ["/", "/login", "/signup", "/landing", "/invite", "/melden"];
 
 function isPublicPath(pathname: string) {
   if (PUBLIC_PATHS.includes(pathname)) return true;
