@@ -2,7 +2,7 @@
 export function ProductMock({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`overflow-hidden border border-hg-line bg-white text-left shadow-[0_24px_60px_-28px_rgba(11,18,32,0.55)] ${className}`}
+      className={`overflow-hidden border border-hg-line bg-white text-left shadow-none transform-none rotate-0 ${className}`}
       aria-hidden="true"
     >
       <div className="flex items-center justify-between border-b border-hg-line bg-hg-ink px-4 py-3">
