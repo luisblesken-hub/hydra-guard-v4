@@ -2,7 +2,8 @@
 export function ProductMock({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`overflow-hidden border border-hg-line bg-white text-left shadow-none transform-none rotate-0 ${className}`}
+      className={`overflow-hidden border border-hg-line bg-white text-left shadow-none ${className}`}
+      style={{ transform: "none", boxShadow: "none" }}
       aria-hidden="true"
     >
       <div className="flex items-center justify-between border-b border-hg-line bg-hg-ink px-4 py-3">

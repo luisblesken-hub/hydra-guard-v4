@@ -46,8 +46,8 @@ export function LandingHero() {
           </div>
         </div>
 
-        <div className="relative hidden transform-none lg:block">
-          <ProductMock className="w-full transform-none rotate-0" />
+        <div className="relative hidden lg:block" style={{ transform: "none" }}>
+          <ProductMock className="w-full" />
         </div>
 
         <a
