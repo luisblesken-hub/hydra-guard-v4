@@ -219,27 +219,21 @@ body {
 
 /* Public landing — full-bleed ink field */
 .hg-landing-hero {
-  /* Axis-aligned washes only — diagonal gradients make the mock look tilted */
+  /* Flat ink field — no diagonal washes (those make the mock look tilted) */
   background-color: var(--hg-ink);
-  background-image:
-    radial-gradient(
-      900px 520px at 78% 42%,
-      color-mix(in srgb, var(--hg-steel) 55%, transparent),
-      transparent 68%
-    ),
-    linear-gradient(180deg, #0b1220 0%, #101a28 55%, #152536 100%);
+  background-image: linear-gradient(180deg, #0b1220 0%, #101a28 100%);
 }
 
 .hg-landing-hero-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 64px 64px;
+    linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 72px 72px;
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.25) 48%,
-    rgba(0, 0, 0, 0.7) 100%
+    rgba(0, 0, 0, 0.2) 55%,
+    rgba(0, 0, 0, 0.55) 100%
   );
 }
 
