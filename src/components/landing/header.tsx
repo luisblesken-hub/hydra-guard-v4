@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 const SECTIONS = [
   { id: "fuer-wen", label: "Für wen" },
   { id: "nutzen", label: "Nutzen" },
+  { id: "produkt", label: "Produkt" },
   { id: "ablauf", label: "Ablauf" },
-  { id: "rollen", label: "Rollen" },
   { id: "betrieb", label: "Betrieb" },
   { id: "start", label: "Start" },
 ] as const;
@@ -99,7 +99,7 @@ export function LandingHeader() {
             Anmelden
           </Link>
           <Link
-            href="/signup"
+            href="/signup?role=owner"
             className="hg-btn-invert px-3 py-1.5 text-[13px] sm:px-3 sm:py-2 sm:text-sm"
           >
             Registrieren

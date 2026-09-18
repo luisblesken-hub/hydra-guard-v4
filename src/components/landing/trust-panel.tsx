@@ -1,19 +1,20 @@
 "use client";
 
 import { useId, useState } from "react";
+import { LANDING_CONTACT_EMAIL, LANDING_DEMO_MAILTO } from "./contact";
 
 const TRUST = [
   {
     id: "eu",
-    title: "EU-Hosting",
-    short: "Betrieb in der Europäischen Union",
-    text: "Der Dienst wird in der Europäischen Union betrieben. Infrastruktur und Datenhaltung bleiben im europäischen Rechtsraum.",
+    title: "EU-Betrieb",
+    short: "Vercel EU · Ausrichtung DSGVO",
+    text: "Die Anwendung wird über Vercel in der Europäischen Union bereitgestellt. Datenhaltung und Auth laufen über Supabase. Ziel ist durchgängig europäischer Betrieb — Details zur Region und Auftragsverarbeitung folgen im AVV.",
   },
   {
     id: "dsgvo",
     title: "DSGVO",
-    short: "Europäische Datenschutzvorgaben",
-    text: "Personenbezogene Daten werden nach europäischen Datenschutzvorgaben verarbeitet. Zugriffe sind rollenbasiert und protokolliert.",
+    short: "Rollenbasierte Zugriffe",
+    text: "Personenbezogene Daten werden nach europäischen Datenschutzvorgaben verarbeitet. Zugriffe sind rollenbasiert; wesentliche Änderungen am Vorgang sind nachvollziehbar.",
   },
   {
     id: "exif",
@@ -22,10 +23,10 @@ const TRUST = [
     text: "GPS- und Geräteinformationen werden aus JPEG-Uploads entfernt, bevor die Datei in der Akte liegt.",
   },
   {
-    id: "audit",
-    title: "Audit-Trail",
-    short: "Änderungen nachvollziehbar",
-    text: "Wesentliche Änderungen am Vorgang bleiben im Aktivitätsverlauf nachvollziehbar — für Freigaben, Status und Dokumentation.",
+    id: "avv",
+    title: "AVV",
+    short: "Auf Anfrage · folgt vor Go-Live",
+    text: `Der Auftragsverarbeitungsvertrag (AVV) wird vor produktivem Go-Live bereitgestellt. Bis dahin: Anfrage an ${LANDING_CONTACT_EMAIL}.`,
   },
 ] as const;
 
@@ -90,12 +91,20 @@ export function TrustPanel() {
             className="hg-landing-fade border border-hg-line bg-white p-6 sm:p-10"
           >
             <p className="font-mono text-xs tracking-wider text-hg-muted">
-              {String(open + 1).padStart(2, "0")} / 04
+              {String(open + 1).padStart(2, "0")} / {String(TRUST.length).padStart(2, "0")}
             </p>
             <h3 className="mt-4 text-xl font-semibold text-hg-ink">{item.title}</h3>
             <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
               {item.text}
             </p>
+            {item.id === "avv" && (
+              <a
+                href={LANDING_DEMO_MAILTO}
+                className="mt-6 inline-flex text-sm font-medium text-hg-steel underline-offset-4 hover:underline"
+              >
+                AVV / Demo anfragen
+              </a>
+            )}
           </div>
         </div>
       </div>

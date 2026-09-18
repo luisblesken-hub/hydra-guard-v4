@@ -6,6 +6,8 @@ const RAIL = [
   { id: "hero", label: "Start" },
   { id: "fuer-wen", label: "Für wen" },
   { id: "nutzen", label: "Nutzen" },
+  { id: "startpfad", label: "Startpfad" },
+  { id: "produkt", label: "Produkt" },
   { id: "ablauf", label: "Ablauf" },
   { id: "vergleich", label: "Vergleich" },
   { id: "rollen", label: "Rollen" },
