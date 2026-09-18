@@ -47,7 +47,7 @@ export function LandingHero() {
         </div>
 
         <div className="hg-landing-rise relative hidden lg:block" style={{ animationDelay: "120ms" }}>
-          <ProductMock className="w-full rotate-[-1.5deg]" />
+          <ProductMock className="w-full" />
         </div>
 
         <a
