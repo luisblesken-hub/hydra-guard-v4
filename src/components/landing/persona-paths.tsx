@@ -102,9 +102,7 @@ export function PersonaPaths() {
           className="hg-landing-fade mt-8 border border-hg-line bg-hg-canvas p-6 sm:p-10"
           key={path.id}
         >
-          <p className="text-xs font-semibold tracking-wider text-hg-muted uppercase">
-            Sofort-Nutzen
-          </p>
+          <p className="hg-kicker">Sofort-Nutzen</p>
           <h3 className="mt-2 text-xl font-semibold tracking-tight text-hg-ink sm:text-2xl">
             {path.want}
           </h3>

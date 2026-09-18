@@ -5,7 +5,7 @@ export function LandingFooter() {
     <footer className="border-t border-white/10 bg-hg-ink">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-8 text-xs text-[#9aa8b0] sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <p>© 2026 HydraGuard · Aachen</p>
+          <p className="hg-display text-sm text-white">© 2026 HydraGuard · Aachen</p>
           <p>Early Access · Pilot Aachen</p>
         </div>
         <div className="space-y-1 sm:text-right">

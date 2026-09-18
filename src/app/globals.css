@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f4f6;
+  --background: #e8eef1;
   --foreground: #0b1220;
   --hg-ink: #0b1220;
-  --hg-steel: #1e3a4c;
-  --hg-accent: #245b6b;
-  --hg-line: #e2e5ea;
-  --hg-muted: #64748b;
+  --hg-steel: #16384a;
+  --hg-accent: #0f8f82;
+  --hg-line: #d7dee4;
+  --hg-muted: #5b6b78;
   --hg-surface: #ffffff;
 }
 
@@ -20,9 +20,10 @@
   --color-hg-line: var(--hg-line);
   --color-hg-muted: var(--hg-muted);
   --color-hg-surface: var(--hg-surface);
-  --color-hg-canvas: #f3f4f6;
+  --color-hg-canvas: #e8eef1;
   --font-sans: var(--font-ibm-plex);
   --font-mono: var(--font-ibm-plex-mono);
+  --font-display: var(--font-source-serif);
 }
 
 /* Force light B2B UI — no OS dark-mode flip */
@@ -70,13 +71,13 @@ body {
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     font-weight: 500;
-    background: var(--hg-ink);
+    background: var(--hg-accent);
     color: #fff;
     transition: background-color 0.15s ease;
   }
 
   .hg-btn-primary:hover {
-    background: var(--hg-steel);
+    background: color-mix(in srgb, var(--hg-accent) 82%, #063f39);
   }
 
   .hg-btn-primary:disabled {
@@ -140,8 +141,8 @@ body {
   }
 
   .hg-input:focus {
-    border-color: var(--hg-steel);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--hg-steel) 30%, transparent);
+    border-color: var(--hg-accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--hg-accent) 35%, transparent);
   }
 
   .hg-badge {
@@ -163,11 +164,25 @@ body {
   }
 
   .hg-kicker {
-    font-size: 11px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--hg-accent);
+  }
+
+  .hg-kicker-invert {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: color-mix(in srgb, var(--hg-accent) 72%, white);
+  }
+
+  .hg-display {
+    font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
     font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--hg-muted);
+    letter-spacing: -0.03em;
   }
 
   .hg-btn-invert {
@@ -175,20 +190,20 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 0.375rem;
-    background: #fff;
+    background: var(--hg-accent);
     padding: 0.625rem 1.125rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--hg-ink);
+    color: #fff;
     transition: background-color 0.15s ease;
   }
 
   .hg-btn-invert:hover {
-    background: #e8eef1;
+    background: color-mix(in srgb, var(--hg-accent) 82%, #063f39);
   }
 
   .hg-btn-invert:focus-visible {
-    outline: 2px solid #fff;
+    outline: 2px solid color-mix(in srgb, var(--hg-accent) 70%, white);
     outline-offset: 3px;
   }
 
@@ -197,7 +212,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 0.375rem;
-    border: 1px solid rgba(255, 255, 255, 0.32);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     background: transparent;
     padding: 0.625rem 1.125rem;
     font-size: 0.875rem;
@@ -207,8 +222,8 @@ body {
   }
 
   .hg-btn-outline-invert:hover {
-    border-color: rgba(255, 255, 255, 0.55);
-    background: rgba(255, 255, 255, 0.06);
+    border-color: color-mix(in srgb, var(--hg-accent) 55%, white);
+    background: rgba(15, 143, 130, 0.12);
   }
 
   .hg-btn-outline-invert:focus-visible {
@@ -219,21 +234,26 @@ body {
 
 /* Public landing — full-bleed ink field */
 .hg-landing-hero {
-  /* Flat ink field — no diagonal washes (those make the mock look tilted) */
   background-color: var(--hg-ink);
-  background-image: linear-gradient(180deg, #0b1220 0%, #101a28 100%);
+  background-image:
+    radial-gradient(
+      70% 55% at 100% 100%,
+      color-mix(in srgb, var(--hg-accent) 18%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(180deg, #0b1220 0%, #0e1824 100%);
 }
 
 .hg-landing-hero-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.2) 55%,
-    rgba(0, 0, 0, 0.55) 100%
+    rgba(0, 0, 0, 0.18) 55%,
+    rgba(0, 0, 0, 0.45) 100%
   );
 }
 

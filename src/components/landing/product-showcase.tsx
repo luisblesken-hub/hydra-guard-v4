@@ -22,7 +22,7 @@ export function ProductShowcase() {
               so wie Hausverwaltung, Sanierer und Versicherer gemeinsam
               arbeiten.
             </p>
-            <p className="mt-6 text-xs font-medium tracking-wider text-hg-muted uppercase">
+            <p className="mt-6 text-sm font-medium text-hg-accent">
               Early Access · Pilot Aachen
             </p>
           </div>

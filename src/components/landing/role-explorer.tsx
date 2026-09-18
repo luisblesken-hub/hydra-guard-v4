@@ -110,7 +110,7 @@ export function RoleExplorer() {
             className="hg-landing-fade"
             key={role.id}
           >
-            <p className="text-xs font-medium uppercase tracking-wider text-hg-muted">
+            <p className="text-sm font-medium text-hg-muted">
               {role.subtitle}
             </p>
             <h3 className="mt-2 text-xl font-semibold text-hg-ink">{role.title}</h3>

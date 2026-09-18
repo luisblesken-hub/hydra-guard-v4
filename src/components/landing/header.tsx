@@ -51,7 +51,7 @@ export function LandingHeader() {
         aria-hidden="true"
       >
         <div
-          className="h-full bg-white/55 transition-[width] duration-150 ease-out"
+          className="h-full bg-hg-accent transition-[width] duration-150 ease-out"
           style={{ width: `${progress * 100}%` }}
         />
       </div>
@@ -60,10 +60,10 @@ export function LandingHeader() {
           href="/"
           className="flex shrink-0 items-center gap-2.5 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded bg-white text-[11px] font-bold tracking-wide text-hg-ink">
+          <span className="flex h-8 w-8 items-center justify-center rounded bg-hg-accent text-[11px] font-bold tracking-wide text-white">
             HG
           </span>
-          <span className="hidden text-sm font-semibold tracking-tight text-white sm:inline">
+          <span className="hg-display hidden text-[1.05rem] font-semibold text-white sm:inline">
             HydraGuard
           </span>
         </Link>
@@ -79,7 +79,7 @@ export function LandingHeader() {
                 key={section.id}
                 href={`#${section.id}`}
                 className={[
-                  "rounded-sm px-2.5 py-1.5 text-[12px] font-medium tracking-wide transition-colors",
+                  "rounded-sm px-2.5 py-1.5 text-[13px] font-medium transition-colors",
                   isActive
                     ? "bg-white/10 text-white"
                     : "text-[#9aa8b0] hover:text-white",

@@ -29,9 +29,7 @@ export function LandingContent() {
         aria-labelledby="cta-heading"
       >
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <p className="text-[11px] font-semibold tracking-[0.14em] text-[#9aa8b0] uppercase">
-            Nächster Schritt
-          </p>
+          <p className="hg-kicker-invert">Nächster Schritt</p>
           <h2
             id="cta-heading"
             className="mt-3 max-w-xl text-2xl font-semibold tracking-tight text-white sm:text-3xl"

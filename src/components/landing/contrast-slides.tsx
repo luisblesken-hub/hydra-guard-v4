@@ -96,7 +96,7 @@ export function ContrastSlides() {
                 key={row.label}
                 className="grid grid-cols-[7rem_1fr] gap-4 px-6 py-5 sm:grid-cols-[9rem_1fr] sm:px-10"
               >
-                <dt className="text-xs font-semibold uppercase tracking-wider text-hg-muted">
+                <dt className="text-xs font-medium text-hg-muted">
                   {row.label}
                 </dt>
                 <dd className="text-sm font-medium text-hg-ink">{row.value}</dd>

@@ -8,7 +8,7 @@ export function ProductMock({ className = "" }: { className?: string }) {
     >
       <div className="flex items-center justify-between border-b border-hg-line bg-hg-ink px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded bg-white text-[9px] font-bold text-hg-ink">
+          <span className="flex h-6 w-6 items-center justify-center rounded bg-hg-accent text-[9px] font-bold text-white">
             HG
           </span>
           <span className="text-[11px] font-medium text-white">Schadensakte</span>

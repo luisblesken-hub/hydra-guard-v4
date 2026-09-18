@@ -58,7 +58,7 @@ export function SectionRail() {
           >
             <span
               className={[
-                "text-[10px] font-medium tracking-wider text-white uppercase transition-opacity",
+                "text-[11px] font-medium text-white transition-opacity",
                 isActive ? "opacity-100" : "opacity-0 group-hover:opacity-80",
               ].join(" ")}
             >
@@ -67,7 +67,9 @@ export function SectionRail() {
             <span
               className={[
                 "block h-2 w-2 rounded-[1px] border border-white transition-colors",
-                isActive ? "bg-white" : "bg-transparent group-hover:bg-white/40",
+                isActive
+                  ? "border-hg-accent bg-hg-accent"
+                  : "bg-transparent group-hover:bg-white/40",
               ].join(" ")}
             />
           </a>

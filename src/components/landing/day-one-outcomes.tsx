@@ -25,9 +25,7 @@ export function DayOneOutcomes() {
       aria-labelledby="nutzen-heading"
     >
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        <p className="text-[11px] font-semibold tracking-[0.14em] text-[#9aa8b0] uppercase">
-          Ergebnis
-        </p>
+        <p className="hg-kicker-invert">Ergebnis</p>
         <h2
           id="nutzen-heading"
           className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-white sm:text-3xl"
@@ -40,7 +38,7 @@ export function DayOneOutcomes() {
               key={item.who}
               className="border-b border-white/15 py-7 sm:odd:pr-10 sm:even:border-l sm:even:pl-10"
             >
-              <dt className="text-xs font-semibold tracking-wider text-[#9aa8b0] uppercase">
+              <dt className="text-sm font-medium text-hg-accent">
                 {item.who}
               </dt>
               <dd className="mt-3 text-sm leading-relaxed text-[#c5d0d6] sm:text-base">
