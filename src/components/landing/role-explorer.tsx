@@ -83,10 +83,10 @@ export function RoleExplorer() {
                   id={`rollen-tab-${r.id}`}
                   onClick={() => setActive(i)}
                   className={[
-                    "shrink-0 border px-4 py-3 text-left text-sm transition-colors lg:border-0 lg:border-l-2 lg:-ml-px lg:rounded-none",
+                    "shrink-0 rounded-xl border px-4 py-3 text-left text-sm transition-colors lg:rounded-none lg:border-0 lg:border-l-2 lg:-ml-px",
                     selected
                       ? "border-hg-ink bg-hg-ink text-white lg:border-l-hg-ink lg:bg-transparent lg:pl-[calc(1rem-2px)] lg:font-semibold lg:text-hg-ink"
-                      : "border-hg-line text-slate-600 hover:border-hg-steel/40 hover:text-hg-ink lg:border-l-transparent lg:hover:border-l-hg-line",
+                      : "border-hg-line text-slate-600 hover:border-hg-accent/40 hover:bg-hg-canvas hover:text-hg-ink lg:border-l-transparent lg:hover:border-l-hg-line lg:hover:bg-transparent",
                   ].join(" ")}
                 >
                   <span className="block font-medium">{r.title}</span>

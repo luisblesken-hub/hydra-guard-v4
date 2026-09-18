@@ -67,7 +67,7 @@ export function ContrastSlides() {
                   "px-4 py-2 text-sm font-medium transition-colors",
                   active
                     ? "bg-hg-ink text-white"
-                    : "text-slate-600 hover:text-hg-ink",
+                    : "text-slate-600 hover:bg-hg-canvas hover:text-hg-ink",
                 ].join(" ")}
               >
                 {s.id === "analog" ? "Analog" : "HydraGuard"}

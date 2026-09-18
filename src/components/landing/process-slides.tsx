@@ -124,10 +124,10 @@ export function ProcessSlides() {
                 id={`ablauf-tab-${s.n}`}
                 onClick={() => setIndex(i)}
                 className={[
-                  "min-w-[7.5rem] flex-1 border px-3 py-3 text-left transition-colors",
+                  "min-w-[7.5rem] flex-1 rounded-xl border px-3 py-3 text-left transition-colors",
                   active
                     ? "border-hg-ink bg-hg-ink text-white"
-                    : "border-hg-line bg-white text-hg-ink hover:border-hg-steel/40",
+                    : "border-hg-line bg-white text-hg-ink hover:border-hg-accent/40 hover:bg-hg-canvas",
                 ].join(" ")}
               >
                 <span

@@ -86,7 +86,7 @@ export function PersonaPaths() {
                   "min-w-[9rem] flex-1 rounded-xl border px-4 py-3.5 text-left text-sm font-medium transition-colors",
                   selected
                     ? "border-hg-ink bg-hg-ink text-white"
-                    : "border-hg-line bg-white text-hg-ink hover:border-hg-accent/40",
+                    : "border-hg-line bg-white text-hg-ink hover:border-hg-accent/40 hover:bg-hg-canvas",
                 ].join(" ")}
               >
                 {p.label}

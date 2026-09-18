@@ -62,7 +62,9 @@ export function TrustPanel() {
                     onClick={() => setOpen(i)}
                     className={[
                       "flex w-full items-start justify-between gap-4 py-5 text-left transition-colors",
-                      selected ? "text-hg-ink" : "text-slate-600 hover:text-hg-ink",
+                      selected
+                        ? "text-hg-ink"
+                        : "text-slate-600 hover:bg-hg-canvas/80 hover:text-hg-ink",
                     ].join(" ")}
                   >
                     <span>

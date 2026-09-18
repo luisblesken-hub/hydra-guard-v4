@@ -39,6 +39,23 @@ body {
   letter-spacing: -0.015em;
 }
 
+/* Clickable affordance */
+button:not(:disabled),
+a[href],
+summary,
+[role="tab"],
+[role="button"],
+[role="link"] {
+  cursor: pointer;
+}
+
+button:disabled,
+.hg-btn:disabled,
+.hg-btn-primary:disabled,
+.hg-btn-secondary:disabled {
+  cursor: not-allowed;
+}
+
 /* Shared professional primitives */
 @layer components {
   .hg-card {

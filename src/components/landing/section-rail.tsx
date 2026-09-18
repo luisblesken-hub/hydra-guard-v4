@@ -59,7 +59,7 @@ export function SectionRail() {
           <a
             key={item.id}
             href={`#${item.id}`}
-            className="pointer-events-auto group flex min-h-11 items-center justify-end gap-3 py-1.5 pl-4 pr-1"
+            className="pointer-events-auto group flex min-h-11 cursor-pointer items-center justify-end gap-3 py-1.5 pl-4 pr-1"
             aria-current={isActive ? "true" : undefined}
           >
             <span
