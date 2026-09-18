@@ -15,6 +15,9 @@ const RAIL = [
   { id: "start", label: "Konto" },
 ] as const;
 
+/** Sections with dark (ink) backgrounds — rail stays light there. */
+const DARK_SECTIONS = new Set<string>(["hero", "nutzen", "start"]);
+
 export function SectionRail() {
   const [active, setActive] = useState<(typeof RAIL)[number]["id"]>("hero");
 
@@ -42,9 +45,12 @@ export function SectionRail() {
     };
   }, []);
 
+  const onDark = DARK_SECTIONS.has(active);
+
   return (
     <nav
       aria-label="Seitenfortschritt"
+      data-on-dark={onDark ? "true" : "false"}
       className="pointer-events-none fixed top-1/2 right-3 z-20 hidden -translate-y-1/2 flex-col xl:flex"
     >
       {RAIL.map((item) => {
@@ -58,8 +64,11 @@ export function SectionRail() {
           >
             <span
               className={[
-                "text-sm font-medium text-white transition-opacity",
-                isActive ? "opacity-100" : "opacity-0 group-hover:opacity-90 group-focus-visible:opacity-90",
+                "text-sm font-medium transition-opacity",
+                onDark ? "text-white" : "text-hg-ink",
+                isActive
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-90 group-focus-visible:opacity-90",
               ].join(" ")}
             >
               {item.label}
@@ -67,9 +76,13 @@ export function SectionRail() {
             <span
               className={[
                 "block h-3.5 w-3.5 shrink-0 rounded-sm border-2 transition-colors",
-                isActive
-                  ? "border-hg-accent bg-hg-accent"
-                  : "border-white/70 bg-transparent group-hover:border-white group-hover:bg-white/50",
+                onDark
+                  ? isActive
+                    ? "border-white bg-white"
+                    : "border-white/75 bg-transparent group-hover:bg-white/45"
+                  : isActive
+                    ? "border-hg-ink bg-hg-ink"
+                    : "border-hg-ink/70 bg-transparent group-hover:bg-hg-ink/35",
               ].join(" ")}
               aria-hidden="true"
             />
