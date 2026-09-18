@@ -45,7 +45,7 @@ export function SectionRail() {
   return (
     <nav
       aria-label="Seitenfortschritt"
-      className="pointer-events-none fixed top-1/2 right-4 z-20 hidden -translate-y-1/2 flex-col gap-3 mix-blend-difference xl:flex"
+      className="pointer-events-none fixed top-1/2 right-3 z-20 hidden -translate-y-1/2 flex-col xl:flex"
     >
       {RAIL.map((item) => {
         const isActive = active === item.id;
@@ -53,24 +53,25 @@ export function SectionRail() {
           <a
             key={item.id}
             href={`#${item.id}`}
-            className="pointer-events-auto group flex items-center justify-end gap-3"
+            className="pointer-events-auto group flex min-h-11 items-center justify-end gap-3 py-1.5 pl-4 pr-1"
             aria-current={isActive ? "true" : undefined}
           >
             <span
               className={[
-                "text-[11px] font-medium text-white transition-opacity",
-                isActive ? "opacity-100" : "opacity-0 group-hover:opacity-80",
+                "text-sm font-medium text-white transition-opacity",
+                isActive ? "opacity-100" : "opacity-0 group-hover:opacity-90 group-focus-visible:opacity-90",
               ].join(" ")}
             >
               {item.label}
             </span>
             <span
               className={[
-                "block h-2 w-2 rounded-[1px] border border-white transition-colors",
+                "block h-3.5 w-3.5 shrink-0 rounded-sm border-2 transition-colors",
                 isActive
                   ? "border-hg-accent bg-hg-accent"
-                  : "bg-transparent group-hover:bg-white/40",
+                  : "border-white/70 bg-transparent group-hover:border-white group-hover:bg-white/50",
               ].join(" ")}
+              aria-hidden="true"
             />
           </a>
         );
